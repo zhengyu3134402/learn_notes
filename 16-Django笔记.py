@@ -1,10 +1,191 @@
-#
-# 说明：
-#     django相关笔记
-#
+
 # # =================================================
-# DjangoDjango
-#
+# Django
+
+    # 1.概念
+        1
+        # 模式
+            # Model(模型)：负责业务对象与数据库的对象(ORM) (models.py)
+            # Template(模版)：负责如何把页面展示给用户 (templates)
+            # View(视图)：负责业务逻辑，并在适当的时候调用Model和Template (urls.py, views.py)
+        1
+    # 2.安装
+        1
+        # pip3 install django==1.11.3
+        # pip3 install pymysql  为了连接mysql数据库
+        1
+    # 3.配置
+        1
+        # 1 创建项目
+            # django-admin startproject 项目名
+
+        # 2 配置与数据库连接
+
+            # 1 settings.py文件中
+                # DATABASES = {
+                # "default": {
+                #     "ENGINE": "django.db.backends.mysql",
+                #     "NAME": "你的数据库名称",  # 需要自己手动创建数据库
+                #     "USER": "数据库用户名",
+                #     "PASSWORD": "数据库密码",
+                #     "HOST": "数据库IP",
+                #     "POST": 3306
+                #     }
+                # }
+            # 2 进入mysql创建数据库（数据库名和配置的名字要一样）
+                # create database 数据库名 charset=utf8;
+
+            # 3 注册连接数据库使用模块（__init__.py）
+                # import pymysql
+                # pymysql.install_as_MySQLdb()
+
+        # 3.创建注册应用
+
+            # 1 创建
+                # python3 manage.py startapp  应用名
+            # 2 注册(settings.py)
+                # INSTALLED_APPS = [
+                #     'django.contrib.admin',
+                #     ......
+                #     'yingyong1.apps.Yingyong1Config',  # 写全的注册方式 在创建应用的apps.py文件中
+                # ]
+
+        # 4 模板路径配置（settings.py）
+
+            # 1 配置模板
+                # TEMPLATES = [
+                # {
+                #     'DIRS': [os.path.join(BASE_DIR, 'templates')],
+                # }
+            # 2 创建模板目录
+                # templates
+
+        # 5 静态文件配置
+
+            # 1 settings.py
+                # STATIC_URL = '/static/'  # HTML中使用的静态文件夹前缀
+                # STATICFILES_DIRS = [
+                    # os.path.join(BASE_DIR, "static"),  # 静态文件存放位置
+                #]
+            # 2 创建static目录
+                # static
+
+        # 6 （可选）配置使用模板语法jinja2
+
+            # 1 安装
+                # pip3 install jinja2
+            # 2 配置
+                # 1 settings.py同目录下创建文件backends.py内容为
+                    # import sys
+                    #
+                    # from django.template.backends import jinja2 as jinja2backend
+                    # from django.template.backends.utils import csrf_input_lazy, csrf_token_lazy
+                    # from django.template import TemplateDoesNotExist, TemplateSyntaxError
+                    # from django.utils.module_loading import import_string
+                    # import jinja2
+                    # import six
+                    #
+                    #
+                    # class Jinja2Backend(jinja2backend.Jinja2):
+                    #     def __init__(self, params):
+                    #         self.context_processors = [
+                    #             import_string(p)
+                    #             for p in params['OPTIONS'].pop('context_processors', [])
+                    #         ]
+                    #         super(Jinja2Backend, self).__init__(params)
+                    #
+                    #     def from_string(self, template_code):
+                    #         return Template(
+                    #             self.env.from_string(template_code), self.context_processors)
+                    #
+                    #     def get_template(self, template_name):
+                    #         try:
+                    #             return Template(
+                    #                 self.env.get_template(template_name), self.context_processors)
+                    #         except jinja2.TemplateNotFound as exc:
+                    #             six.reraise(TemplateDoesNotExist, TemplateDoesNotExist(exc.args),
+                    #                         sys.exc_info()[2])
+                    #         except jinja2.TemplateSyntaxError as exc:
+                    #             six.reraise(TemplateSyntaxError, TemplateSyntaxError(exc.args),
+                    #                         sys.exc_info()[2])
+                    #
+                    #
+                    # class Template(jinja2backend.Template):
+                    #
+                    #     def __init__(self, template, context_processors):
+                    #         self.template = template
+                    #         self.context_processors = context_processors
+                    #
+                    #     def render(self, context=None, request=None):
+                    #         if context is None:
+                    #             context = {}
+                    #         if request is not None:
+                    #             context['request'] = request
+                    #             lazy_csrf_input = csrf_input_lazy(request)
+                    #             context['csrf'] = lambda: lazy_csrf_input
+                    #             context['csrf_input'] = lazy_csrf_input
+                    #             context['csrf_token'] = csrf_token_lazy(request)
+                    #             for cp in self.context_processors:
+                    #                 context.update(cp(request))
+                    #             # print(context)
+                    #         return self.template.render(context)
+                # 2 项目目录下创建jinja2_env.py文件，内容为
+                    # from django.contrib.staticfiles.storage import staticfiles_storage
+                    # from django.urls import reverse
+                    #
+                    # from jinja2 import Environment
+                    #
+                    # def environment(**options):
+                    #     env = Environment(**options)
+                    #     env.globals.update({
+                    #         'static': staticfiles_storage.url,
+                    #         'url': reverse,
+                    #     })
+                    #     return env
+                # 3 django settings项目中更改
+                    # CONTEXT_PROCESSORS = [
+                    #     'django.template.context_processors.debug',
+                    #     'django.template.context_processors.request',
+                    #     'django.contrib.auth.context_processors.auth',
+                    #     'django.contrib.messages.context_processors.messages',
+                    # ]
+                    #
+                    # TEMPLATES = [
+                    #     {
+                    #         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                    #         'DIRS': [],
+                    #         'APP_DIRS': True,
+                    #         'OPTIONS': {
+                    #             'context_processors': CONTEXT_PROCESSORS, },
+                    #     },
+                    # {
+                    #         'BACKEND': 'django.template.backends.jinja2.Jinja2',
+                    #         'DIRS': [os.path.join(BASE_DIR, 'templates')],
+                    #         'APP_DIRS': False,
+                    #         'OPTIONS': {
+                    #             'context_processors': CONTEXT_PROCESSORS,
+                    #             'environment': 'jinja2_env.environment'
+                    #         },
+                    #     },
+                    #
+                    # ]
+
+        # 7 配置urls.py
+
+            # 1 项目urls.py
+                # from django.conf.urls import include
+                # urlpatterns = [
+                #     url(r'^', include('app.urls')),
+                # ]
+            # 2 在应用的目录下创建urls.py
+                # from django.conf.urls import url
+                # urlpatterns = [
+                #     xxx
+                # ]
+        # 8 运行django
+            # python manage.py runserver
+        1
+1
 # -i https://pypi.douban.com/simple
 #
 #
@@ -21,7 +202,7 @@
 #     如果出现找不到模块的问题
 #         pycharm中 右键项目目录 mark director as 选择 source director # 标记根目录
 # --------------------------------------------------
-#
+
 #
 #
 #
@@ -29,9 +210,7 @@
 # django概念
 #
 # django的MTV模式
-#     Model(模型)：负责业务对象与数据库的对象(ORM) (models.py)
-#     Template(模版)：负责如何把页面展示给用户 (templates)
-#     View(视图)：负责业务逻辑，并在适当的时候调用Model和Template (urls.py, views.py)
+
 #
 #
 # vue和django csrf_token解决
@@ -40,1050 +219,13 @@
 #
 #     2.修改前端的代码，获取cooke和请求头里的token值做比较。
 # --------------------------------------------------
-#
+1
 # --------------------------------------------------
-# django 的安装与配置
-#
-#
-# 安装使用ui为pycharm
-#
-#     安装django（安装1版本，2版本改动较多）
-#         pip3 install django==1.11.3
-#         pip3 install pymysql
-#     创建项目
-#         django-admin startproject 项目名
-#     配置与数据连接（settings.py文件中）
-#         DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.mysql",
-#             "NAME": "你的数据库名称",  # 需要自己手动创建数据库
-#             "USER": "数据库用户名",
-#             "PASSWORD": "数据库密码",
-#             "HOST": "数据库IP",
-#             "POST": 3306
-#             }
-#         }
-#     进入mysql创建数据库（数据库名和配置的名字要一样）
-#         create database 数据库名 charset=utf8;
-#
-#     告诉django使用pymysql模块连接数据库
-#         在项目文件的__init__.py文件中写如下代码，
-#         import pymysql
-#         pymysql.install_as_MySQLdb()
-#
-#
-#     创建应用
-#         python3 manage.py startapp  应用名
-#
-#     注册应用
-#         INSTALLED_APPS = [
-#             'django.contrib.admin',
-#             ......
-#             'yingyong1.apps.Yingyong1Config',  # 写全的注册方式 在创建应用的apps.py文件中
-#         ]
-#
-#     模板路径配置
-#         TEMPLATES = [
-#             {
-#                 'DIRS': [os.path.join(BASE_DIR, 'templates')],
-#             }
-#         在项目目录下创建templates文件夹即可
-#
-#     静态文件配置
-#         STATIC_URL = '/static/'  # HTML中使用的静态文件夹前缀
-#         STATICFILES_DIRS = [
-#              os.path.join(BASE_DIR, "static"),  # 静态文件存放位置
-#          ]
-#         项目下创建static目录即可
-#
-#     （可选）配置使用模板语法jinja2
-#         pip3 install jinja2
-#
-#         1 settings.py同目录下创建文件backends.py内容为：
-#             import sys
-#
-#             from django.template.backends import jinja2 as jinja2backend
-#             from django.template.backends.utils import csrf_input_lazy, csrf_token_lazy
-#             from django.template import TemplateDoesNotExist, TemplateSyntaxError
-#             from django.utils.module_loading import import_string
-#             import jinja2
-#             import six
-#
-#
-#             class Jinja2Backend(jinja2backend.Jinja2):
-#                 def __init__(self, params):
-#                     self.context_processors = [
-#                         import_string(p)
-#                         for p in params['OPTIONS'].pop('context_processors', [])
-#                     ]
-#                     super(Jinja2Backend, self).__init__(params)
-#
-#                 def from_string(self, template_code):
-#                     return Template(
-#                         self.env.from_string(template_code), self.context_processors)
-#
-#                 def get_template(self, template_name):
-#                     try:
-#                         return Template(
-#                             self.env.get_template(template_name), self.context_processors)
-#                     except jinja2.TemplateNotFound as exc:
-#                         six.reraise(TemplateDoesNotExist, TemplateDoesNotExist(exc.args),
-#                                     sys.exc_info()[2])
-#                     except jinja2.TemplateSyntaxError as exc:
-#                         six.reraise(TemplateSyntaxError, TemplateSyntaxError(exc.args),
-#                                     sys.exc_info()[2])
-#
-#
-#             class Template(jinja2backend.Template):
-#
-#                 def __init__(self, template, context_processors):
-#                     self.template = template
-#                     self.context_processors = context_processors
-#
-#                 def render(self, context=None, request=None):
-#                     if context is None:
-#                         context = {}
-#                     if request is not None:
-#                         context['request'] = request
-#                         lazy_csrf_input = csrf_input_lazy(request)
-#                         context['csrf'] = lambda: lazy_csrf_input
-#                         context['csrf_input'] = lazy_csrf_input
-#                         context['csrf_token'] = csrf_token_lazy(request)
-#                         for cp in self.context_processors:
-#                             context.update(cp(request))
-#                         # print(context)
-#                     return self.template.render(context)
-#
-#
-#         2 项目目录下创建jinja2_env.py文件，内容为
-#             from django.contrib.staticfiles.storage import staticfiles_storage
-#             from django.urls import reverse
-#
-#             from jinja2 import Environment
-#
-#             def environment(**options):
-#                 env = Environment(**options)
-#                 env.globals.update({
-#                     'static': staticfiles_storage.url,
-#                     'url': reverse,
-#                 })
-#                 return env
-#
-#         3 django settings项目中更改
-#                 CONTEXT_PROCESSORS = [
-#                     'django.template.context_processors.debug',
-#                     'django.template.context_processors.request',
-#                     'django.contrib.auth.context_processors.auth',
-#                     'django.contrib.messages.context_processors.messages',
-#                 ]
-#
-#                 TEMPLATES = [
-#                     {
-#                         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#                         'DIRS': [],
-#                         'APP_DIRS': True,
-#                         'OPTIONS': {
-#                             'context_processors': CONTEXT_PROCESSORS, },
-#                     },
-#                 {
-#                         'BACKEND': 'django.template.backends.jinja2.Jinja2',
-#                         'DIRS': [os.path.join(BASE_DIR, 'templates')],
-#                         'APP_DIRS': False,
-#                         'OPTIONS': {
-#                             'context_processors': CONTEXT_PROCESSORS,
-#                             'environment': 'jinja2_env.environment'
-#                         },
-#                     },
-#
-#                 ]
-#
-#
-#     配置urls.py,导向应用urls.py
-#         from django.conf.urls import include
-#         urlpatterns = [
-#             url(r'^', include('app.urls')),
-#         ]
-#         在应用的目录下创建urls.py
-#             from django.conf.urls import url
-#             urlpatterns = [
-#                 xxx
-#             ]
-#
-#     运行django项目
-#         python manage.py runserver 127.0.0.1:8000
-# --------------------------------------------------
-#
-#
-#
-#
-# --------------------------------------------------
-# Django REST framework
-#
-#     0 知识回顾
-#         django中间件和装饰器
-#             适用于所有请求批量做操作
-#                 场景
-#                     基于角色的权限控制
-#                     用户认证
-#                     csrf
-#                     session
-#                     黑名单
-#                     日志记录
-#
-#     1 安装
-#
-#         pip install djangorestframework
-#     2 注册
-#
-#         INSTALLED_APPS = (
-#             ...
-#             'rest_framework',
-#         )
-#
-#     3 验证用户是否登录
-#
-#         1 源码流程
-#
-#             1 django接受请求
-#             2 执行dispatch方法
-#             3 通过self.initialize_request(request, *args, **kwargs)对request进行了封装
-#             4 封装中执行了authenticators=self.get_authenticators()返回了认证的类列表（可以自己写指定的类通过authentication_classes=[自己写的类]）
-#             5 执行了dispathc中self.initial(request, *args, **kwargs) 方法
-#             6 执行了self.initial()方法中的self.perform_authentication(request)
-#             7 执行了request.user 执行了self._authenticate()对第4部的列表进行了循环
-#             8 执行了user_auth_tuple = authenticator.authenticate(self)如果登录了旧返回一个元祖杜若没登录就报错
-#             9  创建自定义类 重写 authenticate方法 将这个自定义添加乳到authentication_classes中可以进行用自己的规则判断用户是否登录
-#         2 基本使用
-#
-#             class Myrenzheng（BasicAuthentication）: # 推荐继承BasicAuthentication类
-#                 def authenticate(self, request):
-#                     。。。。自己想写的认证条件，校验数据库等
-#                     return ('xx', None)
-#
-#                 def authenticate_header(self,request):  # 作用是如果校验认证失败做的事情
-#                     pass
-#
-#             class GirlsList(APIView):
-#
-#                 authentication_classes = [Myrenzheng,]
-#
-#                 def get(self, request):
-#
-#                     print(request.user)  # 会获取上面return的内容
-#
-#                     girls = Girls.objects.all()
-#                     s = GirlsSerializer(girls, many=True)
-#
-#                     return Response(s.data)
-#             补充orm操作
-#                 数据不存在就创建，数据存在就更新
-#                 xx.objects.updata_or_create(user=obj, defaults={'token':token})
-#
-#     4 认证
-#         1 有些api需要用户登录成功之后才能访问，有些无需登录才能访问
-#             1 创建两张表
-#             2 用户登录（返回token并保存到数据库）# 通过客户端的post请求 使用用户名生成随机字符串（md5）
-#               并返回给客户端，下回的用户请求的时候就携带的token，发送给服务端 服务端若验证成功该用户就可以继续访问
-#
-#         2 认证的全局配置
-#             1 概念
-#                 不用再单个类中逐个添加authentication_classes
-#             2 源码流程
-#
-#                 authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES
-#
-#             3 可以在settings中添加
-#
-#                 REST_FRAMEWORK = {
-#
-#                         'DEFAULT_AUTHENTICATION_CLASSES': ['app.lib.renzheng.Renzheng', ]  # 列表内为认证类的存放路径
-#
-#                     }
-#             4 使单个视图类不需要验证
-#
-#                 authentication_classes = []  # 为空即可 就是不需要验证
-#
-#         3 匿名用户的配置
-#
-#             1 概念
-#
-#                 客户浏览不需要认证的网页
-#
-#                     通过源码设置了匿名用户的名称 默认为AnonymousUser
-#
-#
-#                         def _not_authenticated(self):
-#
-#                             self._authenticator = None
-#
-#                             if api_settings.UNAUTHENTICATED_USER:
-#                                 self.user = api_settings.UNAUTHENTICATED_USER() # 默认匿名用户
-#                             else:
-#                                 self.user = None
-#
-#                             if api_settings.UNAUTHENTICATED_TOKEN:
-#                                 self.auth = api_settings.UNAUTHENTICATED_TOKEN() # 默认匿名用户的token
-#                             else:
-#                                 self.auth = None
-#
-#                 可更改匿名用户的用户名
-#                     REST_FRAMEWORK = {
-#
-#                             'UNAUTHENTICATED_USER':lambda:'更改的名'
-#                         }
-#                 一般配置成(方便以后判断 如果为None就是匿名用户)
-#                     REST_FRAMEWORK = {
-#
-#                             'UNAUTHENTICATED_USER':None,
-#                             'UNAUTHENTICATED_TOKEN':None,
-#                         }
-#         4 内置认证类
-#
-#             from rest_framework.authentication import BasicAuthentication
-#             1 BasicAuthentication自己写认证推荐继承
-#
-#
-#     5 权限
-#
-#         1 有的网页符合权限等级可以访问，符合权限等级的不能访问
-#
-#             1 源码流程
-#
-#                 和用户认证基本一致
-#
-#             2 基本使用
-#                 class MyPerssoin:
-#                     message = '您的权限不是1，不能访问此网页'
-#                     def has_permission(self, request, view): # 必须实现的方法
-#
-#                         if request._request.GET.get("user_type") != "1":
-#                             print('1111')
-#                             return False
-#
-#                         return True
-#
-#                 class Test_perssion1(APIView):
-#
-#                     authentication_classes = []
-#                     permission_classes = [MyPerssoin, ]
-#                     def get(self, request):
-#
-#                         return HttpResponse('已经验证您的权限等级为1，可以观看此网页')
-#             3 全局和局部配置
-#
-#                 1全局
-#                     REST_FRAMEWORK = {
-#
-#                                 DEFAULT_PERMISSION_CLASSES:['权限类的文件路径']  # 同认证
-#                             }
-#                 2 局部
-#
-#                     同认证
-#
-#             4 内置权限类
-#
-#                 1 自定义权限类推荐继承BasePermission
-#
-#
-#     5 访问频率控制(节流)
-#
-#         0 基本使用
-#
-#             类，继承 BaseThrottle，实现 allow_request, wait
-#             类，继承 SimpleRateThrottle 实现 get_cache_key, score="xxx" （xxx为配置文件中的k）
-#
-#         1 思路
-#
-#             如果想限制用户只能访问3次，超过60秒才能继续访问
-#             获取用户ip和访问时间 加入到库  客户多访问一次 库中的数据就发生变化，通过库中的数据
-#             访问时间个数（次数）， 和访问时间  对用户进行限制
-#             匿名用户
-#
-#                 nobody_dict = {}
-#
-#                 import time
-#
-#                 class My_frequercy:
-#
-#                     def __init__(self):
-#                         self.history = None
-#
-#
-#                     def allow_request(self, request, view):
-#
-#                         now_time = time.time()
-#                         nobody_ip = request.META.get('REMOTE_ADDR')  # 获取访问用户的ip
-#
-#                         if not nobody_ip in nobody_dict: # 如果用户ip不在库中
-#
-#                             nobody_dict[nobody_ip] = [now_time]  # 将用户第一次访问  用户ip:第一次访问时间 加入到列表中
-#                             return True
-#
-#                         history = nobody_dict.get(nobody_ip) # 获取用户访问时间列表
-#                         self.history = history
-#                         while history and history[-1] < now_time - 60: # 如果用户第一次的访问时间小于当前时间-60（再次访问的时间和第一次访问的时间相隔60秒）
-#                             self.a = now_time-60
-#                             history.pop()   # 去掉用户的第一次访问时间，那么第二次访问时间就变成了第一次访问时间
-#
-#                         if len(history) < 3:    # 如果访问的次数小于3次
-#                             nobody_dict[nobody_ip].insert(0, now_time) # 将用户的访问时间加入到前次访问时间之前
-#                             return True
-#
-#
-#                     def wait(self):     # 显示达到限制次数之后还剩多少秒可以继续访问
-#                         # nobody_ip = request.META.get('REMOTE_ADDR')
-#                         now_time = time.time()
-#
-#                         a = 60-(now_time-self.history[-1]) # 60-（当前时间-最开始次访问时间）
-#                         return a
-#
-#                 class Test_frequercy(APIView):
-#
-#                     authentication_classes = []
-#                     throttle_classes = [My_frequercy]
-#
-#                     def get(self, request):
-#
-#                         return HttpResponse('频率测试')
-#
-#         2 全局配置和局部配置
-#
-#             1 局部配置 同认证
-#
-#             2 全局配置
-#
-#                 REST_FRAMEWORK = {
-#
-#                     DEFAULT_THROTTLE_CLASSES:[频率控制类的路径]
-#                 }
-#
-#         3 使用控制频率的内置类（）
-#
-#             1 自定义控制频率类的时候推荐继承（BaseThrottle）
-#                 可以通过 self.get_ident(request) 获取匿名用户的ip
-#
-#             2 源码分析内置类SimpleRateThrottle
-#                 源码分析  def __init__(self):
-#                             if not getattr(self, 'rate', None):
-#                                 self.rate = self.get_rate()     # 获取 scope 设定的值的值 如果这个值在自定义类中设置值，然后去配置文件中寻找这个值作为键的值
-#                             self.num_requests, self.duration = self.parse_rate(self.rate)
-#                         初始化得到数据后因为继承的是BaseThrottle 会自动去执行allow_request（）因为SimpleRateThrottle有
-#                          allow_request 就执行自己的
-#
-#                          def allow_request(self, request, view):
-#                             """
-#                             Implement the check to see if the request should be throttled.
-#
-#                             On success calls `throttle_success`.
-#                             On failure calls `throttle_failure`.
-#                             """
-#                             if self.rate is None:
-#                                 return True
-#
-#                             self.key = self.get_cache_key(request, view) # 去缓存（django的默认缓存）中获取访问匿名用户的ip
-#                             if self.key is None:
-#                                 return True
-#
-#                             self.history = self.cache.get(self.key, [])  # 根据匿名用户的ip 取用户访问的时间和次数
-#                             self.now = self.timer()
-#                             # 剩下的和上自定义处理 次数和时间原理一样
-#                             while self.history and self.history[-1] <= self.now - self.duration:
-#                                 self.history.pop()
-#                             if len(self.history) >= self.num_requests:
-#                                 return self.throttle_failure()
-#                             return self.throttle_success()
-#
-#             3 使用控制频率内置类SimpleRateThrottle
-#
-#                 1 匿名用户
-#                     from rest_framework.throttling import SimpleRateThrottle
-#
-#                     class Test_niming_lei(SimpleRateThrottle):
-#
-#                         scope = "niming"  # 配置去setting的'DEFAULT_THROTTLE_RATES'中寻找
-#
-#                         def get_cache_key(self, request, view):  # 获取匿名用户请求的ip 然后去缓存中获取ip对应的浏览时间和次数
-#
-#                             return self.get_ident(request)
-#
-#                     class Watch_niming_lei(APIView):
-#
-#                         authentication_classes = []
-#                         throttle_classes = [Test_niming_lei, ]
-#
-#
-#                         def get(self, request):
-#                             return HttpResponse('匿名用户频率限制')
-#
-#                     settings配置
-#
-#                         REST_FRAMEWORK = {
-#
-#                             'DEFAULT_THROTTLE_RATES':{'niming': '3/s'}
-#                         }
-#
-#                 2 登录用户
-#
-#                        from rest_framework.throttling import SimpleRateThrottle
-#
-#                         class Test_niming_lei11(SimpleRateThrottle):
-#
-#                             scope = "niming1"  # 配置去setting的'DEFAULT_THROTTLE_RATES'中寻找
-#
-#                             def get_cache_key(self, request, view):  # 获取匿名用户请求的ip 然后去缓存中获取ip对应的浏览时间和次数
-#
-#                                 return request.user.username  # 登录用户用用户名记录访问时间和次数
-#
-#                 3 匿名和登录用户的频率限制使用（两个限制类）
-#                     登录用户 全局限制
-#                     匿名用户 局部限制  # 登录和匿名用户限制次数一致
-#
-#
-#
-#     6 版本
-#
-#         1 从url参数中获取版本信息（http://127.0.0.1:8000/test_version/?version=v1）
-#
-#             class My_version:
-#
-#                 def determine_version(self, request, *args, **kwargs):
-#                     version = request.query_params.get('version')
-#                     return version
-#
-#
-#             class Test_version(APIView):
-#
-#                 versioning_class = My_version
-#
-#                 def get(self, request):
-#                     print(request.version)
-#                     return HttpResponse('版本控制')
-#
-#         2 从url中获取版本信息（推荐使用）
-#
-#             url(r'^(?P<version>[v1|v2]+)/test_version/$', views.Test_version.as_view()),
-#
-#             REST_FRAMEWORK = {
-#                 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
-#                 'DEFAULT_VERSION': 'v1',
-#                 'ALLOWED_VERSIONS': ['v1', 'v2'],
-#                 'VERSION_PARAM': 'version',
-#             }
-#
-#             class Test_version(APIView):
-#
-#                 def get(self, request, *args, **kwargs):
-#                     print(request.version)     # 可获取版本信息
-#                     print(request.versioning_scheme) # 获取处理版本的对象
-#                     print(request.versioning_scheme.reverse(viewname='url的name参数值', request=request)) # 反向解析
-#                     return HttpResponse('版本控制')
-#
-#
-#     7 解析器
-#
-#         1 内容回顾
-#
-#             django：request.POST和 request.body
-#
-#                 request.POST能接受到数据的要求
-#
-#                     1 请求头要求
-#                         Content-Type: application/x-www-form-urlencoded
-#                     2 数据格式要求
-#                         name=xx&age=yy
-#
-#         2 概念
-#
-#             对请求体数据的解析
-#
-#         3 获取json格式数据自动解析
-#
-#             1 使用了from rest_framework.parsers import JSONParser
-#
-#             2 源码
-#
-#                 进行封装request的时候 parsers=self.get_parsers() # 将视图parser_classes = [JSONParser,]传入到parsers中也可以通过全局配置
-#         4 全局配置（也可局部配置，推荐用全局配置）
-#             rest_frameword默认全局配置了
-#                 'DEFAULT_PARSER_CLASSES': (
-#                     'rest_framework.parsers.JSONParser',
-#                     'rest_framework.parsers.FormParser',
-#                     'rest_framework.parsers.MultiPartParser'
-#                 ),
-#
-#             1 自定义全局配置
-#             REST_FRAMEWORK = {
-#
-#                 'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser',  # 只解析content-type:application/json 头
-#                                            'rest_framework.parsers.FormParser']  # 只解析content-type:application/x-www-form-urlencoded头
-#             }
-#
-#
-#     8 序列化
-#
-#         1 概念
-#             请求数据进行校验
-#             queryset进行序列化
-#
-#         2 基本使用
-#             1 创建序列化类继承 （serializers.Serializer）
-#                 根据模型中的字段定义类对象（即serializers.Charfield()）等
-#             2 视图获取数据库中queryset数据
-#             3 创建序列化类对象将得到的queryset数据传入序列化类的参数即instance=queryset数据，many=True表示多个数据
-#             4 通过  序列化对象.data 获取已经被序列化的数据
-#             4 用json.dumps对序列化数据进行格式转换
-#             5 返回数据
-#             class My_serializer(serializers.Serializer):
-#
-#                 role_name = serializers.CharField()
-#
-#
-#             class Test_serializer(APIView):
-#
-#                 def get(self, request):
-#
-#                     query_data = Role.objects.all()
-#                     ser = My_serializer(query_data, many=True)
-#                     json_data = json.dumps(ser.data, ensure_ascii=False)
-#                     return HttpResponse(json_data)
-#
-#         3 处理choick字段以及外键字段的显示，和自定义字段显示
-#
-#             class Foreignkey_serializers(serializers.Serializer):
-#                 """测试外键字段choice字段和自定义序列化显示 序列化器"""
-#
-#                 id = serializers.IntegerField()
-#                 user_type = serializers.CharField(source="get_user_type_display") # chocie属性的值的获取方法 source = get_字段名_display
-#                 username = serializers.CharField()
-#                 password = serializers.CharField()
-#                 group = serializers.CharField(source="group.gruop_name") # 外键中获取值 source="字段.属性"
-#                                                                     # source中填入序列化器对象对象的字段（此时字段为连接的外键模型的对象） “字段.属性" 获取信息
-#                 #role = serializers.CharField(source="roles.all") # 多对多字段
-#
-#                 role = serializers.SerializerMethodField()  # 自定义对于多对多字段的信息的展示（其他字段也可以通过此方法自定义）
-#
-#                 def get_role(self, row):    # 与SerializerMethodField关联 通过 get_字段名建立
-#                     role_obj_list = row.roles.all()
-#                     ret = []
-#                     for i in role_obj_list:
-#                         ret.append({'id':i.id, "role_name": i.role_name})
-#
-#                     return ret
-#
-#             class Test_show_foreignkey_serializers(APIView):
-#                 """测试外键字段choice字段和自定义序列化显示 视图函数"""
-#
-#                 def get(self, request):
-#                     role_result = UserInfo.objects.all()
-#                     ser = Foreignkey_serializers(instance=role_result, many=True)
-#                     data = ser.data
-#                     json_data = json.dumps(data, ensure_ascii=False)
-#                     return HttpResponse(json_data)
-#
-#         4 基于继承serializers.ModelSerializer类的序列化处理字段显示
-#             class Foreignkey_serializers(serializers.ModelSerializer):
-#                 """测试外键字段choice字段和自定义序列化显示 序列化器"""
-#
-#                 user_type = serializers.CharField(source="get_user_type_display")
-#                 group = serializers.CharField(source="group.gruop_name")
-#                 role = serializers.SerializerMethodField()
-#
-#                 def get_role(self, row):    # 与SerializerMethodField关联 通过 get_字段名建立
-#                     role_obj_list = row.roles.all()
-#                     ret = []
-#                     for i in role_obj_list:
-#                         ret.append({'id':i.id, "role_name": i.role_name})
-#
-#                     return ret
-#                 class Meta:
-#
-#                     model = UserInfo    # 指定模型
-#                     fields = ['id', 'username', 'password', 'user_type', 'group', 'role'] # 指定显示字段
-#
-#
-#             class Test_show_foreignkey_serializers(APIView):
-#                 """测试外键字段choice字段和自定义序列化显示 视图函数"""
-#
-#                 def get(self, request):
-#                     role_result = UserInfo.objects.all()
-#                     ser = Foreignkey_serializers(instance=role_result, many=True)
-#                     data = ser.data
-#                     json_data = json.dumps(data, ensure_ascii=False)
-#                     return HttpResponse(json_data)
-#
-#         5 ModelSerializer定义depth参数
-#
-#             1 概念
-#
-#                 如果存在连表 显示链表对应外键成数的信息
-#
-#             1 使用
-#
-#                 model = UserInfo    # 指定模型
-#                 fields = "__all__"  # 指定显示字段
-#                 depth = 手动层数      # 数字类型
-#
-#         6 返回给前端的新型中添加链接（如连接添的内容是外键连接表的详细信息）
-#
-#             1 使用
-#                 生成连接的字段使用 serializers.HyperlinkedIdentityFiled(view_name="视图name属性名", lookup_field='展示连接的字段',lookup_url_kwarg="url中的参数名")
-#
-#                 class Foreignkey_serializers(serializers.ModelSerializer):
-#
-#                     group = serializers.HyperlinkedIdentityField(view_name="test_link", lookup_field="group_id", lookup_url_kwarg="pk")
-#                     class Meta:
-#
-#                         model = UserInfo    # 指定模型
-#                         fields = "__all__" # 指定显示字段
-#                         depth = 0
-#
-#                 class Test_show_foreignkey_serializers(APIView):
-#
-#                     def get(self, request):
-#                         role_result = UserInfo.objects.all()
-#                         ser = Foreignkey_serializers(instance=role_result, many=True, context={'request': request})
-#                         data = ser.data
-#                         json_data = json.dumps(data, ensure_ascii=False)
-#                         return HttpResponse(json_data)
-#
-#         7 请求数据校验()
-#
-#             1 概念
-#                 对前端发过来的数据进行校验
-#
-#
-#             2 使用
-#
-#                 1 自定义创建类进行验规则
-#
-#                     class M_validate:
-#
-#                         def __init__(self):
-#                             pass
-#
-#                         def __call__(self, value):
-#                             print(value)
-#                             if value == "22":
-#                                 raise serializers.ValidationError('不/让你过')
-#
-#                     class My_validate(serializers.Serializer):
-#                         role_name = serializers.CharField(validators=[M_validate()])
-#
-#
-#                     class Test_validate(APIView):
-#                         """对数据进行验证"""
-#
-#                         def get(self, request):
-#
-#                             return HttpResponse("验证数据")
-#
-#                         def post(self, request):
-#                             ser = My_validate(data=request.data)
-#                             if ser.is_valid():
-#                                 print(ser.validated_data)
-#                                 return HttpResponse(ser.validated_data)
-#                             else:
-#                                 print(ser.errors)
-#                                 return HttpResponse(ser.errors)
-#                 2 在序列化器中利用钩子函数进行自定义验证规则
-#
-#
-#                     class My_validate(serializers.Serializer):
-#                         role_name = serializers.CharField(validators=[M_validate()])
-#
-#                         def validata_字段名(self, value):
-#                             # 若果不通过验证
-#                             raise exceptions.validataionError('xxxx')
-#                             # 如果通过验证
-#                             return value
-#
-#     9 分页
-#
-#         1 分类
-#             from rest_framework.pagination import ..
-#             1 看第n页 每页显示n条数据 （PageNumberPagination）
-#
-#                 from rest_framework.pagination import PageNumberPagination
-#                 class My_page(PageNumberPagination):
-#                     page_size = 3   # 一页显示几条数据
-#
-#                     # Client can control the page using this query parameter.
-#                     page_query_param = 'page'   # 在网页url中指定的翻页参数http://127.0.0.1:8000/test_page/?page=2
-#
-#                     page_size_query_param = None # 网页中指定的 每页显示多少条数据的参数
-#
-#                     max_page_size = 5  # 最大每页显示数据数
-#
-#                 class Test_girl_page(serializers.ModelSerializer):
-#
-#                     class Meta:
-#
-#                         model = Girls
-#                         fields = "__all__"
-#
-#
-#                 class Test_page(APIView):
-#
-#                     def get(self, request):
-#
-#                         data = Girls.objects.all()
-#                         pg = My_page() # 创建对象
-#                         page_data = pg.paginate_queryset(queryset=data, request=request, view=self) # 对数据显示进行设置
-#
-#                         ser = Test_girl_page(instance=page_data, many=True)
-#
-#                         return Response(ser.data)
-#             2 在n个位置，向后查看n条数据(LimitOffsetPagination)
-#                 from rest_framework.pagination import LimitOffsetPagination
-#                 class My_page(LimitOffsetPagination):
-#                     default_limit = 2       # 默认每页显示数据个数
-#                     limit_query_param = 'limit'   # 指定url参数中显示的数据个数
-#                     offset_query_param = 'offset' # 指定显示的位置
-#                     max_limit = None        # 每页显示最大数据数
-#
-#                     ....替他同上
-#             3 加密分页，上一页和下一页 (CursorPagination)
-#                 from rest_framework.pagination import CursorPagination
-#                     class My_page(CursorPagination):
-#                         cursor_query_param = 'cursor'  # url中配置的参数
-#                         page_size = 2       # 每页显示数据
-#                         ordering = 'id'  # 按照排序的字段 “id”正序 "-id"倒叙
-#
-#
-#
-#                     class Test_girl_page(serializers.ModelSerializer):
-#
-#                         class Meta:
-#
-#                             model = Girls
-#                             fields = "__all__"
-#
-#
-#                     class Test_page(APIView):
-#
-#                         def get(self, request):
-#
-#                             data = Girls.objects.all()
-#                             pg = My_page() # 创建对象
-#                             page_data = pg.paginate_queryset(queryset=data, request=request, view=self) # 对数据显示进行设置
-#
-#                             ser = Test_girl_page(instance=page_data, many=True)
-#
-#                             return pg.get_paginated_response(ser.data) # 返回的内容带有下一页和上一页的url
-#
-#     10 视图
-#
-#         总结：
-#
-#             1 只使用基本的增删改查
-#
-#                 ModelViewSet
-#
-#             2 只是用增删
-#
-#                 CreateModelMixin, DestoryModelMixin, GenericViewSet
-#
-#             3 复杂逻辑
-#
-#                 GenericViewSet 或 APIView
-#
-#
-#         1 GenericAPIView
-#             一般不用
-#
-#         2 GenericViewSet
-#
-#             1 导入
-#
-#                 from rest_framework.viewsets import GenericViewSet
-#
-#             2 主要作用
-#
-#                 1 对 as_view()进行了重写
-#                 2 视图中的方法可以自定义重命名
-#                     url(r'^test_genericviewset/$', views.Test_view1.as_view({"get": "have"})),
-#
-#                     from rest_framework.viewsets import GenericViewSet
-#
-#                     class Test_view1(GenericViewSet):
-#
-#                         def have(self, request):  # 根据url中定义如果get请求执行have方法
-#
-#                             return Response('GenericView')
-#
-#         3 ListModelMixin（与GenericView一起用）
-#
-#             1 导入
-#
-#                 from rest_framework.mixins import ListModelMixin
-#
-#             2 作用
-#
-#                 分页集成类
-#
-#             3 使用
-#
-#                 url(r'test_listmodelmixin/$', views.Test_listmodelmixin.as_view({"get":"list"}))
-#
-#                 from rest_framework.pagination import PageNumberPagination
-#                 class My_page(PageNumberPagination):
-#                     page_size = 2
-#
-#                     page_query_param = 'page'
-#
-#                     page_size_query_param = None
-#
-#                     max_page_size = None
-#
-#                 class Test_girl_page(serializers.ModelSerializer):
-#
-#                     class Meta:
-#
-#                         model = Girls
-#                         fields = "__all__"
-#
-#                 from rest_framework.mixins import ListModelMixin
-#                 from rest_framework.viewsets import GenericViewSet
-#
-#                 class Test_listmodelmixin(ListModelMixin, GenericViewSet):
-#                     queryset = Girls.objects.all()
-#                     serializer_class = Test_girl_page
-#                     pagination_class = My_page
-#
-#         4 CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin
-#
-#             1 作用
-#
-#                 增删改查 的封装
-#
-#             2 使用
-#
-#                 只需要 指定集合 指定序列化器 对于 RetrieveModelMixin，UpdateModelMixin，DestroyModelMixin需要在url中指定pk
-#                 其他用法同上
-#
-#         5 ModelViewSet
-#
-#             1 作用
-#
-#                 继承了4 中的所有方法 和 GenericView方法
-#
-#             2 使用
-#
-#                 1 导入
-#
-#                     from rest_framework.viewsets import ModelViewSet
-#
-#                 2 使用（url需要创建两个 一个针对所有数据，一个针对单个数据（pk））
-#
-#                     url(r'^test_modelviewset/$', views.Test_modelviewset.as_view({'get':"list"})),
-#
-#                     # 定义了获取单个，删除单个，查询单个的方法（去源代码中找）
-#                     url(r'^test_modelviewset/(?P<pk>\d+)/$', views.Test_modelviewset.as_view({'get':'retrieve','put':'update', 'delete':'destroy'})),
-#
-#                     class GirlsSerializer1(serializers.ModelSerializer):
-#
-#                         class Meta:
-#                             model = Girls
-#                             fields = '__all__'
-#
-#                     from rest_framework.viewsets import ModelViewSet
-#
-#                     class Test_modelviewset(ModelViewSet):
-#
-#                         queryset = Girls.objects.all()
-#                         serializer_class = GirlsSerializer1
-#
-#     11 路由
-#
-#         http://127.0.0.1:8000/test_modelviewset/?format=json  # 生成不渲染json数据 第一种
-#         http://127.0.0.1:8000/test_modelviewset.json    # 生产部渲染json数据 第二种
-#         http://127.0.0.1:8000/test_modelviewset/
-#         http://127.0.0.1:8000/test_modelviewset/(?P<pk>\d+)/
-#
-#         自动生成以上4中路由
-#
-#             router = routers.DefaultRouter()
-#             router.register(r'test_modelviewset', views.yyy)
-#
-#             urlpatterns = {
-#                 url(r'^/', include(router.urls))
-#             }
-#
-#     12 渲染器
-#
-#         0 作用
-#
-#             返回好看的数据
-#
-#         1 原理
-#
-#             class Test(APIView):
-#
-#                 render_classes = [JSONRenderer, BrowableAPIRenderer] 通过此类可以执行渲染器 一个知识json数据，一个经过浏览器渲染（建议放配置文件中）
-#
-#                 def get(self, request):
-#
-#                     .....
-#
-#
-#     13 django组件 contenttype
-#
-#         1 概念
-#
-#             django内置组件，用于连表操作
-#
-#         2 适用于
-#
-#             一张表和多张表进行关联的时候
-#
-#         3 使用
-#
-#             1 手动创建
-#
-#                 class A(models.Model):
-#                     a = models.CharField()
-#
-#                 class B(models.Model):
-#                     b = models.CharField()
-#
-#                 class C(models.Model):
-#                     c = models.CharField()
-#
-#                     table_name = models.CharField(verbose_name='关联的表名称')
-#                     object_id = models.CharField(verbose_name="关联的表中的数据行ID")
-#
-#             2 自动创建
-#
-#                 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-#                 from django.contrib.contenttypes.models import ContentType # django自动创建的表将该表存储着django中所有创建的表名
-#
-#                 class A(models.Model):
-#                     a = models.CharField()
-#                     a_c_list = GenericRelation("C")  # 仅用于反向查找，不生成字段
-#                 class B(models.Model):
-#                     b = models.CharField()
-#
-#                 class C(models.Model):
-#                     c = models.CharField()
-#
-#                     table_name = models.ForeignKey(ContentType, Verbose_name="关联的表名称")
-#                     table_id = models.IntegerField(verbose_name="关联的表中的数据行ID")
-#
-#                     content_object = GenericForeignkey('table_name', 'table_id') # 帮助快速实现content_type操作
-#
-#                 添加数据的时候
-#
-#                     obj = A.objects.filter(a="111").first()
-#                     C.objects.create(c="9.9", content_object=obj)
-#
-#                 获取表关联对象的所有信息
-#
-#                     A.a_c_list.all()
-#
-#
-#
-#
-# --------------------------------------------------
+
+
+
+
+1
 # django解决css文件更改后由于缓存问题页面不跟新
 #
 #     1 解决问题思路
@@ -1091,20 +233,24 @@
 #         当js，css繁盛改变的时候字符串也会随之更改
 #     2 解决流程
 #         1 设置STATICFILES_STORAGE
+1
 # --------------------------------------------------
 #
 #
 #
 #
 # --------------------------------------------------
+1
 # django静态文件在模板中导入,使用
 #     {% load static %}
 #         {% static '路径' %}
+1
 # --------------------------------------------------
 #
 #
 #
 # --------------------------------------------------
+1
 # 批量向数据库中插入数据
 #     知识点
 #         xx.objects.bulk_create(对象列表)
@@ -1115,16 +261,19 @@
 #             a.append(obj)
 #         3 执行批量插入操作
 #             xx.objects.bulk_create(a)
+1
 # --------------------------------------------------
 #
 #
 # --------------------------------------------------
+1
 # url根目录的路径配置
 #     url(r'^$', views.xxxx)
 # --------------------------------------------------
-#
+1
 #
 # --------------------------------------------------
+1
 # django返回json数据
 #     知识点：
 #         json.dumps(xx)
@@ -1134,10 +283,12 @@
 #             data = {"a": 1}
 #             json_data = json.dumps(data)
 #             return HttpResponse(json_data)
+1
 # --------------------------------------------------
 #
 #
 # --------------------------------------------------
+1
 # django返回中文json数据
 #     知识点：
 #         json.dumps(xx, ensure_ascii=False)
@@ -1147,24 +298,30 @@
 #             data = {"a": "我"}
 #             json_cn_data = json.dumps(data, ensure_ascii=False)
 #             return HttpResponse(json_cn_data)
+1
 # --------------------------------------------------
 #
 #
 # --------------------------------------------------
+1
 # GET请求方式的参数添加
 #
 #     /aaaa?b=2  get 参数rul的添加方式
 #     r'^aaaa/$'  路由匹配
+1
 # --------------------------------------------------
 #
 #
 # --------------------------------------------------
+1
 # django获取GET请求参数
 #     知识点
 #         request.GET.get('参数的键值')
+1
 # --------------------------------------------------
-#
-#
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # --------------------------------------------------
 # django获取单个上传文件并存储到指定路径
 #     知识点
@@ -4376,3 +3533,872 @@
 #
 #
 # # =================================================
+# --------------------------------------------------
+# Django REST framework
+1
+#
+#     0 知识回顾
+#         django中间件和装饰器
+#             适用于所有请求批量做操作
+#                 场景
+#                     基于角色的权限控制
+#                     用户认证
+#                     csrf
+#                     session
+#                     黑名单
+#                     日志记录
+#
+#     1 安装
+#
+#         pip install djangorestframework
+#     2 注册
+#
+#         INSTALLED_APPS = (
+#             ...
+#             'rest_framework',
+#         )
+#
+#     3 验证用户是否登录
+#
+#         1 源码流程
+#
+#             1 django接受请求
+#             2 执行dispatch方法
+#             3 通过self.initialize_request(request, *args, **kwargs)对request进行了封装
+#             4 封装中执行了authenticators=self.get_authenticators()返回了认证的类列表（可以自己写指定的类通过authentication_classes=[自己写的类]）
+#             5 执行了dispathc中self.initial(request, *args, **kwargs) 方法
+#             6 执行了self.initial()方法中的self.perform_authentication(request)
+#             7 执行了request.user 执行了self._authenticate()对第4部的列表进行了循环
+#             8 执行了user_auth_tuple = authenticator.authenticate(self)如果登录了旧返回一个元祖杜若没登录就报错
+#             9  创建自定义类 重写 authenticate方法 将这个自定义添加乳到authentication_classes中可以进行用自己的规则判断用户是否登录
+#         2 基本使用
+#
+#             class Myrenzheng（BasicAuthentication）: # 推荐继承BasicAuthentication类
+#                 def authenticate(self, request):
+#                     。。。。自己想写的认证条件，校验数据库等
+#                     return ('xx', None)
+#
+#                 def authenticate_header(self,request):  # 作用是如果校验认证失败做的事情
+#                     pass
+#
+#             class GirlsList(APIView):
+#
+#                 authentication_classes = [Myrenzheng,]
+#
+#                 def get(self, request):
+#
+#                     print(request.user)  # 会获取上面return的内容
+#
+#                     girls = Girls.objects.all()
+#                     s = GirlsSerializer(girls, many=True)
+#
+#                     return Response(s.data)
+#             补充orm操作
+#                 数据不存在就创建，数据存在就更新
+#                 xx.objects.updata_or_create(user=obj, defaults={'token':token})
+#
+#     4 认证
+#         1 有些api需要用户登录成功之后才能访问，有些无需登录才能访问
+#             1 创建两张表
+#             2 用户登录（返回token并保存到数据库）# 通过客户端的post请求 使用用户名生成随机字符串（md5）
+#               并返回给客户端，下回的用户请求的时候就携带的token，发送给服务端 服务端若验证成功该用户就可以继续访问
+#
+#         2 认证的全局配置
+#             1 概念
+#                 不用再单个类中逐个添加authentication_classes
+#             2 源码流程
+#
+#                 authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES
+#
+#             3 可以在settings中添加
+#
+#                 REST_FRAMEWORK = {
+#
+#                         'DEFAULT_AUTHENTICATION_CLASSES': ['app.lib.renzheng.Renzheng', ]  # 列表内为认证类的存放路径
+#
+#                     }
+#             4 使单个视图类不需要验证
+#
+#                 authentication_classes = []  # 为空即可 就是不需要验证
+#
+#         3 匿名用户的配置
+#
+#             1 概念
+#
+#                 客户浏览不需要认证的网页
+#
+#                     通过源码设置了匿名用户的名称 默认为AnonymousUser
+#
+#
+#                         def _not_authenticated(self):
+#
+#                             self._authenticator = None
+#
+#                             if api_settings.UNAUTHENTICATED_USER:
+#                                 self.user = api_settings.UNAUTHENTICATED_USER() # 默认匿名用户
+#                             else:
+#                                 self.user = None
+#
+#                             if api_settings.UNAUTHENTICATED_TOKEN:
+#                                 self.auth = api_settings.UNAUTHENTICATED_TOKEN() # 默认匿名用户的token
+#                             else:
+#                                 self.auth = None
+#
+#                 可更改匿名用户的用户名
+#                     REST_FRAMEWORK = {
+#
+#                             'UNAUTHENTICATED_USER':lambda:'更改的名'
+#                         }
+#                 一般配置成(方便以后判断 如果为None就是匿名用户)
+#                     REST_FRAMEWORK = {
+#
+#                             'UNAUTHENTICATED_USER':None,
+#                             'UNAUTHENTICATED_TOKEN':None,
+#                         }
+#         4 内置认证类
+#
+#             from rest_framework.authentication import BasicAuthentication
+#             1 BasicAuthentication自己写认证推荐继承
+#
+#
+#     5 权限
+#
+#         1 有的网页符合权限等级可以访问，符合权限等级的不能访问
+#
+#             1 源码流程
+#
+#                 和用户认证基本一致
+#
+#             2 基本使用
+#                 class MyPerssoin:
+#                     message = '您的权限不是1，不能访问此网页'
+#                     def has_permission(self, request, view): # 必须实现的方法
+#
+#                         if request._request.GET.get("user_type") != "1":
+#                             print('1111')
+#                             return False
+#
+#                         return True
+#
+#                 class Test_perssion1(APIView):
+#
+#                     authentication_classes = []
+#                     permission_classes = [MyPerssoin, ]
+#                     def get(self, request):
+#
+#                         return HttpResponse('已经验证您的权限等级为1，可以观看此网页')
+#             3 全局和局部配置
+#
+#                 1全局
+#                     REST_FRAMEWORK = {
+#
+#                                 DEFAULT_PERMISSION_CLASSES:['权限类的文件路径']  # 同认证
+#                             }
+#                 2 局部
+#
+#                     同认证
+#
+#             4 内置权限类
+#
+#                 1 自定义权限类推荐继承BasePermission
+#
+#
+#     5 访问频率控制(节流)
+#
+#         0 基本使用
+#
+#             类，继承 BaseThrottle，实现 allow_request, wait
+#             类，继承 SimpleRateThrottle 实现 get_cache_key, score="xxx" （xxx为配置文件中的k）
+#
+#         1 思路
+#
+#             如果想限制用户只能访问3次，超过60秒才能继续访问
+#             获取用户ip和访问时间 加入到库  客户多访问一次 库中的数据就发生变化，通过库中的数据
+#             访问时间个数（次数）， 和访问时间  对用户进行限制
+#             匿名用户
+#
+#                 nobody_dict = {}
+#
+#                 import time
+#
+#                 class My_frequercy:
+#
+#                     def __init__(self):
+#                         self.history = None
+#
+#
+#                     def allow_request(self, request, view):
+#
+#                         now_time = time.time()
+#                         nobody_ip = request.META.get('REMOTE_ADDR')  # 获取访问用户的ip
+#
+#                         if not nobody_ip in nobody_dict: # 如果用户ip不在库中
+#
+#                             nobody_dict[nobody_ip] = [now_time]  # 将用户第一次访问  用户ip:第一次访问时间 加入到列表中
+#                             return True
+#
+#                         history = nobody_dict.get(nobody_ip) # 获取用户访问时间列表
+#                         self.history = history
+#                         while history and history[-1] < now_time - 60: # 如果用户第一次的访问时间小于当前时间-60（再次访问的时间和第一次访问的时间相隔60秒）
+#                             self.a = now_time-60
+#                             history.pop()   # 去掉用户的第一次访问时间，那么第二次访问时间就变成了第一次访问时间
+#
+#                         if len(history) < 3:    # 如果访问的次数小于3次
+#                             nobody_dict[nobody_ip].insert(0, now_time) # 将用户的访问时间加入到前次访问时间之前
+#                             return True
+#
+#
+#                     def wait(self):     # 显示达到限制次数之后还剩多少秒可以继续访问
+#                         # nobody_ip = request.META.get('REMOTE_ADDR')
+#                         now_time = time.time()
+#
+#                         a = 60-(now_time-self.history[-1]) # 60-（当前时间-最开始次访问时间）
+#                         return a
+#
+#                 class Test_frequercy(APIView):
+#
+#                     authentication_classes = []
+#                     throttle_classes = [My_frequercy]
+#
+#                     def get(self, request):
+#
+#                         return HttpResponse('频率测试')
+#
+#         2 全局配置和局部配置
+#
+#             1 局部配置 同认证
+#
+#             2 全局配置
+#
+#                 REST_FRAMEWORK = {
+#
+#                     DEFAULT_THROTTLE_CLASSES:[频率控制类的路径]
+#                 }
+#
+#         3 使用控制频率的内置类（）
+#
+#             1 自定义控制频率类的时候推荐继承（BaseThrottle）
+#                 可以通过 self.get_ident(request) 获取匿名用户的ip
+#
+#             2 源码分析内置类SimpleRateThrottle
+#                 源码分析  def __init__(self):
+#                             if not getattr(self, 'rate', None):
+#                                 self.rate = self.get_rate()     # 获取 scope 设定的值的值 如果这个值在自定义类中设置值，然后去配置文件中寻找这个值作为键的值
+#                             self.num_requests, self.duration = self.parse_rate(self.rate)
+#                         初始化得到数据后因为继承的是BaseThrottle 会自动去执行allow_request（）因为SimpleRateThrottle有
+#                          allow_request 就执行自己的
+#
+#                          def allow_request(self, request, view):
+#                             """
+#                             Implement the check to see if the request should be throttled.
+#
+#                             On success calls `throttle_success`.
+#                             On failure calls `throttle_failure`.
+#                             """
+#                             if self.rate is None:
+#                                 return True
+#
+#                             self.key = self.get_cache_key(request, view) # 去缓存（django的默认缓存）中获取访问匿名用户的ip
+#                             if self.key is None:
+#                                 return True
+#
+#                             self.history = self.cache.get(self.key, [])  # 根据匿名用户的ip 取用户访问的时间和次数
+#                             self.now = self.timer()
+#                             # 剩下的和上自定义处理 次数和时间原理一样
+#                             while self.history and self.history[-1] <= self.now - self.duration:
+#                                 self.history.pop()
+#                             if len(self.history) >= self.num_requests:
+#                                 return self.throttle_failure()
+#                             return self.throttle_success()
+#
+#             3 使用控制频率内置类SimpleRateThrottle
+#
+#                 1 匿名用户
+#                     from rest_framework.throttling import SimpleRateThrottle
+#
+#                     class Test_niming_lei(SimpleRateThrottle):
+#
+#                         scope = "niming"  # 配置去setting的'DEFAULT_THROTTLE_RATES'中寻找
+#
+#                         def get_cache_key(self, request, view):  # 获取匿名用户请求的ip 然后去缓存中获取ip对应的浏览时间和次数
+#
+#                             return self.get_ident(request)
+#
+#                     class Watch_niming_lei(APIView):
+#
+#                         authentication_classes = []
+#                         throttle_classes = [Test_niming_lei, ]
+#
+#
+#                         def get(self, request):
+#                             return HttpResponse('匿名用户频率限制')
+#
+#                     settings配置
+#
+#                         REST_FRAMEWORK = {
+#
+#                             'DEFAULT_THROTTLE_RATES':{'niming': '3/s'}
+#                         }
+#
+#                 2 登录用户
+#
+#                        from rest_framework.throttling import SimpleRateThrottle
+#
+#                         class Test_niming_lei11(SimpleRateThrottle):
+#
+#                             scope = "niming1"  # 配置去setting的'DEFAULT_THROTTLE_RATES'中寻找
+#
+#                             def get_cache_key(self, request, view):  # 获取匿名用户请求的ip 然后去缓存中获取ip对应的浏览时间和次数
+#
+#                                 return request.user.username  # 登录用户用用户名记录访问时间和次数
+#
+#                 3 匿名和登录用户的频率限制使用（两个限制类）
+#                     登录用户 全局限制
+#                     匿名用户 局部限制  # 登录和匿名用户限制次数一致
+#
+#
+#
+#     6 版本
+#
+#         1 从url参数中获取版本信息（http://127.0.0.1:8000/test_version/?version=v1）
+#
+#             class My_version:
+#
+#                 def determine_version(self, request, *args, **kwargs):
+#                     version = request.query_params.get('version')
+#                     return version
+#
+#
+#             class Test_version(APIView):
+#
+#                 versioning_class = My_version
+#
+#                 def get(self, request):
+#                     print(request.version)
+#                     return HttpResponse('版本控制')
+#
+#         2 从url中获取版本信息（推荐使用）
+#
+#             url(r'^(?P<version>[v1|v2]+)/test_version/$', views.Test_version.as_view()),
+#
+#             REST_FRAMEWORK = {
+#                 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+#                 'DEFAULT_VERSION': 'v1',
+#                 'ALLOWED_VERSIONS': ['v1', 'v2'],
+#                 'VERSION_PARAM': 'version',
+#             }
+#
+#             class Test_version(APIView):
+#
+#                 def get(self, request, *args, **kwargs):
+#                     print(request.version)     # 可获取版本信息
+#                     print(request.versioning_scheme) # 获取处理版本的对象
+#                     print(request.versioning_scheme.reverse(viewname='url的name参数值', request=request)) # 反向解析
+#                     return HttpResponse('版本控制')
+#
+#
+#     7 解析器
+#
+#         1 内容回顾
+#
+#             django：request.POST和 request.body
+#
+#                 request.POST能接受到数据的要求
+#
+#                     1 请求头要求
+#                         Content-Type: application/x-www-form-urlencoded
+#                     2 数据格式要求
+#                         name=xx&age=yy
+#
+#         2 概念
+#
+#             对请求体数据的解析
+#
+#         3 获取json格式数据自动解析
+#
+#             1 使用了from rest_framework.parsers import JSONParser
+#
+#             2 源码
+#
+#                 进行封装request的时候 parsers=self.get_parsers() # 将视图parser_classes = [JSONParser,]传入到parsers中也可以通过全局配置
+#         4 全局配置（也可局部配置，推荐用全局配置）
+#             rest_frameword默认全局配置了
+#                 'DEFAULT_PARSER_CLASSES': (
+#                     'rest_framework.parsers.JSONParser',
+#                     'rest_framework.parsers.FormParser',
+#                     'rest_framework.parsers.MultiPartParser'
+#                 ),
+#
+#             1 自定义全局配置
+#             REST_FRAMEWORK = {
+#
+#                 'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser',  # 只解析content-type:application/json 头
+#                                            'rest_framework.parsers.FormParser']  # 只解析content-type:application/x-www-form-urlencoded头
+#             }
+#
+#
+#     8 序列化
+#
+#         1 概念
+#             请求数据进行校验
+#             queryset进行序列化
+#
+#         2 基本使用
+#             1 创建序列化类继承 （serializers.Serializer）
+#                 根据模型中的字段定义类对象（即serializers.Charfield()）等
+#             2 视图获取数据库中queryset数据
+#             3 创建序列化类对象将得到的queryset数据传入序列化类的参数即instance=queryset数据，many=True表示多个数据
+#             4 通过  序列化对象.data 获取已经被序列化的数据
+#             4 用json.dumps对序列化数据进行格式转换
+#             5 返回数据
+#             class My_serializer(serializers.Serializer):
+#
+#                 role_name = serializers.CharField()
+#
+#
+#             class Test_serializer(APIView):
+#
+#                 def get(self, request):
+#
+#                     query_data = Role.objects.all()
+#                     ser = My_serializer(query_data, many=True)
+#                     json_data = json.dumps(ser.data, ensure_ascii=False)
+#                     return HttpResponse(json_data)
+#
+#         3 处理choick字段以及外键字段的显示，和自定义字段显示
+#
+#             class Foreignkey_serializers(serializers.Serializer):
+#                 """测试外键字段choice字段和自定义序列化显示 序列化器"""
+#
+#                 id = serializers.IntegerField()
+#                 user_type = serializers.CharField(source="get_user_type_display") # chocie属性的值的获取方法 source = get_字段名_display
+#                 username = serializers.CharField()
+#                 password = serializers.CharField()
+#                 group = serializers.CharField(source="group.gruop_name") # 外键中获取值 source="字段.属性"
+#                                                                     # source中填入序列化器对象对象的字段（此时字段为连接的外键模型的对象） “字段.属性" 获取信息
+#                 #role = serializers.CharField(source="roles.all") # 多对多字段
+#
+#                 role = serializers.SerializerMethodField()  # 自定义对于多对多字段的信息的展示（其他字段也可以通过此方法自定义）
+#
+#                 def get_role(self, row):    # 与SerializerMethodField关联 通过 get_字段名建立
+#                     role_obj_list = row.roles.all()
+#                     ret = []
+#                     for i in role_obj_list:
+#                         ret.append({'id':i.id, "role_name": i.role_name})
+#
+#                     return ret
+#
+#             class Test_show_foreignkey_serializers(APIView):
+#                 """测试外键字段choice字段和自定义序列化显示 视图函数"""
+#
+#                 def get(self, request):
+#                     role_result = UserInfo.objects.all()
+#                     ser = Foreignkey_serializers(instance=role_result, many=True)
+#                     data = ser.data
+#                     json_data = json.dumps(data, ensure_ascii=False)
+#                     return HttpResponse(json_data)
+#
+#         4 基于继承serializers.ModelSerializer类的序列化处理字段显示
+#             class Foreignkey_serializers(serializers.ModelSerializer):
+#                 """测试外键字段choice字段和自定义序列化显示 序列化器"""
+#
+#                 user_type = serializers.CharField(source="get_user_type_display")
+#                 group = serializers.CharField(source="group.gruop_name")
+#                 role = serializers.SerializerMethodField()
+#
+#                 def get_role(self, row):    # 与SerializerMethodField关联 通过 get_字段名建立
+#                     role_obj_list = row.roles.all()
+#                     ret = []
+#                     for i in role_obj_list:
+#                         ret.append({'id':i.id, "role_name": i.role_name})
+#
+#                     return ret
+#                 class Meta:
+#
+#                     model = UserInfo    # 指定模型
+#                     fields = ['id', 'username', 'password', 'user_type', 'group', 'role'] # 指定显示字段
+#
+#
+#             class Test_show_foreignkey_serializers(APIView):
+#                 """测试外键字段choice字段和自定义序列化显示 视图函数"""
+#
+#                 def get(self, request):
+#                     role_result = UserInfo.objects.all()
+#                     ser = Foreignkey_serializers(instance=role_result, many=True)
+#                     data = ser.data
+#                     json_data = json.dumps(data, ensure_ascii=False)
+#                     return HttpResponse(json_data)
+#
+#         5 ModelSerializer定义depth参数
+#
+#             1 概念
+#
+#                 如果存在连表 显示链表对应外键成数的信息
+#
+#             1 使用
+#
+#                 model = UserInfo    # 指定模型
+#                 fields = "__all__"  # 指定显示字段
+#                 depth = 手动层数      # 数字类型
+#
+#         6 返回给前端的新型中添加链接（如连接添的内容是外键连接表的详细信息）
+#
+#             1 使用
+#                 生成连接的字段使用 serializers.HyperlinkedIdentityFiled(view_name="视图name属性名", lookup_field='展示连接的字段',lookup_url_kwarg="url中的参数名")
+#
+#                 class Foreignkey_serializers(serializers.ModelSerializer):
+#
+#                     group = serializers.HyperlinkedIdentityField(view_name="test_link", lookup_field="group_id", lookup_url_kwarg="pk")
+#                     class Meta:
+#
+#                         model = UserInfo    # 指定模型
+#                         fields = "__all__" # 指定显示字段
+#                         depth = 0
+#
+#                 class Test_show_foreignkey_serializers(APIView):
+#
+#                     def get(self, request):
+#                         role_result = UserInfo.objects.all()
+#                         ser = Foreignkey_serializers(instance=role_result, many=True, context={'request': request})
+#                         data = ser.data
+#                         json_data = json.dumps(data, ensure_ascii=False)
+#                         return HttpResponse(json_data)
+#
+#         7 请求数据校验()
+#
+#             1 概念
+#                 对前端发过来的数据进行校验
+#
+#
+#             2 使用
+#
+#                 1 自定义创建类进行验规则
+#
+#                     class M_validate:
+#
+#                         def __init__(self):
+#                             pass
+#
+#                         def __call__(self, value):
+#                             print(value)
+#                             if value == "22":
+#                                 raise serializers.ValidationError('不/让你过')
+#
+#                     class My_validate(serializers.Serializer):
+#                         role_name = serializers.CharField(validators=[M_validate()])
+#
+#
+#                     class Test_validate(APIView):
+#                         """对数据进行验证"""
+#
+#                         def get(self, request):
+#
+#                             return HttpResponse("验证数据")
+#
+#                         def post(self, request):
+#                             ser = My_validate(data=request.data)
+#                             if ser.is_valid():
+#                                 print(ser.validated_data)
+#                                 return HttpResponse(ser.validated_data)
+#                             else:
+#                                 print(ser.errors)
+#                                 return HttpResponse(ser.errors)
+#                 2 在序列化器中利用钩子函数进行自定义验证规则
+#
+#
+#                     class My_validate(serializers.Serializer):
+#                         role_name = serializers.CharField(validators=[M_validate()])
+#
+#                         def validata_字段名(self, value):
+#                             # 若果不通过验证
+#                             raise exceptions.validataionError('xxxx')
+#                             # 如果通过验证
+#                             return value
+#
+#     9 分页
+#
+#         1 分类
+#             from rest_framework.pagination import ..
+#             1 看第n页 每页显示n条数据 （PageNumberPagination）
+#
+#                 from rest_framework.pagination import PageNumberPagination
+#                 class My_page(PageNumberPagination):
+#                     page_size = 3   # 一页显示几条数据
+#
+#                     # Client can control the page using this query parameter.
+#                     page_query_param = 'page'   # 在网页url中指定的翻页参数http://127.0.0.1:8000/test_page/?page=2
+#
+#                     page_size_query_param = None # 网页中指定的 每页显示多少条数据的参数
+#
+#                     max_page_size = 5  # 最大每页显示数据数
+#
+#                 class Test_girl_page(serializers.ModelSerializer):
+#
+#                     class Meta:
+#
+#                         model = Girls
+#                         fields = "__all__"
+#
+#
+#                 class Test_page(APIView):
+#
+#                     def get(self, request):
+#
+#                         data = Girls.objects.all()
+#                         pg = My_page() # 创建对象
+#                         page_data = pg.paginate_queryset(queryset=data, request=request, view=self) # 对数据显示进行设置
+#
+#                         ser = Test_girl_page(instance=page_data, many=True)
+#
+#                         return Response(ser.data)
+#             2 在n个位置，向后查看n条数据(LimitOffsetPagination)
+#                 from rest_framework.pagination import LimitOffsetPagination
+#                 class My_page(LimitOffsetPagination):
+#                     default_limit = 2       # 默认每页显示数据个数
+#                     limit_query_param = 'limit'   # 指定url参数中显示的数据个数
+#                     offset_query_param = 'offset' # 指定显示的位置
+#                     max_limit = None        # 每页显示最大数据数
+#
+#                     ....替他同上
+#             3 加密分页，上一页和下一页 (CursorPagination)
+#                 from rest_framework.pagination import CursorPagination
+#                     class My_page(CursorPagination):
+#                         cursor_query_param = 'cursor'  # url中配置的参数
+#                         page_size = 2       # 每页显示数据
+#                         ordering = 'id'  # 按照排序的字段 “id”正序 "-id"倒叙
+#
+#
+#
+#                     class Test_girl_page(serializers.ModelSerializer):
+#
+#                         class Meta:
+#
+#                             model = Girls
+#                             fields = "__all__"
+#
+#
+#                     class Test_page(APIView):
+#
+#                         def get(self, request):
+#
+#                             data = Girls.objects.all()
+#                             pg = My_page() # 创建对象
+#                             page_data = pg.paginate_queryset(queryset=data, request=request, view=self) # 对数据显示进行设置
+#
+#                             ser = Test_girl_page(instance=page_data, many=True)
+#
+#                             return pg.get_paginated_response(ser.data) # 返回的内容带有下一页和上一页的url
+#
+#     10 视图
+#
+#         总结：
+#
+#             1 只使用基本的增删改查
+#
+#                 ModelViewSet
+#
+#             2 只是用增删
+#
+#                 CreateModelMixin, DestoryModelMixin, GenericViewSet
+#
+#             3 复杂逻辑
+#
+#                 GenericViewSet 或 APIView
+#
+#
+#         1 GenericAPIView
+#             一般不用
+#
+#         2 GenericViewSet
+#
+#             1 导入
+#
+#                 from rest_framework.viewsets import GenericViewSet
+#
+#             2 主要作用
+#
+#                 1 对 as_view()进行了重写
+#                 2 视图中的方法可以自定义重命名
+#                     url(r'^test_genericviewset/$', views.Test_view1.as_view({"get": "have"})),
+#
+#                     from rest_framework.viewsets import GenericViewSet
+#
+#                     class Test_view1(GenericViewSet):
+#
+#                         def have(self, request):  # 根据url中定义如果get请求执行have方法
+#
+#                             return Response('GenericView')
+#
+#         3 ListModelMixin（与GenericView一起用）
+#
+#             1 导入
+#
+#                 from rest_framework.mixins import ListModelMixin
+#
+#             2 作用
+#
+#                 分页集成类
+#
+#             3 使用
+#
+#                 url(r'test_listmodelmixin/$', views.Test_listmodelmixin.as_view({"get":"list"}))
+#
+#                 from rest_framework.pagination import PageNumberPagination
+#                 class My_page(PageNumberPagination):
+#                     page_size = 2
+#
+#                     page_query_param = 'page'
+#
+#                     page_size_query_param = None
+#
+#                     max_page_size = None
+#
+#                 class Test_girl_page(serializers.ModelSerializer):
+#
+#                     class Meta:
+#
+#                         model = Girls
+#                         fields = "__all__"
+#
+#                 from rest_framework.mixins import ListModelMixin
+#                 from rest_framework.viewsets import GenericViewSet
+#
+#                 class Test_listmodelmixin(ListModelMixin, GenericViewSet):
+#                     queryset = Girls.objects.all()
+#                     serializer_class = Test_girl_page
+#                     pagination_class = My_page
+#
+#         4 CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin
+#
+#             1 作用
+#
+#                 增删改查 的封装
+#
+#             2 使用
+#
+#                 只需要 指定集合 指定序列化器 对于 RetrieveModelMixin，UpdateModelMixin，DestroyModelMixin需要在url中指定pk
+#                 其他用法同上
+#
+#         5 ModelViewSet
+#
+#             1 作用
+#
+#                 继承了4 中的所有方法 和 GenericView方法
+#
+#             2 使用
+#
+#                 1 导入
+#
+#                     from rest_framework.viewsets import ModelViewSet
+#
+#                 2 使用（url需要创建两个 一个针对所有数据，一个针对单个数据（pk））
+#
+#                     url(r'^test_modelviewset/$', views.Test_modelviewset.as_view({'get':"list"})),
+#
+#                     # 定义了获取单个，删除单个，查询单个的方法（去源代码中找）
+#                     url(r'^test_modelviewset/(?P<pk>\d+)/$', views.Test_modelviewset.as_view({'get':'retrieve','put':'update', 'delete':'destroy'})),
+#
+#                     class GirlsSerializer1(serializers.ModelSerializer):
+#
+#                         class Meta:
+#                             model = Girls
+#                             fields = '__all__'
+#
+#                     from rest_framework.viewsets import ModelViewSet
+#
+#                     class Test_modelviewset(ModelViewSet):
+#
+#                         queryset = Girls.objects.all()
+#                         serializer_class = GirlsSerializer1
+#
+#     11 路由
+#
+#         http://127.0.0.1:8000/test_modelviewset/?format=json  # 生成不渲染json数据 第一种
+#         http://127.0.0.1:8000/test_modelviewset.json    # 生产部渲染json数据 第二种
+#         http://127.0.0.1:8000/test_modelviewset/
+#         http://127.0.0.1:8000/test_modelviewset/(?P<pk>\d+)/
+#
+#         自动生成以上4中路由
+#
+#             router = routers.DefaultRouter()
+#             router.register(r'test_modelviewset', views.yyy)
+#
+#             urlpatterns = {
+#                 url(r'^/', include(router.urls))
+#             }
+#
+#     12 渲染器
+#
+#         0 作用
+#
+#             返回好看的数据
+#
+#         1 原理
+#
+#             class Test(APIView):
+#
+#                 render_classes = [JSONRenderer, BrowableAPIRenderer] 通过此类可以执行渲染器 一个知识json数据，一个经过浏览器渲染（建议放配置文件中）
+#
+#                 def get(self, request):
+#
+#                     .....
+#
+#
+#     13 django组件 contenttype
+#
+#         1 概念
+#
+#             django内置组件，用于连表操作
+#
+#         2 适用于
+#
+#             一张表和多张表进行关联的时候
+#
+#         3 使用
+#
+#             1 手动创建
+#
+#                 class A(models.Model):
+#                     a = models.CharField()
+#
+#                 class B(models.Model):
+#                     b = models.CharField()
+#
+#                 class C(models.Model):
+#                     c = models.CharField()
+#
+#                     table_name = models.CharField(verbose_name='关联的表名称')
+#                     object_id = models.CharField(verbose_name="关联的表中的数据行ID")
+#
+#             2 自动创建
+#
+#                 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+#                 from django.contrib.contenttypes.models import ContentType # django自动创建的表将该表存储着django中所有创建的表名
+#
+#                 class A(models.Model):
+#                     a = models.CharField()
+#                     a_c_list = GenericRelation("C")  # 仅用于反向查找，不生成字段
+#                 class B(models.Model):
+#                     b = models.CharField()
+#
+#                 class C(models.Model):
+#                     c = models.CharField()
+#
+#                     table_name = models.ForeignKey(ContentType, Verbose_name="关联的表名称")
+#                     table_id = models.IntegerField(verbose_name="关联的表中的数据行ID")
+#
+#                     content_object = GenericForeignkey('table_name', 'table_id') # 帮助快速实现content_type操作
+#
+#                 添加数据的时候
+#
+#                     obj = A.objects.filter(a="111").first()
+#                     C.objects.create(c="9.9", content_object=obj)
+#
+#                 获取表关联对象的所有信息
+#
+#                     A.a_c_list.all()
+#
+#
+# --------------------------------------------------
+1
+# --------------------------------------------------
