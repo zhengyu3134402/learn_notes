@@ -184,1260 +184,334 @@
                 # ]
         # 8 运行django
             # python manage.py runserver
+        # 9 settings.py中其他配置
+            # 1 是否开启URL访问地址后面不为/跳转至带有/的路径配置
+                # APPEND_SLASH=True
         1
-1
-# -i https://pypi.douban.com/simple
-#
-#
-#
-# django的models定义表名
-#
-#     class xx(..):
-#         class Meta:
-#             db_table = "表名"
-#
-# --------------------------------------------------
-# django的模块导入
-#
-#     如果出现找不到模块的问题
-#         pycharm中 右键项目目录 mark director as 选择 source director # 标记根目录
-# --------------------------------------------------
+    # 4.路由系统
+        1
+        # 1 概念
+            # 本质是URL与要为该URL调用的视图函数之间的映射表
+        # 2 配置
+            # 1 url方法     from django.conf.urls import url
+            # 2 映射list    urlpatterns = []
+            # 3 url的参数   url(正则表达式，view视图函数，参数，别名)
 
-#
-#
-#
-# --------------------------------------------------
-# django概念
-#
-# django的MTV模式
+        # 3 捕获参数
+            # 1 捕获的参数永远都是字符串
+            # 2 匹配顺序按列表从左到右的顺序
+            # 3 想要从url中捕获值，想要捕获值得部分必须加（）
+            # 4 正则部分建议加上r
+            # 5 url部分前面不需要加/
 
-#
-#
-# vue和django csrf_token解决
-#
-#     1.在django的view里设置request的cookie，让他带csrftoke。
-#
-#     2.修改前端的代码，获取cooke和请求头里的token值做比较。
-# --------------------------------------------------
-1
-# --------------------------------------------------
+        # 4 路由参数分组命名匹配
+            # 1 概念 分组命名匹配的正则表达式组来捕获URL中的值并以关键字参数形式传递给视图
+            # 2 ()            # 捕获参数
+            # 3  (?P<name>.*)  # 写在路由匹配列表中,url的格式 .*是正则表达式
+            # 3 name          # cvb方法中要有self,request之外的另一个参数xx接收url捕获的值
+            #
+            # 浏览器-》 http://127.0.0.1:8000/group_name_rep/1111/
+            # 路由列表-》 url(r'^group_name_rep/(?P<name>.*)/$', views.GroupNameRep.as_view())
+            # views.py-》
+            #     class GroupNameRep(View):
+            #         def get(self,request, name):
+            #             return HttpResponse(name)
 
-
-
-
-1
-# django解决css文件更改后由于缓存问题页面不跟新
-#
-#     1 解决问题思路
-#         基于md5解决根据js, css的内容生成一个字符串，
-#         当js，css繁盛改变的时候字符串也会随之更改
-#     2 解决流程
-#         1 设置STATICFILES_STORAGE
-1
-# --------------------------------------------------
-#
-#
-#
-#
-# --------------------------------------------------
-1
-# django静态文件在模板中导入,使用
-#     {% load static %}
-#         {% static '路径' %}
-1
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-1
-# 批量向数据库中插入数据
-#     知识点
-#         xx.objects.bulk_create(对象列表)
-#     步骤
-#         1 创建空列表
-#             a = []
-#         2 将对象插入孔列表
-#             a.append(obj)
-#         3 执行批量插入操作
-#             xx.objects.bulk_create(a)
-1
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-1
-# url根目录的路径配置
-#     url(r'^$', views.xxxx)
-# --------------------------------------------------
-1
-#
-# --------------------------------------------------
-1
-# django返回json数据
-#     知识点：
-#         json.dumps(xx)
-#     例子
-#         from django.http import HttpResponse
-#         def return_jsondata(request):
-#             data = {"a": 1}
-#             json_data = json.dumps(data)
-#             return HttpResponse(json_data)
-1
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-1
-# django返回中文json数据
-#     知识点：
-#         json.dumps(xx, ensure_ascii=False)
-#     例子
-#         from django.http import HttpResponse
-#         def return_cn_jsondata(request):
-#             data = {"a": "我"}
-#             json_cn_data = json.dumps(data, ensure_ascii=False)
-#             return HttpResponse(json_cn_data)
-1
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-1
-# GET请求方式的参数添加
-#
-#     /aaaa?b=2  get 参数rul的添加方式
-#     r'^aaaa/$'  路由匹配
-1
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-1
-# django获取GET请求参数
-#     知识点
-#         request.GET.get('参数的键值')
-1
-# --------------------------------------------------
+        # 5 路由分组命名匹配设定默认值
+            # 1 默认值   在cvb函数中request参数后指定
+            # 2 url      带默认参数url匹配和不带参数url匹配要分开写
+            #
+            #             url(r'a/(?P<name>\d+)', views.A.as_view()),
+            #
+            # class A(View):
+            #     def get(self, request, name="我是设定的默认参数"):
+            #         return HttpResponse(name)
 
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# --------------------------------------------------
-# django获取单个上传文件并存储到指定路径
-#     知识点
-#         0 概念        保存上传文件前，数据需要存放在某个位置。默认当上传文件小于2.5M时，
-#                         django会将上传文件的全部内容读进内存。从内存读取一次，写磁盘一次。
-#                         但当上传文件很大时，django会把上传文件写到临时文件中，然后存放到系统临时文件夹中。
-#         1 form                      # form表单提交，别忘了csrf
-#         2 method                    # 提交的方式
-#         3 enctype                   # 提交文件form必须要有的属性enctype="multipart/form-data"
-#         4 type="file" name="xx"     # 提交文件input的type属性file
-#         5 request.method  == "POST"          # 后端获取提交的方式 "POST"必须大写
-#         6 request.FILES.get('xx')   # 后端根据name指定的名字获取文件对象
-#         7 request.FILES.get('xx').name  # 获取传输文件的名字
-#
-#     <form action="/update_one_file/" method="post" enctype="multipart/form-data">
-#         <input type="file" name="file_obj" >
-#         <input type="submit">
-#     </form>
-#
-#     def update_one_file(request):
-#         if request.method == "POST":
-#             file = request.FILES.get('file_obj')
-#             with open(os.getcwd()+'\\static\\save_update_file\\'+file.name, 'wb')as f:
-#                 for i in file:
-#                     f.write(i)
-#
-#         return render(request, 'update_one_file.html')
-#
-#
-#
-#
-#
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django获取多个上传文件并存储到指定路径
-#
-#     知识点
-#         1 multiple                      # 上传多个文件添加的属性
-#         2 request.FILES.getlist('xxxx') # 获取多个上传文件的对象列表
-#
-#     html
-#         <form action="/put_database/" method="post" enctype="multipart/form-data">
-#             <input type="file" multiple  name="files">
-#
-#         </form>
-#     views.py
-#         files = request.FILES.getlist('files')
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django注意事项
-#
-# django QuerySet类型不支持负索引
-#
-# request.methods == 'xx'  xx中必须为大写
-#
-#
-# 类装饰器
-#     CSRF Token相关装饰器在CBV只能加到dispatch方法上，或者加在视图类上然后name参数指定为dispatch方法。
-#     csrf_protect，为当前函数强制设置防跨站请求伪造功能，即便settings中没有设置全局中间件。
-#     csrf_exempt，取消当前函数防跨站请求伪造功能，即便settings中设置了全局中间件。
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django 将QuerySet转换为列表类型
-#     list（QuerySet）
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django 设置cookies
-#
-#     def set_cookies(request):
-#     ref = HttpResponse('我设置了cookies')
-#     ref.set_cookie('a','100')
-#     return ref
-# --------------------------------------------------
-#
-#
-#
-#
-# --------------------------------------------------
-# django的CBV (用类相应用户请求GET)
-#     知识点
-#         1 View                  # 导入Views模块
-#         2 views.xx.as_view()    # url使用的方法
-#         3 class xx(View)        # 类继承View
-#         4 def get(self, request)# get方法也需要有request参数
-#
-#
-#         url(r'^cbv_get/$', views.Cbv_get.as_view()),
-#
-#         from django.views import View
-#         class Cbv_get(View):
-#             def get(self, request):
-#                 return HttpResponse('cbc_get')
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django的CBV (用类相应用户请求POST)
-#     知识点
-#         def post(self, request)      接收用户POST请求的post方法
-#
-#     class Cbv_post(View):
-#         def post(self, request):
-#             return HttpResponse('cbv_post')
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# CBV中的dispatch方法
-#     知识点
-#         执行顺序
-#             1 浏览器提交请求去执行dispatch方法
-#             2 走到ret 执行父类的dispatch方法，然后去执行get或post请求
-#             3 通过post或get请求返回response对象之后，在执行dispatc函数中的 return ret 返回给浏览器
-#
-#     def dispatch(self, request, *args, **kwargs):
-#
-#         ret = super().dispatch(request, *args, **kwargs)
-#         return ret
-#     def get(self, request)
-#         ...
-#     def post(self, request)
-#         ...
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# CBV中get或post方法上添加装饰器
-#     知识点
-#         1 method_decorator
-#         2 @method_decorator(xxx)
-#
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-#
-# cbv单独添加装饰器到get方法上（单独加在post方法上也是一样）
-#     知识点
-#         1 装饰器函数的位置          装饰器如果和类在同一个文件中必须写在类的上面要不找到
-#         2 method_decorator          导入模块 from django.utils.decorators import method_decorator
-#         3 @method_decorator（xx）   需要在哪个上面加上装饰器就在这个方法上面加并且括号内是装饰器的名字
-#         4 装饰器中必须返回的函数     必须返回传进来的函数
-#
-# from django.utils.decorators import method_decorator
-# def test_decorator(func):
-#     def waraper(*args, **kwargs):
-#         ret = func(*args, **kwargs)
-#         print('我是装饰器')
-#         return ret
-#     return waraper
-#
-#
-# class GetPostDecorator(View):
-#
-#     @method_decorator(test_decorator)
-#     def get(self, request):
-#         return HttpResponse('装饰器get')
-#     def post(self, request):
-#         pass
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# cbv 是get和post方法全部加上装饰器
-#     1.第一种思想，两个方法智商分别添加@method_decorator（xx）
-#     2.第二种思想，加载dispatch方法上，因为执行get和post方法之前都先执行dispatch方法
-#
-#     知识点
-#         1 dispatch                                   装饰器装饰在dispatch方法之上
-#         1 super().dispatch(request, *args, **kwargs) dispatch方法继承父方法
-# def test_decorator2(func):
-#     def waraper(*args, **kwargs):
-#         ret = func(*args, **kwargs)
-#         print('我是装饰器')
-#         return ret
-#     return waraper
-#
-# from django.utils.decorators import method_decorator
-# class DispatchDecorator(View):
-#
-#     @method_decorator(test_decorator2)
-#     def dispatch(self, request, *args, **kwargs):
-#         return super().dispatch(request, *args, **kwargs)
-#
-#     def get(self, request):
-#         return HttpResponse('get dispatch装饰器')
-#
-#     def post(self, request):
-#         return HttpResponse('post dispatch装饰器')
-# --------------------------------------------------
-#
-# --------------------------------------------------
-# cbv将装饰器加载视图类之上
-#     知识点
-#         1 method_decorator位置    写在类的上面
-#         2 name=“xx”             用name属性指定被装饰的函数 method_decorator（xxx， name=“yy”）
-#
-# def test_decorator3(func):
-#     def waraper(*args, **kwargs):
-#         ret = func(*args, **kwargs)
-#         print('我是装饰器')
-#         return ret
-#     return waraper
-#
-# from django.utils.decorators import method_decorator
-#
-# method_decorator(test_decorator3, name="get")
-# method_decorator(test_decorator3, name="post")
-# class UpClassDecorator(View):
-#
-#     def get(self, request):
-#         return HttpResponse('类上装饰器get')
-#     def post(self, request):
-#
-#         return HttpResponse('类上装饰器post')
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# HttpResponse
-#     知识点
-#         1 过程 通过浏览器提交请求会走到 urls.py文件中 搜索路径根据路径的对应关系 执行函数
-#         2 HttpResponse模块    # from django.shortcuts import HttpResponse
-#         3 request             # 保存了所有和用户浏览器请求的相关数据
-#
-#     def index(request):
-#         # request 保存了所有和用户浏览器请求的相关数据
-#         print(request)
-#         return HttpResponse("hello") # 返回响应字符串
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# render
-#     知识点
-#         1  render 方法  from django.shortcuts import render
-#         2  参数
-#             return render(
-#                 request    # 固定写法，用于生成相应的请求对象
-#                 remplate_name   # 要使用模板的名字 可选
-#                 context: 传给模板的 可选
-#                 content_type   #生成的文档要使用的MIME类型。默认为 DEFAULT_CONTENT_TYPE 设置的值。默认为'text/html' 可选
-#                 status: 相应状态码 默认200 可选
-#                 useing:用于加载模板的引擎名 可选
-#               )
-#
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# redirect
-#     1 顺序
-#         客户端发送请求 ---> 服务器返回重定向状态码302--客户根据重定向路径获取路径内容-->返回状态码200
-#     1 redirect方法
-#     2 参数
-#         一个模型：将调用模型的get_absolute_url() 函数
-#             object = MyModel.objects.get(...)
-#             return redirect(object)
-#         一个视图，可以带有参数：将使用urlresolvers.reverse 来反向解析名称
-#         一个绝对的或相对的URL，将原封不动的作为重定向的位置。
-#
-#     3 永久重定向和临时重定向
-#         它主要面向的是搜索引擎的机器人。
-#         A页面临时重定向到B页面，那搜索引擎收录的就是A页面。
-#         A页面永久重定向到B页面，那搜索引擎收录的就是B页面。
-#         默认返回一个临时的重定向；
-#         传递permanent=True 可以返回一个永久的重定向。
-#
-#     class ReturnRedirect(View):
-#     def get(self, request):
-#         return redirect("http://www.baidu.com")
-#
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django请求流程(客户发起请求到拿到结果的django流程)
-# 	1 浏览器发送请求
-# 	2 wsgiref模块接受消息对消息进行拆分(python内置的一个收发消息的模块)
-# 	2.5 中间件
-# 	3 执行url.py(设置url和需要执行函数的对应关系)
-# 	4 执行views.py(定义逻辑处理函数,执行render等..)
-# 	5 执行views.py之后 将消息返回给 wsgiref模块
-# 	6 wsgiref模块将响应消息发送给浏览器
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# django路由系统
-#
-#     它的本质是URL与要为该URL调用的视图函数之间的映射表。
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django URLconf路由系统配置
-#     知识点
-#         1 url方法     from django.conf.urls import url
-#         2 映射list    urlpatterns = []
-#         3 url的参数   url(正则表达式，view视图函数，参数，别名)
-#
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django路由系统捕获参数
-#     知识点
-#         1 捕获的参数永远都是字符串
-#         2 匹配顺序按列表从左到右的顺序
-#         3 想要从url中捕获值，想要捕获值得部分必须加（）
-#         4 正则部分建议加上r
-#         5 url部分前面不需要加/
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django路由系统分组命名匹配
-#     知识点
-#         1 概念 分组命名匹配的正则表达式组来捕获URL中的值并以关键字参数形式传递给视图
-#         2 ()            # 捕获参数
-#         3  (?P<name>.*)  # 写在路由匹配列表中,url的格式 .*是正则表达式
-#         3 name          # cvb方法中要有self,request之外的另一个参数xx接收url捕获的值
-#
-#         浏览器-》 http://127.0.0.1:8000/group_name_rep/1111/
-#         路由列表-》 url(r'^group_name_rep/(?P<name>.*)/$', views.GroupNameRep.as_view())
-#         views.py-》
-#             class GroupNameRep(View):
-#                 def get(self,request, name):
-#                     return HttpResponse(name)
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# 是否开启URL访问地址后面不为/跳转至带有/的路径配置
-#     知识点
-#         APPEND_SLASH=True   # 在settings.py中设置
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# 路由分组命名匹配设定默认值
-#     知识点
-#         1 默认值   在cvb函数中request参数后指定
-#         2 url      带默认参数url匹配和不带参数url匹配要分开写
-#                     url(r'group_name_rep_set_default_bd/', views.GroupNameRepSetDefault.as_view()),  # 15分组命名匹配设置默认值不带参数
-#                     url(r'group_name_rep_set_default_d/(?P<name>\d+)', views.GroupNameRepSetDefault.as_view()),  # 15分组命名匹配设置默认值带参数
-#
-#         class GroupNameRepSetDefault(View):
-#             def get(self, request, name="我是设定的默认参数"):
-#                 return HttpResponse(name)
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# 命名URL和URL反向解析
-#     知识点
-#         1 name            # 命名url url(r'^set_url_name/$', views.SetUrlName.as_view(), name='set_url_name')
-#         2 命名url的模板引用    # {{ url('set_url_name') 参数？ }}    # jinja2语法 可传递参数
-#         3 reverse方法         # from django.urls import reverse
-#         4命名url的视图中的反向解析     # reverse("index", args=("2018", )) # 可传递参数
-#
-#
-#         <a href="{{ url('set_url_name') }}">16命名url模板引用</a>
-#         <form action="{{ url('set_url_name') }}"  method="post">
-#             <input type="submit" value="16命名url视图反向解析">
-#         </form>
-#
-#         url(r'^set_url_name/$', views.SetUrlName.as_view(), name='set_url_name')
-#
-#         from django.urls import reverse
-#         class SetUrlName(View):
-#             def get(self, request):
-#                 return HttpResponse('url的模板引用')
-#             def post(self, request):
-#                 return redirect(reverse('set_url_name'))
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# 命名空间
-#     1 作用
-#          即使不同的APP使用相同的URL名称，URL的命名空间模式也可以让你唯一反转命名的URL。
-#     2 项目/项目名目录下的urls.py     # 位置
-#     3 include                        # url(r'', include('app.urls,', namespace='app')),
-#     4 应用中的urls.py                # urlpatterns上面写
-#                                         app_name = 'app'
-#                                         urlpatterns = [...]
-#     5 命名空间的模板使用             # {{ url('app:set_namespace') 参数？ }} 可带参数
-#     6 命名空间的视图使用    r         # reverse('app:set_url_name') 可带参数 reverse('app01:detail', kwargs={'pk':11})
-#     7 reverse方法         # from django.urls import reverse
-#
-#     <a href="{{ url('app:set_namespace') }}">17命名空间的模板使用 若加上命名空间原来不带命名空间的需要加上</a>
-#     <form action="{{ url('app:set_namespace') }}" method="post">
-#         <input type="submit" value="17命名空间的反向解析">
-#     </form>
-#
-#     url(r'^set_namespace/$', views.SetNamespace.as_view(), name='set_namespace')
-#
-#     class SetNamespace(View):
-#     def get(self, request):
-#         return HttpResponse('命名空间的模板使用')
-#     def post(self, request):
-#         return redirect(reverse('app:set_url_name'))
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# request对象
-#     当一个页面被请求时，Django就会创建一个包含本次请求原
-#     信息的HttpRequest对象。Django会将这个对象自动传递给响应的视图函数，
-#     一般视图函数约定俗成地使用 request 参数承接这个对象。
-#
-#
-#
-# <a href="HttpRequest_obj">
-# request请求相关属性
-#     django将请求报文中的请求行、头部信息、内容主体封装成
-#     HttpRequest 类中的属性。除了特殊说明的之外，其他均为只读的。
-#     0.HttpRequest.scheme
-#        表示请求方案的字符串（通常为http或https）
-#
-#         http
-#
-#     1.HttpRequest.body
-#     　　一个字符串，代表请求报文的主体。在处理非 HTTP 形式的报文时非常有用，
-#     例如：二进制图片、XML,Json等。但是，如果要处理表单数据的时候，
-#     推荐还是使用 HttpRequest.POST 。另外，我们还可以用 python 的类文
-#     方法去操作它，详情参考 HttpRequest.read() 。
-#
-#
-#     2.HttpRequest.path
-#     　　一个字符串，表示请求的路径组件（不含域名）。
-#         /HttpRequest_obj/
-#
-#
-#     3.HttpRequest.method
-#     　　一个字符串，表示请求使用的HTTP 方法。必须使用大写。
-#     　　
-#         GET
-#
-#
-#
-#     4.HttpRequest.encoding
-#         一个字符串，表示提交的数据的编码方式（如果为 None 则表示使用
-#         DEFAULT_CHARSET 的设置，默认为 'utf-8'）。
-#         这个属性是可写的，你可以修改它来修改访问表单数据使用的编码。
-#         接下来对属性的任何访问（例如从 GET 或 POST 中读取数据）将使用新的 encoding 值。
-#         如果你知道表单数据的编码不是 DEFAULT_CHARSET ，则使用它。
-#
-#         None
-#
-#
-#     5.HttpRequest.GET
-#         一个类似于字典的对象，包含 HTTP GET 的所有参数。
-#         详情请参考 QueryDict 对象。
-#
-#         <QueryDict: {}>
-#
-#
-#     6.HttpRequest.POST
-#         一个类似于字典的对象，如果请求中包含表单数据，则将这些数据封装成 QueryDict 对象。
-#         POST 请求可以带有空的 POST 字典 —— 如果通过 HTTP POST 方法发送一个表单，
-#         但是表单中没有任何的数据，QueryDict 对象依然会被创建。
-#         因此，不应该使用 if request.POST  来检查使用的是否是POST 方法；
-#         应该使用 if request.method == "POST"
-#         另外：如果使用 POST 上传文件的话，文件信息将包含在 FILES 属性中。
-#
-#         <QueryDict: {}>
-#
-#
-#     7.HttpRequest.COOKIES
-#         一个标准的Python 字典，包含所有的cookie。键和值都为字符串。
-#
-#         {}
-#
-#     8.HttpRequest.FILES
-#         一个类似于字典的对象，包含所有的上传文件信息。
-#         FILES 中的每个键为<input type="file" name="" /> 中的name
-#         ，值则为对应的数据。注意，FILES 只有在请求的方法为POST 且提交的<form>
-#         带有enctype="multipart/form-data" 的情况下才会包含数据。否则，
-#         FILES 将为一个空的类似于字典的对象。
-#
-#         <MultiValueDict: {}>
-#
-#
-#
-#     9.HttpRequest.META
-#         一个标准的Python 字典，包含所有的HTTP 首部。具体的头部信息取决于客户端和服务器，
-#         下面是一些示例：
-#             CONTENT_LENGTH —— 请求的正文的长度（是一个字符串）。
-#             CONTENT_TYPE —— 请求的正文的MIME 类型。
-#             HTTP_ACCEPT —— 响应可接收的Content-Type。
-#             HTTP_ACCEPT_ENCODING —— 响应可接收的编码。
-#             HTTP_ACCEPT_LANGUAGE —— 响应可接收的语言。
-#             HTTP_HOST —— 客服端发送的HTTP Host 头部。
-#             HTTP_REFERER —— Referring 页面。
-#             HTTP_USER_AGENT —— 客户端的user-agent 字符串。
-#             QUERY_STRING —— 单个字符串形式的查询字符串（未解析过的形式）。
-#             REMOTE_ADDR —— 客户端的IP 地址。
-#             REMOTE_HOST —— 客户端的主机名。
-#             REMOTE_USER —— 服务器认证后的用户。
-#             REQUEST_METHOD —— 一个字符串，例如"GET" 或"POST"。
-#             SERVER_NAME —— 服务器的主机名。
-#             SERVER_PORT —— 服务器的端口（是一个字符串）。
-#         从上面可以看到，除 CONTENT_LENGTH 和 CONTENT_TYPE 之外，
-#         请求中的任何 HTTP 首部转换为 META 的键时，
-#         都会将所有字母大写并将连接符替换为下划线最后加上 HTTP_  前缀。
-#         所以，一个叫做 X-Bender 的头部将转换成 META 中的 HTTP_X_BENDER 键。
-#
-#         {
-#         'FP_NO_HOST_CHECK': 'NO',
-#         'VIRTUAL_ENV': 'D:\\project\\git_cangku\\learn_django\\test_django_all\\venv',
-#         'LOCALAPPDATA': 'C:\\Users\\Administrator\\AppData\\Local',
-#         'PROGRAMFILES(X86)': 'C:\\Program Files (x86)',
-#         'PROGRAMDATA': 'C:\\ProgramData',
-#         'COMPUTERNAME': 'USER-20190202MM',
-#         'PROCESSOR_LEVEL': '6',
-#         'SESSIONNAME': 'Console',
-#         'TMP': 'C:\\Users\\ADMINI~1\\AppData\\Local\\Temp',
-#         'PATH': 'D:\\project\\git_cangku\\learn_django\\test_django_all\\venv\\Scripts;C:\\Program Files\\Python36\\Scripts\\;C:\\Program Files\\Python36\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files\\nodejs\\;C:\\Users\\Administrator\\AppData\\Roaming\\npm;D:\\soft\\vscode\\Microsoft VS Code\\bin;D:\\soft\\pycharm\\PyCharm 2018.3.4\\bin;',
-#         'PROGRAMFILES': 'C:\\Program Files',
-#         'SYSTEMROOT': 'C:\\Windows',
-#         'TERMINAL_EMULATOR': 'JetBrains-JediTerm',
-#         'COMMONPROGRAMFILES(X86)': 'C:\\Program Files(x86)\\Common Files',
-#         '_OLD_VIRTUAL_PATH': 'C:\\Program Files\\Python36\\Scripts\\;C:\\Program Files\\Python36\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files\\nodejs\\;C:\\Users\\Administrator\\AppData\\Roaming\\npm;D:\\soft\\vscode\\Microsoft VS Code\\bin;D:\\soft\\pycharm\\PyCharm 2018.3.4\\bin;',
-#         '_DFX_INSTALL_UNSIGNED_DRIVER': '1',
-#         '_OLD_VIRTUAL_PROMPT': '$P$G',
-#         'WINDIR': 'C:\\Windows',
-#         'PROCESSOR_IDENTIFIER': 'Intel64 Family 6 Model 15 Stepping 11, GenuineIntel',
-#         'PROGRAMW6432': 'C:\\Program Files',
-#         'TEMP': 'C:\\Users\\ADMINI~1\\AppData\\Local\\Temp',
-#         'PSMODULEPATH': 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\',
-#         'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',
-#         'PYCHARM': 'D:\\soft\\pycharm\\PyCharm 2018.3.4\\bin;',
-#         'NUMBER_OF_PROCESSORS': '4',
-#         'WINDOWS_TRACING_FLAGS': '3',
-#         'PROCESSOR_REVISION': '0f0b',
-#         'PROMPT': '(venv) $P$G',
-#         'USERNAME': 'Administrator',
-#         'COMSPEC': 'C:\\Windows\\system32\\cmd.exe',
-#         'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',
-#         '__INTELLIJ_COMMAND_HISTFILE__': 'C:\\Users\\Administrator\\.PyCharm2018.3\\config\\terminal\\history\\history-7',
-#         'PROCESSOR_ARCHITECTURE': 'AMD64',
-#         'USERDOMAIN': 'USER-20190202MM',
-#         'PUBLIC': 'C:\\Users\\Public',
-#         'PATHEXT': '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW',
-#         'HOMEPATH': '\\Users\\Administrator',
-#         'WINDOWS_TRACING_LOGFILE': 'C:\\BVTBin\\Tests\\installpackage\\csilogfile.log',
-#         'APPDATA': 'C:\\Users\\Administrator\\AppData\\Roaming',
-#         'SYSTEMDRIVE': 'C:',
-#         'LOGONSERVER': '\\\\USER-20190202MM',
-#         'OS': 'Windows_NT',
-#         'HOMEDRIVE': 'C:',
-#         'ALLUSERSPROFILE': 'C:\\ProgramData',
-#         'USERPROFILE': 'C:\\Users\\Administrator',
-#         'DJANGO_SETTINGS_MODULE': 'all_django.settings',
-#         'RUN_MAIN': 'true',
-#         'SERVER_NAME': 'USER-20190202MM',
-#         'GATEWAY_INTERFACE': 'CGI/1.1',
-#         'SERVER_PORT': '8000',
-#         'REMOTE_HOST': '',
-#         'CONTENT_LENGTH': '',
-#         'SCRIPT_NAME': '',
-#         'SERVER_PROTOCOL': 'HTTP/1.1',
-#         'SERVER_SOFTWARE': 'WSGIServer/0.2',
-#         'REQUEST_METHOD': 'GET',
-#         'PATH_INFO': '/HttpRequest_obj/',
-#         'QUERY_STRING': '',
-#         'REMOTE_ADDR': '127.0.0.1',
-#         'CONTENT_TYPE': 'text/plain',
-#         'HTTP_HOST': '127.0.0.1:8000',
-#         'HTTP_CONNECTION': 'keep-alive',
-#         'HTTP_CACHE_CONTROL': 'max-age=0',
-#         'HTTP_UPGRADE_INSECURE_REQUESTS': '1',
-#         'HTTP_USER_AGENT': 'Mozilla/5.0 (WindowsNT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36',
-#         'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-#         'HTTP_REFERER': 'http://127.0.0.1:8000/',
-#         'HTTP_ACCEPT_ENCODING': 'gzip, deflate, br',
-#         'HTTP_ACCEPT_LANGUAGE': 'zh-CN,zh;q=0.9',
-#         'wsgi.input': <_io.BufferedReader name=760>,
-#         'wsgi.errors': <_io.TextIOWrapper name='<stderr>' mode='w' encoding='utf-8'>,
-#         'wsgi.version': (1, 0),
-#         'wsgi.run_once': False,
-#         'wsgi.url_scheme': 'http',
-#         'wsgi.multithread': True,
-#         'wsgi.multiprocess': False,
-#         'wsgi.file_wrapper': <class 'wsgiref.util.FileWrapper'>}
-#
-#
-#
-#
-#     10.HttpRequest.user
-#         一个 AUTH_USER_MODEL 类型的对象，表示当前登录的用户。
-#         如果用户当前没有登录，user 将设置为 django.contrib.auth.models.AnonymousUser
-#         的一个实例。你可以通过 is_authenticated() 区分它们。
-#             例如：
-#             if request.user.is_authenticated():
-#                 # Do something for logged-in users.
-#             else:
-#                 # Do something for anonymous users.
-#         user 只有当Django 启用 AuthenticationMiddleware 中间件时才可用。
-#
-#         AnonymousUser
-#
-#
-#           匿名用户
-#           class models.AnonymousUser
-#           django.contrib.auth.models.AnonymousUser 类实现了
-#           django.contrib.auth.models.User 接口，但具有下面几个不同点：
-#             id 永远为None。
-#             username 永远为空字符串。
-#             get_username() 永远返回空字符串。
-#             is_staff 和 is_superuser 永远为False。
-#             is_active 永远为 False。
-#             groups 和 user_permissions 永远为空。
-#             is_anonymous() 返回True 而不是False。
-#             is_authenticated() 返回False 而不是True。
-#             set_password()、check_password()、save() 和delete() 引发 NotImplementedError。
-#           New in Django 1.8:
-#           新增 AnonymousUser.get_username() 以更好地模拟 django.contrib.auth.models.User。
-#
-#
-#
-#     11.HttpRequest.session
-#      　　一个既可读又可写的类似于字典的对象，表示当前的会话。
-#         只有当Django 启用会话的支持时才可用。
-#         完整的细节参见会话的文档。
-#
-#         <django.contrib.sessions.backends.db.SessionStore object at 0x00000000044F6B70>
-#
-#
-# request请求相关方法
-#
-#     1.HttpRequest.get_host()
-#     　　根据从HTTP_X_FORWARDED_HOST（如果打开 USE_X_FORWARDED_HOST，默认为False）
-#         和 HTTP_HOST 头部信息返回请求的原始主机。如果这两个头部没有提供相应的值，
-#         则使用SERVER_NAME 和SERVER_PORT，在PEP 3333 中有详细描述。
-#     　　USE_X_FORWARDED_HOST：一个布尔值，用于指定是否优先使用 X-Forwarded-Host 首部，
-#         仅在代理设置了该首部的情况下，才可以被使用。
-#     　　例如："127.0.0.1:8000"
-#     　　注意：当主机位于多个代理后面时，get_host() 方法将会失败。除非使用中间件重写代理的首部。
-#
-#         127.0.0.1:8000
-#
-#
-#     2.HttpRequest.get_full_path()
-#     　　返回 path，如果可以将加上查询字符串。
-#     　　例如："/music/bands/the_beatles/?print=true"
-#
-#         /HttpRequest_obj/
-#
-#
-#
-#     3.HttpRequest.get_signed_cookie(key, default=RAISE_ERROR, salt='', max_age=None)
-#
-#     　　返回签名过的Cookie 对应的值，如果签名不再合法则返回django.core.signing.BadSignature。
-#     　　如果提供 default 参数，将不会引发异常并返回 default 的值。
-#     　　可选参数salt 可以用来对安全密钥强力攻击提供额外的保护。
-#       max_age 参数用于检查Cookie 对应的时间戳以确保Cookie 的时间不会超过max_age 秒。
-#
-#
-#         >>> request.get_signed_cookie('name')
-#         'Tony'
-#         >>> request.get_signed_cookie('name', salt='name-salt')
-#         'Tony' # 假设在设置cookie的时候使用的是相同的salt
-#         >>> request.get_signed_cookie('non-existing-cookie')
-#         ...
-#         KeyError: 'non-existing-cookie'    # 没有相应的键时触发异常
-#         >>> request.get_signed_cookie('non-existing-cookie', False)
-#         False
-#         >>> request.get_signed_cookie('cookie-that-was-tampered-with')
-#         ...
-#         BadSignature: ...
-#         >>> request.get_signed_cookie('name', max_age=60)
-#         ...
-#         SignatureExpired: Signature age 1677.3839159 > 60 seconds
-#         >>> request.get_signed_cookie('name', False, max_age=60)
-#         False
-#
-#
-#     4.HttpRequest.is_secure()
-#     　　如果请求时是安全的，则返回True；即请求通是过 HTTPS 发起的。
-#
-#         False
-#
-#     5.HttpRequest.is_ajax()
-#     　　如果请求是通过XMLHttpRequest 发起的，则返回True，
-#       方法是检查 HTTP_X_REQUESTED_WITH 相应的首部是否是字符串'XMLHttpRequest'。
-#       大部分现代的 JavaScript 库都会发送这个头部。如果你编写自己的 XMLHttpRequest
-#       调用（在浏览器端），你必须手工设置这个值来让 is_ajax() 可以工作。
-#
-#     　　如果一个响应需要根据请求是否是通过AJAX 发起的，并且你正在使用某种形式的缓存例如Django
-#       的 cache middleware，
-#       你应该使用 vary_on_headers('HTTP_X_REQUESTED_WITH') 装饰你的视图以让响应能够正确地缓存。
-#
-#         False
-#
-#     6.request.POST.getlist("hobby")
-#         键值对的值是多个的时候,比如checkbox类型的input标签，select标签，需要用：
-# --------------------------------------------------
-#
-#
-#
-#
-# --------------------------------------------------
-# Response对象
-#     与由Django自动创建的HttpRequest对象相比，
-#     HttpResponse对象是我们的职责范围了。我们写的每个视图都需要实例化
-#     ，填充和返回一个HttpResponse。
-#     HttpResponse类位于django.http模块中
-#
-# 使用HttpResponse
-#     传递字符串
-#     class HttpResponseObj(View):
-#         def get(self, request):
-#             s = HttpResponse('haha')
-#             return s
-#
-#     设置或删除响应头信息
-#     class HttpResponseObj(View):
-#         def get(self, request):
-#             response = HttpResponse()
-#             response['Content-Type'] = 'text/html; charset=GBK'
-#             return response
-#
-# HttpResponse属性
-#     HttpResponse.content：响应内容
-#
-#         response = HttpResponse('haha')
-#         s = response.content
-#         print(s)
-#
-#         b'haha'
-#
-#     HttpResponse.charset：响应内容的编码
-#
-#         response = HttpResponse('haha')
-#         s = response.charset
-#         print(s)
-#
-#         uft-8
-#
-#     HttpResponse.status_code：响应的状态码
-#
-#         response = HttpResponse('haha')
-#         s = response.status_code
-#         print(s)
-#
-#         200
-#
-# JsonResponse对象
-#     1 作用             生成JSON编码的响应
-#     1 JsonResponse     对象的导入 from django.http import JsonResponse
-#     2 dict字典         默认清空下只允许传递字典类型
-#     3 safe=False        若想传递非字典类型
-#
-#     传递字典类型
-#     from django.http import JsonResponse
-#     class JsonResponseObj(View):
-#         def get(self, request):
-#             jsonResponse = JsonResponse({'aa':1})
-#             return jsonResponse
-#
-#     传递非字典类型
-#     from django.http import JsonResponse
-#     class JsonResponseObj(View):
-#         def get(self, request):
-#             jsonResponse = JsonResponse('aa', safe=False)
-#             return jsonResponse
-#
-# --------------------------------------------------
-# 在Python脚本中调用Django环境
-#     import os
-#     if __name__ == '__main__':
-#         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BMS.settings")
-#         import django
-#         django.setup()
-#
-#         from app01 import models
-#
-#         books = models.Book.objects.all()
-#         print(books)
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# Django 中间件
-#     知识点
-#         1   概念
-#                 Django的请求和响应的框架级别的钩子。它是一个轻量、低级别的插件系统，
-#                 用于在全局范围内改变Django的输入和输出。每个中间件组件都负责做一些特定的功能。
-#             中间件的配置
-#                 setting文件中MIDDLEWARE配置项是一个列表，列表中是一个个字符串，
-#                 这些字符串其实是一个个类，也就是一个个中间件。
-#                 MIDDLEWARE = [
-#                     'django.middleware.security.SecurityMiddleware',
-#                     'django.contrib.sessions.middleware.SessionMiddleware',
-#                     'django.middleware.common.CommonMiddleware',
-#                     'django.middleware.csrf.CsrfViewMiddleware',
-#                     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#                     'django.contrib.messages.middleware.MessageMiddleware',
-#                     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#                 ]
-#             自定义中间件
-#                     可以自定义
-#             定义中间件的5中方法
-#                 process_request(self,request)
-#                 process_view(self, request, view_func, view_args, view_kwargs)
-#                 process_template_response(self,request,response)
-#                 process_exception(self, request, exception)
-#                 process_response(self, request, response)
-#             中间件返回值得运用
-#                 返回值可以是None或一个HttpResponse对象，如果是None，
-#                 则继续按照django定义的规则向后继续执行，如果是HttpResponse对象，
-#                 则直接将该对象返回给用户。
-#         2 自定义中间件
-#             1 MiddlewareMixin类        导入模块from django.utils.deprecation import MiddlewareMixin
-#             2 创建类继承MiddlewareMixin
-#                                         class Md(MiddlewareMixin):
-#                                             def process_request(self, request):
-#                                                 print("Md里面的 process_request")
-#             3 注册创建的类到settings的MIDDLEWARE中
-#                                             MIDDLEWARE = [
-#                                                 ...
-#                                                 'app.views.Md',  # 和导入模块类似
-#                                             ]
-#
-#
-#             class MiddleWareTest(View):
-#                 def get(self, request):
-#                     print('视图函数get')
-#                     return HttpResponse('haha')
-#
-#
-#     多个中间件的顺序
-#         process_request(self, request)   一个参数 按照中间件的注册顺序执行，然后执行视图函数
-#         process_response(self, request, HttpResponse) 两个参数,需要返回值，先执行视图，然后倒叙执行中间件
-#
-#         process_view(self, request, view_func, view_args, view_kwargs)
-#             四个参数，先执行中间件正序，然后执行视图
-#             在process_request之后，视图函数之前执行的，执行顺序按照MIDDLEWARE中的注册顺序从前到后顺序执行的
-#             它应该返回None或一个HttpResponse对象。 如果返回None，Django将继续处理这个请求，
-#             执行任何其他中间件的process_view方法，然后在执行相应的视图。
-#             如果它返回一个HttpResponse对象，Django不会调用适当的视图函数。
-#             它将执行中间件的process_response方法并将应用到该HttpResponse并返回结果。
-#
-#         process_exception(self, request, exception)
-#             参数为 HttpRequest对象，exception是视图函数异常产生的Exception对象。
-#             这个方法只有在视图函数中出现异常了才执行，它返回的值可以是一个
-#             None也可以是一个HttpResponse对象。如果是HttpResponse对象，
-#             Django将调用模板和中间件中的process_response方法，
-#             并返回给浏览器，否则将默认处理异常。如果返回一个None，
-#             则交给下一个中间件的process_exception方法来处理异常。
-#             它的执行顺序也是按照中间件注册顺序的倒序执行。
-#
-#         process_template_response(self, request, response)（用的比较少）
-#             参数 HttpRequest对象，response是TemplateResponse对象（由视图函数或者中间件产生）
-#             rocess_template_response是在视图函数执行完成后立即执行，但是它有一个前提条件，
-#             那就是视图函数返回的对象有一个render()方法
-#             （或者表明该对象是一个TemplateResponse对象或等价方法）。视图函数执行完之后，
-#             立即执行了中间件的process_template_response方法，顺序是倒序，
-#             接着执行了视图函数返回的HttpResponse对象的render方法，
-#             返回了一个新的HttpResponse对象，接着执行中间件的process_response方法。
-#
-#     中间件的总流程
-#         请求到达中间件之后，先按照正序执行每个注册中间件的process_reques方法，
-#         process_request方法返回的值是None，就依次执行，如果返回的值是HttpResponse对象，
-#         不再执行后面的process_request方法，而是执行当前对应中间件的process_response方法，
-#         将HttpResponse对象返回给浏览器。也就是说：如果MIDDLEWARE中注册了6个中间件，执行过程中，
-#         第3个中间件返回了一个HttpResponse对象，那么第4,5,6中间件的process_request和process_response
-#         方法都不执行，顺序执行3,2,1中间件的process_response方法。
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# django的Form介绍
-#
-#     作用
-#           生成页面可用的HTML标签
-#           对用户提交的数据进行校验
-#           保留上次输入内容
-#
-#     使用
-#         1 导入forms类
-#             from django import forms
-#         2 创建类继承forms.Form类
-#             class RegForm(forms.Form)
-#         3 在创建的类中书写字段与label标签，和校验条件(推荐写入其他文件)
-#             class RegForm(forms.Form)
-#                 user = forms.CharField(label="xxx", 过滤条件)
-#         4 创建xx.html模板
-#         5 视图中创建该类的对象，并传入到模板中
-#             def xxx(request):
-#                 a = RegForm()
-#                 return render(request, 'xx.html', {"a":a })
-#         6 模板中使用a对象（生成的标签中自带前端校验规则，若想自定义校验规则，form中添加 novalidate属性去掉原校验规则）
-#             {{ a.as_p（） }} 根据类中定义自动生产多个p标签
-#             {{ a.user }}  生成生产字段的input框
-#             {{ a.user.label }} 生成类中指定label的内容
-#             {{ a.user.errors }} 生成字段的所有错误信息
-#             {{ a.user.errors.0 }} 生产字段的错误信息第一个
-#             {{ a.errors }}  生产所有字段的错误信息
-#         7 a.cleaned_data   （校验成功之后才会返回结果）
-#                能返回校验后的结果字典类型
-#                     {label标签名：用户输入信息}
-#
-#         8 字段和参数
-#             min_length = 6  最小长度为6
-#             required=True   是否允许为空
-#             widget = xx     Html插件
-#             label = xx      label标签显示内容（如果不加和字段变量名字一样）
-#             help_text=''    帮组信息（在标签旁边显示）
-#             error_message = xx  错误提示信息
-#             validators = [],  自定义验证规则
-#             localize = False  是否支持本地化
-#             disabled = False  是否可以编辑
-#             label_suffix = xx  label内容猴嘴
-#
-#             CharField
-#                 max_length = None  最大长度
-#                 min_length = None  最小长度
-#                 strip = True        是否移除用户输入的空白
-#             IntegerField
-#                 max_value = None    最大值
-#                 min_value = None    最小值
-#             FloatField(IntegerField)
-#
-#             DecimalField
-#                 max_value=None      最大值
-#                 min_value=None      最小值
-#                 max_digits=None     总长度
-#                 decimal_places=None 小数位长度
-#             BaseTemporalField
-#                 input_formats=None  时间格式化
-#
-#             DateField(BaseTemporalField)  格式：xxxx-xx-xx
-#             TimeField(BaseTemporalField)  格式：xx：xx
-#             DateTimeField(BaseTemporalField) 格式：xxxx-xx-xx xx:xx
-#
-#             DurationField(Field)    时间间隔：%d %H:%M:%s.%f
-#
-#             RegexField(CharField)
-#                 regex,              自定义正则表达式
-#                 max_length=None,    最大长度
-#                 min_length=None，   最小长度
-#                 error_message=None，忽略，错误信息使用error_messages=
-#             ........
-#
-#
-#         9 自定义类中的其他属性
-#             initial="xx"  输入框中的默认值
-#             error_messages = {          # 重写错误提示信息
-#                 "required":"不能为空",
-#                 "invalid":"格式错误",
-#                 "min_length":"用户名最短x位置"
-#
-#             }
-#
-#         10 字段类型html的改变
-#             需要用到 widgets组件
-#             from django.forms import widgets
-#             1 text类型
-#                 name = forms.CharField(xx)
-#
-#                 text类型变成password类型
-#                     widget=widgets.PasswordInput
-#
-#
-#             2 下拉框
-#                 a = forms.ChoiceField(choices=((1,"男"),(2,"女")))
-#
-#                 下拉框变成radio框
-#                     widget = widgets.RadioSelect
-#                 下拉框变成多选框
-#                     widget = widgets.SelectMultiple
-#                 下拉框变成checkbox单选框
-#                     widget=widgets.CheckboxInput
-#                 下拉框变成checkbox多选框
-#                     widget=widgets.CheckboxSelectMultiple
-#                 choice字段注意事项
-#                     在使用选择标签时，需要注意choices的选项可以配置从数据库中获取，
-#                     但是由于是静态字段 获取的值无法实时更新，需要重写构造方法从而实现choice实时更新。
-#
-#                     方式一：
-#
-#                     复制代码
-#                     from django.forms import Form
-#                     from django.forms import widgets
-#                     from django.forms import fields
-#
-#                     class MyForm(Form):
-#
-#                         user = fields.ChoiceField(
-#                             # choices=((1, '上海'), (2, '北京'),),
-#                             initial=2,
-#                             widget=widgets.Select
-#                         )
-#
-#                         def __init__(self, *args, **kwargs):
-#                             super(MyForm,self).__init__(*args, **kwargs)
-#                             # self.fields['user'].choices = ((1, '上海'), (2, '北京'),)
-#                             # 或
-#                             self.fields['user'].choices = models.Classes.objects.all().values_list('id','caption')
-#                     复制代码
-#                     方式二：
-#
-#                     复制代码
-#                     from django import forms
-#                     from django.forms import fields
-#                     from django.forms import models as form_model
-#
-#                     class FInfo(forms.Form):
-#                         authors = form_model.ModelMultipleChoiceField(queryset=models.NNewType.objects.all())  # 多选
-#                         # authors = form_model.ModelChoiceField(queryset=models.NNewType.objects.all())  # 单选
-#
-#         11 过滤校验条件
-#             1 自定义过滤条件,使用正则
-#                 1 导入RegexValidator(若想使用正则)
-#                     from django.core.validators import RegexValidator
-#                 2 创建字段（带有参数validators）
-#                     a = forms.CharField(label="手机号", validators=[])
-#                 3 将导入的正则模块放入validators的列表中
-#                     a = forms.CharField(label="手机号", validators=[RegexValidator()])
-#                 4 使用RegexValidator
-#                     a = forms.CharField(
-#                         label="手机号",
-#                         validators=[
-#                             RegexValidator(r'^1[3-9]\d{9}$', '错误提示')
-#                             ])
-#             2 自定义过滤条件,使用函数
-#                 1 导入模块 ValidationError
-#                     from django.core.exceptions import ValidationError
-#                 2  定义函数带有参数
-#                     def a(value):
-#                         写校验条件
-#                         若果不符合报错
-#                         raise ValidationError('错误提示')
-#                 3 应用定义的函数，将定义的函数放入validators中
-#                     a = forms.CharField(label="手机号", validators=[a])
-#
-#             3 钩子函数
-#                 1 局部钩子（对一个字段进行校验）
-#                     def clear_字段名(self):
-#                         value = self.cleaned_data.get("字段名")
-#                         if re.match(r'正则', value)
-#                             return value
-#                         raise validationError('错误提示信息')
-#                 2 全局钩子（可以对所有字段进行校验）
-#                     def clean(self):  # 所有字段校验后拿到的数据
-#                         条件判断
-#                         如果条件为true：
-#                             return self.cleaned_date
-#                         self.add_error('字段名','错误提示')    # 吧错误放到了字段级别的错误提示中
-#                         raise ValidationEror('错误提示信息')   # 错误提示放到了所有错误提示中
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# Django自带的用户认证
-#
-#     学习资料
-#     https://www.cnblogs.com/maple-shaw/articles/9537320.html
-#
-#     包括用户注册、用户登录、用户认证、注销、修改密码等功能
-#     它内置了强大的用户认证系统--auth，
-#     它默认使用 auth_user 表来存储用户数据。
-#
-#
-#     1使用
-#         (使用之前要对数据进行python manage.py migrate 让数据生产表auth_user表，要不然会报错)
-#         (向默认的auth_user表中插入数数据  python manage.py createsuperuser 测试用，以后可自定义表存储用户数据 )
-#         1 导入auth模块,authenticate, login(后面两个是auth下的模块)
-#             from django.contrib import auth
-#
-#         2 视图函数中使用
-#             anthenticate(reqesst, username=username,password=password)
-#                 接收用户post过来的name和pwd 如果验证成功会发返回一个user对象
-#             login(request, user)
-#                 记录登录状态，本质上在后端为该用户生产相关session数据
-#
-#                 代码
-#                     def post(self, request):
-#                         username = request.POST.get("name")
-#                         userpwd = request.POST.get("pwd")
-#                         user = authenticate(request, username=username, password=userpwd)
-#                         print(user)
-#                         if user is not None:
-#                             login(request, user)
-#                             return HttpResponse('认证成功')
-#
-#                         return HttpResponse('认证失败')
-#
-#             logout(request)
+        # 6 命名URL和URL反向解析
+            # 1 name            # 命名url url(r'^a/$', views.A.as_view(), name='a')
+            # 2 命名url的模板引用    # {% url 'app1:a' %}    # jinja2语法 可传递参数
+            # 3 reverse方法
+                # from django.urls import reverse
+                # reverse('app1:a', args=("2018", )) # 可传递参数
+        # 7 命名空间
+            # 1 作用
+                # 即使不同的APP使用相同的URL名称，URL的命名空间模式也可以让你唯一反转命名的URL。
+            # 2 创建命名空间
+                # 1 项目下的urls.py中
+                    # url(r'', include('app.urls,', namespace='app')),
+                # 2 标识命名空间名（应用中的urls.py ）
+                    # app_name = 'app'
+                    # urlpatterns = [...]
+            # 3 使用
+                # 1 命名空间的模板使用
+                    # {% url 'app1:b' %}
+                # 2 命名空间的视图使用
+                    # reverse('app:set_url_name') 可带参数 reverse('app01:detail', kwargs={'pk':11})
+        1
+
+    # 5 中间件
+        1
+        # 1 概念
+            # Django的请求和响应的框架级别的钩子。它是一个轻量、低级别的插件系统，
+            # 用于在全局范围内改变Django的输入和输出。每个中间件组件都负责做一些特定的功能。
+
+        # 2 位置
+
+            # setting文件中MIDDLEWARE配置项是一个列表，列表中是一个个字符串，
+            # 这些字符串其实是一个个类，也就是一个个中间件。
+
+        # 3 使用
+            # 1 中间件的5中方法
+                # process_request(self,request)
+                    # 视图函数接受请求前
+                # process_view(self, request, view_func, view_args, view_kwargs)
+                    # 在process_request之后，视图函数之前执行的
+                # process_template_response(self,request,response)
+                    # 视图函数执行完成后立即执行，但是它有一个前提条件，那就是视图函数返回的对象有一个render()方法
+                # process_exception(self, request, exception) #
+                    # 视图函数中发生错误执行
+                # process_response(self, request, response) #
+                    # 视图函数响应之后 需要return response
+            # 2 中间件的返回值
+                # 返回值可以是None或一个HttpResponse对象，如果是None，
+                # 则继续按照django定义的规则向后继续执行，如果是HttpResponse对象，
+                # 则直接将该对象返回给用户。
+            # 3 创建中间件
+
+                # 1 导入类MiddlewareMixin
+                # 2 创建类继承MiddlewareMixin
+                # 3 使用中间件的方法
+                # 4 注册创建的中间件settings的MIDDLEWARE中
+                    # from django.utils.deprecation import MiddlewareMixin
+                    #
+                    # class Md(MiddlewareMixin):
+                    #     def process_request(self, request):
+                    #         print('我是Md')
+
+            # 4 多个中间的顺序
+
+                # 1 process_request
+                    # 按照中间件的注册 顺序执行 ，然后执行视图函数
+
+                # 2 process_response
+                    # 先执行视图函数按照中间件注册的 倒叙执行
+
+                # 3 process_view
+                    # 按照注册循序， 执行相应的视图函数
+                    # 如果return一个HttpResponse对象，则不执行视图函数
+                # 4 process_exception
+                    # 按照注册顺序倒叙执行
+                    # 如果return None 交给下一个中间执行
+                    # 如果return HttpResquest随想 则执行process_response方法
+                # 5 process_template_response
+                    # 视图函数执行完之后，立即执行了中间件的process_template_response方法，顺序是倒序
+
+            # 5 中间件的总流程
+
+                # 1 请求到达中间件之后，先按照正序执行每个注册中间件的process_reques方法，
+                # 2 如果process_request方法返回的值是None，就依次执行
+                # 3 如果返回的值是HttpResponse对象，不再执行后面的process_request方法，
+                    # 而是执行当前对应中间件的process_response方法，将HttpResponse对象返回给浏览器。
+        1
+
+    # 6 Form
+        1
+        # 1 概念
+
+            # 1 生成页面可用的HTML标签
+            # 2 对用户提交的数据进行校验
+            # 3 保留上次输入内容
+        # 2 使用
+            # 1 创建表单类
+                # from django import forms
+                # class RegForm(forms.Form)
+                #     user = forms.CharField(label="xxx", 过滤条件)
+
+            # 2 创建xx.html模板
+            # 3 通过视图函数将表单类传入模板中
+                # class A(View):
+                #     def get(self, request):
+                #         a = F()
+                #         return render(request, 'a.html', {"form":a})
+
+            # 4 模板中使用表单类
+                # {{ a.as_p }} 根据类中定义自动生产多个p标签
+                # {{ a.user }}  生成生产字段的input框
+                # {{ a.user.label }} 生成类中指定label的内容
+                # {{ a.user.errors }} 生成字段的所有错误信息
+                # {{ a.user.errors.0 }} 生产字段的错误信息第一个
+                # {{ a.errors }}  生产所有字段的错误信息
+                # 生成的标签中自带前端校验规则，若想自定义校验规则，form中添加 novalidate属性去掉原校验规则）
+            # 5 表单类的方法
+                # 1 cleaned_data
+                    # 校验成功之后才会返回结果字典类型{label标签名：用户输入信息}
+
+            # 6 表单类的字段和校验参数
+                # 1 django内置
+                    # min_length = 6  最小长度为6
+                    # required=True   是否允许为空
+                    # widget = xx     Html插件
+                    # label = xx      label标签显示内容（如果不加和字段变量名字一样）
+                    # help_text=''    帮组信息（在标签旁边显示）
+                    # error_message = xx  错误提示信息
+                        # error_messages = {          # 重写错误提示信息
+                        #     "required":"不能为空",
+                        #     "invalid":"格式错误",
+                        #     "min_length":"用户名最短x位置"
+                        #             }
+                    # validators = [],  自定义验证规则
+                    # localize = False  是否支持本地化
+                    # disabled = False  是否可以编辑
+                    # label_suffix = xx  label内容后缀
+                    # initial="xx"  输入框中的默认值
+                    #
+                    # CharField
+                    #     max_length = None  最大长度
+                    #     min_length = None  最小长度
+                    #     strip = True        是否移除用户输入的空白
+                    # IntegerField
+                    #     max_value = None    最大值
+                    #     min_value = None    最小值
+                    # FloatField(IntegerField)
+                    #
+                    # DecimalField
+                    #     max_value=None      最大值
+                    #     min_value=None      最小值
+                    #     max_digits=None     总长度
+                    #     decimal_places=None 小数位长度
+                    # BaseTemporalField
+                    #     input_formats=None  时间格式化
+                    #
+                    # DateField(BaseTemporalField)  格式：xxxx-xx-xx
+                    # TimeField(BaseTemporalField)  格式：xx：xx
+                    # DateTimeField(BaseTemporalField) 格式：xxxx-xx-xx xx:xx
+                    #
+                    # DurationField(Field)    时间间隔：%d %H:%M:%s.%f
+                    #
+                    # RegexField(CharField)
+                    #     regex,              自定义正则表达式
+                    #     max_length=None,    最大长度
+                    #     min_length=None，   最小长度
+                    #     error_message=None，忽略，错误信息使用error_messages=
+                    # ........
+                # 2 自定义校验条件
+                    # 1 自定义校验条件,使用正则
+
+                        # from django.core.validators import RegexValidator
+
+                        # a = forms.CharField(label="手机号",
+                                        # validators=[RegexValidator(r'^1[3-9]\d{9}$', '错误提示')
+                                        # ])
+                    # 2 自定义校验条件,使用函数
+                        # from django.core.exceptions import ValidationError
+
+                        # def a(value):
+                            # 写校验条件
+                            # 若果不符合报错
+                            # raise ValidationError('错误提示')
+
+                        # a = forms.CharField(label="手机号", validators=[a])
+
+                    # 3 自定义校验条件, 使用钩子函数
+                        # 1 局部钩子（对一个字段进行校验）
+                            # def clear_字段名(self):
+                                # value = self.cleaned_data.get("字段名")
+                                # if re.match(r'正则', value)
+                                # return value
+                                # raise validationError('错误提示信息')
+                    # 2 全局钩子（可以对所有字段进行校验）
+                        # def clean(self):  # 所有字段校验后拿到的数据
+                            # 条件判断
+                            # 如果条件为true：
+                                # return self.cleaned_date
+                            # self.add_error('字段名','错误提示')    # 吧错误放到了字段级别的错误提示中
+                            # raise ValidationEror('错误提示信息')   # 错误提示放到了所有错误提示中
+
+            # 7 form字段类型
+                # from django.forms import widgets
+                # 1 text类型（默认）
+                    # name = forms.CharField(xx)
+
+                # 2 password类型
+                    # widget=widgets.PasswordInput
+                    # 例子
+                    # user = forms.CharField(label='用户名', widget=widgets.PasswordInput)
+
+                # 3 下拉框
+                    # a = forms.ChoiceField(choices=((1,"男"),(2,"女")))
+
+                # 4 radio框
+                    # widget = widgets.RadioSelect
+                # 5 多选框
+                    # widget = widgets.SelectMultiple
+                # 6 checkbox单选框
+                    # widget=widgets.CheckboxInput
+                # 7 checkbox多选框
+                    # widget=widgets.CheckboxSelectMultiple
+                # 8 choice字段的实时更新
+                    # 在使用选择标签时，需要注意choices的选项可以配置从数据库中获取，
+                    # 但是由于是静态字段 获取的值无法实时更新，需要重写构造方法从而实现choice实时更新。
+
+                    # 方式一：
+
+                    # from django.forms import Form
+                    # from django.forms import widgets
+                    # from django.forms import fields
+                    #
+                    # class MyForm(Form):
+
+                        # user = fields.ChoiceField(
+                        # choices=((1, '上海'), (2, '北京'),),
+                        # initial=2,
+                        # widget=widgets.Select
+                        # )
+
+                        # def __init__(self, *args, **kwargs):
+                        # super(MyForm,self).__init__(*args, **kwargs)
+                        # self.fields['user'].choices = ((1, '上海'), (2, '北京'),)
+                        # 或
+                        # self.fields['user'].choices = models.Classes.objects.all().values_list('id','caption')
+
+                    # 方式二：
+
+                    # from django import forms
+                    # from django.forms import fields
+                    # from django.forms import models as form_model
+
+                    # class FInfo(forms.Form):
+                        # authors = form_model.ModelMultipleChoiceField(queryset=models.NNewType.objects.all())  # 多选
+                        # authors = form_model.ModelChoiceField(queryset=models.NNewType.objects.all())  # 单选
+        1
+
+    # 7 用户认证
+        # 1 概念
+            # django内置认证系统
+            # 默认使用 auth_user 表来存储用户数据
+        # 2 使用
+            # (使用之前要对数据进行python manage.py migrate 让数据生产表auth_user表，要不然会报错)
+            # (向默认的auth_user表中插入数数据  python manage.py createsuperuser 测试用，以后可自定义表存储用户数据 )
+
+            # auth模块的方法
+                # 1 authenticate
+                    # 会去数据库auth_user表中检测用户是否存在，如果存在返回对象，不存返回None
+                    # from django.contrib.auth import authenticate
+                    # def post(self, request):
+                        # username = request.POST.get("user_name")
+                        # password = request.POST.get("user_pwd")
+                        # a = authenticate(request, username=username, password=password) #
+                        # print(a)
+                        # return HttpResponse('haha')
+                # 2 login
+                    # 记录登录状态，本质上在后端为该用户生产相关session数据
+                    # from django.contrib.auth import login
+                    # login(request, user)
+
+                # 3 logout(request)
 #                 当亲请求的session信息全部清除，即使没有session信息也不会报错
-#                 代码
-#                     from django.contrib.auth import logout
-#                     class AuthSessionDel(View):
-#                         def get(self, request):
-#                             logout(request)
-#                             return HttpResponse('清除session信息完毕')
-#
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #             is_authenticated()
 #                 用来判断当前请求是否通过了认证
 #                 代码
@@ -4402,3 +3476,821 @@
 # --------------------------------------------------
 1
 # --------------------------------------------------
+
+1
+# -i https://pypi.douban.com/simple
+#
+#
+#
+# django的models定义表名
+#
+#     class xx(..):
+#         class Meta:
+#             db_table = "表名"
+#
+# --------------------------------------------------
+# django的模块导入
+#
+#     如果出现找不到模块的问题
+#         pycharm中 右键项目目录 mark director as 选择 source director # 标记根目录
+# --------------------------------------------------
+
+#
+#
+#
+# --------------------------------------------------
+# django概念
+#
+# django的MTV模式
+
+#
+#
+# vue和django csrf_token解决
+#
+#     1.在django的view里设置request的cookie，让他带csrftoke。
+#
+#     2.修改前端的代码，获取cooke和请求头里的token值做比较。
+# --------------------------------------------------
+1
+# --------------------------------------------------
+
+
+
+
+1
+# django解决css文件更改后由于缓存问题页面不跟新
+#
+#     1 解决问题思路
+#         基于md5解决根据js, css的内容生成一个字符串，
+#         当js，css繁盛改变的时候字符串也会随之更改
+#     2 解决流程
+#         1 设置STATICFILES_STORAGE
+1
+# --------------------------------------------------
+#
+#
+#
+#
+# --------------------------------------------------
+1
+# django静态文件在模板中导入,使用
+#     {% load static %}
+#         {% static '路径' %}
+1
+# --------------------------------------------------
+#
+#
+#
+# --------------------------------------------------
+1
+# 批量向数据库中插入数据
+#     知识点
+#         xx.objects.bulk_create(对象列表)
+#     步骤
+#         1 创建空列表
+#             a = []
+#         2 将对象插入孔列表
+#             a.append(obj)
+#         3 执行批量插入操作
+#             xx.objects.bulk_create(a)
+1
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+1
+# url根目录的路径配置
+#     url(r'^$', views.xxxx)
+# --------------------------------------------------
+1
+#
+# --------------------------------------------------
+1
+# django返回json数据
+#     知识点：
+#         json.dumps(xx)
+#     例子
+#         from django.http import HttpResponse
+#         def return_jsondata(request):
+#             data = {"a": 1}
+#             json_data = json.dumps(data)
+#             return HttpResponse(json_data)
+1
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+1
+# django返回中文json数据
+#     知识点：
+#         json.dumps(xx, ensure_ascii=False)
+#     例子
+#         from django.http import HttpResponse
+#         def return_cn_jsondata(request):
+#             data = {"a": "我"}
+#             json_cn_data = json.dumps(data, ensure_ascii=False)
+#             return HttpResponse(json_cn_data)
+1
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+1
+# GET请求方式的参数添加
+#
+#     /aaaa?b=2  get 参数rul的添加方式
+#     r'^aaaa/$'  路由匹配
+1
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+1
+# django获取GET请求参数
+#     知识点
+#         request.GET.get('参数的键值')
+1
+# --------------------------------------------------
+
+
+1
+# --------------------------------------------------
+# django获取单个上传文件并存储到指定路径
+#     知识点
+#         0 概念        保存上传文件前，数据需要存放在某个位置。默认当上传文件小于2.5M时，
+#                         django会将上传文件的全部内容读进内存。从内存读取一次，写磁盘一次。
+#                         但当上传文件很大时，django会把上传文件写到临时文件中，然后存放到系统临时文件夹中。
+#         1 form                      # form表单提交，别忘了csrf
+#         2 method                    # 提交的方式
+#         3 enctype                   # 提交文件form必须要有的属性enctype="multipart/form-data"
+#         4 type="file" name="xx"     # 提交文件input的type属性file
+#         5 request.method  == "POST"          # 后端获取提交的方式 "POST"必须大写
+#         6 request.FILES.get('xx')   # 后端根据name指定的名字获取文件对象
+#         7 request.FILES.get('xx').name  # 获取传输文件的名字
+#
+#     <form action="/update_one_file/" method="post" enctype="multipart/form-data">
+#         <input type="file" name="file_obj" >
+#         <input type="submit">
+#     </form>
+#
+#     def update_one_file(request):
+#         if request.method == "POST":
+#             file = request.FILES.get('file_obj')
+#             with open(os.getcwd()+'\\static\\save_update_file\\'+file.name, 'wb')as f:
+#                 for i in file:
+#                     f.write(i)
+#
+#         return render(request, 'update_one_file.html')
+#
+#
+#
+#
+#
+# --------------------------------------------------
+1
+#
+1
+# --------------------------------------------------
+# django获取多个上传文件并存储到指定路径
+#
+#     知识点
+#         1 multiple                      # 上传多个文件添加的属性
+#         2 request.FILES.getlist('xxxx') # 获取多个上传文件的对象列表
+#
+#     html
+#         <form action="/put_database/" method="post" enctype="multipart/form-data">
+#             <input type="file" multiple  name="files">
+#
+#         </form>
+#     views.py
+#         files = request.FILES.getlist('files')
+# --------------------------------------------------
+1
+#
+1
+# --------------------------------------------------
+# django注意事项
+#
+# django QuerySet类型不支持负索引
+#
+# request.methods == 'xx'  xx中必须为大写
+#
+#
+# 类装饰器
+#     CSRF Token相关装饰器在CBV只能加到dispatch方法上，或者加在视图类上然后name参数指定为dispatch方法。
+#     csrf_protect，为当前函数强制设置防跨站请求伪造功能，即便settings中没有设置全局中间件。
+#     csrf_exempt，取消当前函数防跨站请求伪造功能，即便settings中设置了全局中间件。
+# --------------------------------------------------
+1
+#
+1
+# --------------------------------------------------
+# django 将QuerySet转换为列表类型
+#     list（QuerySet）
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# django 设置cookies
+#
+#     def set_cookies(request):
+#     ref = HttpResponse('我设置了cookies')
+#     ref.set_cookie('a','100')
+#     return ref
+# --------------------------------------------------
+#
+#
+#
+#
+# --------------------------------------------------
+# django的CBV (用类相应用户请求GET)
+#     知识点
+#         1 View                  # 导入Views模块
+#         2 views.xx.as_view()    # url使用的方法
+#         3 class xx(View)        # 类继承View
+#         4 def get(self, request)# get方法也需要有request参数
+#
+#
+#         url(r'^cbv_get/$', views.Cbv_get.as_view()),
+#
+#         from django.views import View
+#         class Cbv_get(View):
+#             def get(self, request):
+#                 return HttpResponse('cbc_get')
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# django的CBV (用类相应用户请求POST)
+#     知识点
+#         def post(self, request)      接收用户POST请求的post方法
+#
+#     class Cbv_post(View):
+#         def post(self, request):
+#             return HttpResponse('cbv_post')
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# CBV中的dispatch方法
+#     知识点
+#         执行顺序
+#             1 浏览器提交请求去执行dispatch方法
+#             2 走到ret 执行父类的dispatch方法，然后去执行get或post请求
+#             3 通过post或get请求返回response对象之后，在执行dispatc函数中的 return ret 返回给浏览器
+#
+#     def dispatch(self, request, *args, **kwargs):
+#
+#         ret = super().dispatch(request, *args, **kwargs)
+#         return ret
+#     def get(self, request)
+#         ...
+#     def post(self, request)
+#         ...
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# CBV中get或post方法上添加装饰器
+#     知识点
+#         1 method_decorator
+#         2 @method_decorator(xxx)
+#
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+#
+# cbv单独添加装饰器到get方法上（单独加在post方法上也是一样）
+#     知识点
+#         1 装饰器函数的位置          装饰器如果和类在同一个文件中必须写在类的上面要不找到
+#         2 method_decorator          导入模块 from django.utils.decorators import method_decorator
+#         3 @method_decorator（xx）   需要在哪个上面加上装饰器就在这个方法上面加并且括号内是装饰器的名字
+#         4 装饰器中必须返回的函数     必须返回传进来的函数
+#
+# from django.utils.decorators import method_decorator
+# def test_decorator(func):
+#     def waraper(*args, **kwargs):
+#         ret = func(*args, **kwargs)
+#         print('我是装饰器')
+#         return ret
+#     return waraper
+#
+#
+# class GetPostDecorator(View):
+#
+#     @method_decorator(test_decorator)
+#     def get(self, request):
+#         return HttpResponse('装饰器get')
+#     def post(self, request):
+#         pass
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# cbv 是get和post方法全部加上装饰器
+#     1.第一种思想，两个方法智商分别添加@method_decorator（xx）
+#     2.第二种思想，加载dispatch方法上，因为执行get和post方法之前都先执行dispatch方法
+#
+#     知识点
+#         1 dispatch                                   装饰器装饰在dispatch方法之上
+#         1 super().dispatch(request, *args, **kwargs) dispatch方法继承父方法
+# def test_decorator2(func):
+#     def waraper(*args, **kwargs):
+#         ret = func(*args, **kwargs)
+#         print('我是装饰器')
+#         return ret
+#     return waraper
+#
+# from django.utils.decorators import method_decorator
+# class DispatchDecorator(View):
+#
+#     @method_decorator(test_decorator2)
+#     def dispatch(self, request, *args, **kwargs):
+#         return super().dispatch(request, *args, **kwargs)
+#
+#     def get(self, request):
+#         return HttpResponse('get dispatch装饰器')
+#
+#     def post(self, request):
+#         return HttpResponse('post dispatch装饰器')
+# --------------------------------------------------
+#
+# --------------------------------------------------
+# cbv将装饰器加载视图类之上
+#     知识点
+#         1 method_decorator位置    写在类的上面
+#         2 name=“xx”             用name属性指定被装饰的函数 method_decorator（xxx， name=“yy”）
+#
+# def test_decorator3(func):
+#     def waraper(*args, **kwargs):
+#         ret = func(*args, **kwargs)
+#         print('我是装饰器')
+#         return ret
+#     return waraper
+#
+# from django.utils.decorators import method_decorator
+#
+# method_decorator(test_decorator3, name="get")
+# method_decorator(test_decorator3, name="post")
+# class UpClassDecorator(View):
+#
+#     def get(self, request):
+#         return HttpResponse('类上装饰器get')
+#     def post(self, request):
+#
+#         return HttpResponse('类上装饰器post')
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# HttpResponse
+#     知识点
+#         1 过程 通过浏览器提交请求会走到 urls.py文件中 搜索路径根据路径的对应关系 执行函数
+#         2 HttpResponse模块    # from django.shortcuts import HttpResponse
+#         3 request             # 保存了所有和用户浏览器请求的相关数据
+#
+#     def index(request):
+#         # request 保存了所有和用户浏览器请求的相关数据
+#         print(request)
+#         return HttpResponse("hello") # 返回响应字符串
+# --------------------------------------------------
+#
+#
+#
+# --------------------------------------------------
+# render
+#     知识点
+#         1  render 方法  from django.shortcuts import render
+#         2  参数
+#             return render(
+#                 request    # 固定写法，用于生成相应的请求对象
+#                 remplate_name   # 要使用模板的名字 可选
+#                 context: 传给模板的 可选
+#                 content_type   #生成的文档要使用的MIME类型。默认为 DEFAULT_CONTENT_TYPE 设置的值。默认为'text/html' 可选
+#                 status: 相应状态码 默认200 可选
+#                 useing:用于加载模板的引擎名 可选
+#               )
+#
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# redirect
+#     1 顺序
+#         客户端发送请求 ---> 服务器返回重定向状态码302--客户根据重定向路径获取路径内容-->返回状态码200
+#     1 redirect方法
+#     2 参数
+#         一个模型：将调用模型的get_absolute_url() 函数
+#             object = MyModel.objects.get(...)
+#             return redirect(object)
+#         一个视图，可以带有参数：将使用urlresolvers.reverse 来反向解析名称
+#         一个绝对的或相对的URL，将原封不动的作为重定向的位置。
+#
+#     3 永久重定向和临时重定向
+#         它主要面向的是搜索引擎的机器人。
+#         A页面临时重定向到B页面，那搜索引擎收录的就是A页面。
+#         A页面永久重定向到B页面，那搜索引擎收录的就是B页面。
+#         默认返回一个临时的重定向；
+#         传递permanent=True 可以返回一个永久的重定向。
+#
+#     class ReturnRedirect(View):
+#     def get(self, request):
+#         return redirect("http://www.baidu.com")
+#
+# --------------------------------------------------
+#
+#
+# --------------------------------------------------
+# django请求流程(客户发起请求到拿到结果的django流程)
+# 	1 浏览器发送请求
+# 	2 wsgiref模块接受消息对消息进行拆分(python内置的一个收发消息的模块)
+# 	2.5 中间件
+# 	3 执行url.py(设置url和需要执行函数的对应关系)
+# 	4 执行views.py(定义逻辑处理函数,执行render等..)
+# 	5 执行views.py之后 将消息返回给 wsgiref模块
+# 	6 wsgiref模块将响应消息发送给浏览器
+# --------------------------------------------------
+#
+1
+
+1
+# --------------------------------------------------
+# request对象
+#     当一个页面被请求时，Django就会创建一个包含本次请求原
+#     信息的HttpRequest对象。Django会将这个对象自动传递给响应的视图函数，
+#     一般视图函数约定俗成地使用 request 参数承接这个对象。
+#
+#
+#
+# <a href="HttpRequest_obj">
+# request请求相关属性
+#     django将请求报文中的请求行、头部信息、内容主体封装成
+#     HttpRequest 类中的属性。除了特殊说明的之外，其他均为只读的。
+#     0.HttpRequest.scheme
+#        表示请求方案的字符串（通常为http或https）
+#
+#         http
+#
+#     1.HttpRequest.body
+#     　　一个字符串，代表请求报文的主体。在处理非 HTTP 形式的报文时非常有用，
+#     例如：二进制图片、XML,Json等。但是，如果要处理表单数据的时候，
+#     推荐还是使用 HttpRequest.POST 。另外，我们还可以用 python 的类文
+#     方法去操作它，详情参考 HttpRequest.read() 。
+#
+#
+#     2.HttpRequest.path
+#     　　一个字符串，表示请求的路径组件（不含域名）。
+#         /HttpRequest_obj/
+#
+#
+#     3.HttpRequest.method
+#     　　一个字符串，表示请求使用的HTTP 方法。必须使用大写。
+#     　　
+#         GET
+#
+#
+#
+#     4.HttpRequest.encoding
+#         一个字符串，表示提交的数据的编码方式（如果为 None 则表示使用
+#         DEFAULT_CHARSET 的设置，默认为 'utf-8'）。
+#         这个属性是可写的，你可以修改它来修改访问表单数据使用的编码。
+#         接下来对属性的任何访问（例如从 GET 或 POST 中读取数据）将使用新的 encoding 值。
+#         如果你知道表单数据的编码不是 DEFAULT_CHARSET ，则使用它。
+#
+#         None
+#
+#
+#     5.HttpRequest.GET
+#         一个类似于字典的对象，包含 HTTP GET 的所有参数。
+#         详情请参考 QueryDict 对象。
+#
+#         <QueryDict: {}>
+#
+#
+#     6.HttpRequest.POST
+#         一个类似于字典的对象，如果请求中包含表单数据，则将这些数据封装成 QueryDict 对象。
+#         POST 请求可以带有空的 POST 字典 —— 如果通过 HTTP POST 方法发送一个表单，
+#         但是表单中没有任何的数据，QueryDict 对象依然会被创建。
+#         因此，不应该使用 if request.POST  来检查使用的是否是POST 方法；
+#         应该使用 if request.method == "POST"
+#         另外：如果使用 POST 上传文件的话，文件信息将包含在 FILES 属性中。
+#
+#         <QueryDict: {}>
+#
+#
+#     7.HttpRequest.COOKIES
+#         一个标准的Python 字典，包含所有的cookie。键和值都为字符串。
+#
+#         {}
+#
+#     8.HttpRequest.FILES
+#         一个类似于字典的对象，包含所有的上传文件信息。
+#         FILES 中的每个键为<input type="file" name="" /> 中的name
+#         ，值则为对应的数据。注意，FILES 只有在请求的方法为POST 且提交的<form>
+#         带有enctype="multipart/form-data" 的情况下才会包含数据。否则，
+#         FILES 将为一个空的类似于字典的对象。
+#
+#         <MultiValueDict: {}>
+#
+#
+#
+#     9.HttpRequest.META
+#         一个标准的Python 字典，包含所有的HTTP 首部。具体的头部信息取决于客户端和服务器，
+#         下面是一些示例：
+#             CONTENT_LENGTH —— 请求的正文的长度（是一个字符串）。
+#             CONTENT_TYPE —— 请求的正文的MIME 类型。
+#             HTTP_ACCEPT —— 响应可接收的Content-Type。
+#             HTTP_ACCEPT_ENCODING —— 响应可接收的编码。
+#             HTTP_ACCEPT_LANGUAGE —— 响应可接收的语言。
+#             HTTP_HOST —— 客服端发送的HTTP Host 头部。
+#             HTTP_REFERER —— Referring 页面。
+#             HTTP_USER_AGENT —— 客户端的user-agent 字符串。
+#             QUERY_STRING —— 单个字符串形式的查询字符串（未解析过的形式）。
+#             REMOTE_ADDR —— 客户端的IP 地址。
+#             REMOTE_HOST —— 客户端的主机名。
+#             REMOTE_USER —— 服务器认证后的用户。
+#             REQUEST_METHOD —— 一个字符串，例如"GET" 或"POST"。
+#             SERVER_NAME —— 服务器的主机名。
+#             SERVER_PORT —— 服务器的端口（是一个字符串）。
+#         从上面可以看到，除 CONTENT_LENGTH 和 CONTENT_TYPE 之外，
+#         请求中的任何 HTTP 首部转换为 META 的键时，
+#         都会将所有字母大写并将连接符替换为下划线最后加上 HTTP_  前缀。
+#         所以，一个叫做 X-Bender 的头部将转换成 META 中的 HTTP_X_BENDER 键。
+#
+#         {
+#         'FP_NO_HOST_CHECK': 'NO',
+#         'VIRTUAL_ENV': 'D:\\project\\git_cangku\\learn_django\\test_django_all\\venv',
+#         'LOCALAPPDATA': 'C:\\Users\\Administrator\\AppData\\Local',
+#         'PROGRAMFILES(X86)': 'C:\\Program Files (x86)',
+#         'PROGRAMDATA': 'C:\\ProgramData',
+#         'COMPUTERNAME': 'USER-20190202MM',
+#         'PROCESSOR_LEVEL': '6',
+#         'SESSIONNAME': 'Console',
+#         'TMP': 'C:\\Users\\ADMINI~1\\AppData\\Local\\Temp',
+#         'PATH': 'D:\\project\\git_cangku\\learn_django\\test_django_all\\venv\\Scripts;C:\\Program Files\\Python36\\Scripts\\;C:\\Program Files\\Python36\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files\\nodejs\\;C:\\Users\\Administrator\\AppData\\Roaming\\npm;D:\\soft\\vscode\\Microsoft VS Code\\bin;D:\\soft\\pycharm\\PyCharm 2018.3.4\\bin;',
+#         'PROGRAMFILES': 'C:\\Program Files',
+#         'SYSTEMROOT': 'C:\\Windows',
+#         'TERMINAL_EMULATOR': 'JetBrains-JediTerm',
+#         'COMMONPROGRAMFILES(X86)': 'C:\\Program Files(x86)\\Common Files',
+#         '_OLD_VIRTUAL_PATH': 'C:\\Program Files\\Python36\\Scripts\\;C:\\Program Files\\Python36\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files\\nodejs\\;C:\\Users\\Administrator\\AppData\\Roaming\\npm;D:\\soft\\vscode\\Microsoft VS Code\\bin;D:\\soft\\pycharm\\PyCharm 2018.3.4\\bin;',
+#         '_DFX_INSTALL_UNSIGNED_DRIVER': '1',
+#         '_OLD_VIRTUAL_PROMPT': '$P$G',
+#         'WINDIR': 'C:\\Windows',
+#         'PROCESSOR_IDENTIFIER': 'Intel64 Family 6 Model 15 Stepping 11, GenuineIntel',
+#         'PROGRAMW6432': 'C:\\Program Files',
+#         'TEMP': 'C:\\Users\\ADMINI~1\\AppData\\Local\\Temp',
+#         'PSMODULEPATH': 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\',
+#         'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',
+#         'PYCHARM': 'D:\\soft\\pycharm\\PyCharm 2018.3.4\\bin;',
+#         'NUMBER_OF_PROCESSORS': '4',
+#         'WINDOWS_TRACING_FLAGS': '3',
+#         'PROCESSOR_REVISION': '0f0b',
+#         'PROMPT': '(venv) $P$G',
+#         'USERNAME': 'Administrator',
+#         'COMSPEC': 'C:\\Windows\\system32\\cmd.exe',
+#         'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',
+#         '__INTELLIJ_COMMAND_HISTFILE__': 'C:\\Users\\Administrator\\.PyCharm2018.3\\config\\terminal\\history\\history-7',
+#         'PROCESSOR_ARCHITECTURE': 'AMD64',
+#         'USERDOMAIN': 'USER-20190202MM',
+#         'PUBLIC': 'C:\\Users\\Public',
+#         'PATHEXT': '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW',
+#         'HOMEPATH': '\\Users\\Administrator',
+#         'WINDOWS_TRACING_LOGFILE': 'C:\\BVTBin\\Tests\\installpackage\\csilogfile.log',
+#         'APPDATA': 'C:\\Users\\Administrator\\AppData\\Roaming',
+#         'SYSTEMDRIVE': 'C:',
+#         'LOGONSERVER': '\\\\USER-20190202MM',
+#         'OS': 'Windows_NT',
+#         'HOMEDRIVE': 'C:',
+#         'ALLUSERSPROFILE': 'C:\\ProgramData',
+#         'USERPROFILE': 'C:\\Users\\Administrator',
+#         'DJANGO_SETTINGS_MODULE': 'all_django.settings',
+#         'RUN_MAIN': 'true',
+#         'SERVER_NAME': 'USER-20190202MM',
+#         'GATEWAY_INTERFACE': 'CGI/1.1',
+#         'SERVER_PORT': '8000',
+#         'REMOTE_HOST': '',
+#         'CONTENT_LENGTH': '',
+#         'SCRIPT_NAME': '',
+#         'SERVER_PROTOCOL': 'HTTP/1.1',
+#         'SERVER_SOFTWARE': 'WSGIServer/0.2',
+#         'REQUEST_METHOD': 'GET',
+#         'PATH_INFO': '/HttpRequest_obj/',
+#         'QUERY_STRING': '',
+#         'REMOTE_ADDR': '127.0.0.1',
+#         'CONTENT_TYPE': 'text/plain',
+#         'HTTP_HOST': '127.0.0.1:8000',
+#         'HTTP_CONNECTION': 'keep-alive',
+#         'HTTP_CACHE_CONTROL': 'max-age=0',
+#         'HTTP_UPGRADE_INSECURE_REQUESTS': '1',
+#         'HTTP_USER_AGENT': 'Mozilla/5.0 (WindowsNT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36',
+#         'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+#         'HTTP_REFERER': 'http://127.0.0.1:8000/',
+#         'HTTP_ACCEPT_ENCODING': 'gzip, deflate, br',
+#         'HTTP_ACCEPT_LANGUAGE': 'zh-CN,zh;q=0.9',
+#         'wsgi.input': <_io.BufferedReader name=760>,
+#         'wsgi.errors': <_io.TextIOWrapper name='<stderr>' mode='w' encoding='utf-8'>,
+#         'wsgi.version': (1, 0),
+#         'wsgi.run_once': False,
+#         'wsgi.url_scheme': 'http',
+#         'wsgi.multithread': True,
+#         'wsgi.multiprocess': False,
+#         'wsgi.file_wrapper': <class 'wsgiref.util.FileWrapper'>}
+#
+#
+#
+#
+#     10.HttpRequest.user
+#         一个 AUTH_USER_MODEL 类型的对象，表示当前登录的用户。
+#         如果用户当前没有登录，user 将设置为 django.contrib.auth.models.AnonymousUser
+#         的一个实例。你可以通过 is_authenticated() 区分它们。
+#             例如：
+#             if request.user.is_authenticated():
+#                 # Do something for logged-in users.
+#             else:
+#                 # Do something for anonymous users.
+#         user 只有当Django 启用 AuthenticationMiddleware 中间件时才可用。
+#
+#         AnonymousUser
+#
+#
+#           匿名用户
+#           class models.AnonymousUser
+#           django.contrib.auth.models.AnonymousUser 类实现了
+#           django.contrib.auth.models.User 接口，但具有下面几个不同点：
+#             id 永远为None。
+#             username 永远为空字符串。
+#             get_username() 永远返回空字符串。
+#             is_staff 和 is_superuser 永远为False。
+#             is_active 永远为 False。
+#             groups 和 user_permissions 永远为空。
+#             is_anonymous() 返回True 而不是False。
+#             is_authenticated() 返回False 而不是True。
+#             set_password()、check_password()、save() 和delete() 引发 NotImplementedError。
+#           New in Django 1.8:
+#           新增 AnonymousUser.get_username() 以更好地模拟 django.contrib.auth.models.User。
+#
+#
+#
+#     11.HttpRequest.session
+#      　　一个既可读又可写的类似于字典的对象，表示当前的会话。
+#         只有当Django 启用会话的支持时才可用。
+#         完整的细节参见会话的文档。
+#
+#         <django.contrib.sessions.backends.db.SessionStore object at 0x00000000044F6B70>
+#
+#
+# request请求相关方法
+#
+#     1.HttpRequest.get_host()
+#     　　根据从HTTP_X_FORWARDED_HOST（如果打开 USE_X_FORWARDED_HOST，默认为False）
+#         和 HTTP_HOST 头部信息返回请求的原始主机。如果这两个头部没有提供相应的值，
+#         则使用SERVER_NAME 和SERVER_PORT，在PEP 3333 中有详细描述。
+#     　　USE_X_FORWARDED_HOST：一个布尔值，用于指定是否优先使用 X-Forwarded-Host 首部，
+#         仅在代理设置了该首部的情况下，才可以被使用。
+#     　　例如："127.0.0.1:8000"
+#     　　注意：当主机位于多个代理后面时，get_host() 方法将会失败。除非使用中间件重写代理的首部。
+#
+#         127.0.0.1:8000
+#
+#
+#     2.HttpRequest.get_full_path()
+#     　　返回 path，如果可以将加上查询字符串。
+#     　　例如："/music/bands/the_beatles/?print=true"
+#
+#         /HttpRequest_obj/
+#
+#
+#
+#     3.HttpRequest.get_signed_cookie(key, default=RAISE_ERROR, salt='', max_age=None)
+#
+#     　　返回签名过的Cookie 对应的值，如果签名不再合法则返回django.core.signing.BadSignature。
+#     　　如果提供 default 参数，将不会引发异常并返回 default 的值。
+#     　　可选参数salt 可以用来对安全密钥强力攻击提供额外的保护。
+#       max_age 参数用于检查Cookie 对应的时间戳以确保Cookie 的时间不会超过max_age 秒。
+#
+#
+#         >>> request.get_signed_cookie('name')
+#         'Tony'
+#         >>> request.get_signed_cookie('name', salt='name-salt')
+#         'Tony' # 假设在设置cookie的时候使用的是相同的salt
+#         >>> request.get_signed_cookie('non-existing-cookie')
+#         ...
+#         KeyError: 'non-existing-cookie'    # 没有相应的键时触发异常
+#         >>> request.get_signed_cookie('non-existing-cookie', False)
+#         False
+#         >>> request.get_signed_cookie('cookie-that-was-tampered-with')
+#         ...
+#         BadSignature: ...
+#         >>> request.get_signed_cookie('name', max_age=60)
+#         ...
+#         SignatureExpired: Signature age 1677.3839159 > 60 seconds
+#         >>> request.get_signed_cookie('name', False, max_age=60)
+#         False
+#
+#
+#     4.HttpRequest.is_secure()
+#     　　如果请求时是安全的，则返回True；即请求通是过 HTTPS 发起的。
+#
+#         False
+#
+#     5.HttpRequest.is_ajax()
+#     　　如果请求是通过XMLHttpRequest 发起的，则返回True，
+#       方法是检查 HTTP_X_REQUESTED_WITH 相应的首部是否是字符串'XMLHttpRequest'。
+#       大部分现代的 JavaScript 库都会发送这个头部。如果你编写自己的 XMLHttpRequest
+#       调用（在浏览器端），你必须手工设置这个值来让 is_ajax() 可以工作。
+#
+#     　　如果一个响应需要根据请求是否是通过AJAX 发起的，并且你正在使用某种形式的缓存例如Django
+#       的 cache middleware，
+#       你应该使用 vary_on_headers('HTTP_X_REQUESTED_WITH') 装饰你的视图以让响应能够正确地缓存。
+#
+#         False
+#
+#     6.request.POST.getlist("hobby")
+#         键值对的值是多个的时候,比如checkbox类型的input标签，select标签，需要用：
+# --------------------------------------------------
+#
+#
+#
+#
+# --------------------------------------------------
+# Response对象
+#     与由Django自动创建的HttpRequest对象相比，
+#     HttpResponse对象是我们的职责范围了。我们写的每个视图都需要实例化
+#     ，填充和返回一个HttpResponse。
+#     HttpResponse类位于django.http模块中
+#
+# 使用HttpResponse
+#     传递字符串
+#     class HttpResponseObj(View):
+#         def get(self, request):
+#             s = HttpResponse('haha')
+#             return s
+#
+#     设置或删除响应头信息
+#     class HttpResponseObj(View):
+#         def get(self, request):
+#             response = HttpResponse()
+#             response['Content-Type'] = 'text/html; charset=GBK'
+#             return response
+#
+# HttpResponse属性
+#     HttpResponse.content：响应内容
+#
+#         response = HttpResponse('haha')
+#         s = response.content
+#         print(s)
+#
+#         b'haha'
+#
+#     HttpResponse.charset：响应内容的编码
+#
+#         response = HttpResponse('haha')
+#         s = response.charset
+#         print(s)
+#
+#         uft-8
+#
+#     HttpResponse.status_code：响应的状态码
+#
+#         response = HttpResponse('haha')
+#         s = response.status_code
+#         print(s)
+#
+#         200
+#
+# JsonResponse对象
+#     1 作用             生成JSON编码的响应
+#     1 JsonResponse     对象的导入 from django.http import JsonResponse
+#     2 dict字典         默认清空下只允许传递字典类型
+#     3 safe=False        若想传递非字典类型
+#
+#     传递字典类型
+#     from django.http import JsonResponse
+#     class JsonResponseObj(View):
+#         def get(self, request):
+#             jsonResponse = JsonResponse({'aa':1})
+#             return jsonResponse
+#
+#     传递非字典类型
+#     from django.http import JsonResponse
+#     class JsonResponseObj(View):
+#         def get(self, request):
+#             jsonResponse = JsonResponse('aa', safe=False)
+#             return jsonResponse
+#
+# --------------------------------------------------
+# 在Python脚本中调用Django环境
+#     import os
+#     if __name__ == '__main__':
+#         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BMS.settings")
+#         import django
+#         django.setup()
+#
+#         from app01 import models
+#
+#         books = models.Book.objects.all()
+#         print(books)
+# --------------------------------------------------
+#
+1
