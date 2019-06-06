@@ -485,6 +485,7 @@
         1
 
     # 7 用户认证
+        1
         # 1 概念
             # django内置认证系统
             # 默认使用 auth_user 表来存储用户数据
@@ -508,456 +509,330 @@
                     # login(request, user)
 
                 # 3 logout(request)
-#                 当亲请求的session信息全部清除，即使没有session信息也不会报错
+                    # 当亲请求的session信息全部清除，即使没有session信息也不会报错
 
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#             is_authenticated()
-#                 用来判断当前请求是否通过了认证
-#                 代码
-#                     class MakeSureLogin(View):
-#                     def get(self, request):
-#                         if request.user.is_authenticated():
-#                             return HttpResponse('当前请求通过认证')
-#                         else:
-#                             return HttpResponse('当前请求没有通过认证')
-#
-#             login_required()
-#                 使用装饰器验证当前状态是否是登录状态
-#                 1 导入login_required
-#                     from django.contrib.auth.decorators import login_required
-#                 2 在函数上火cbv视图上使用
-#                     如果处于非登录状态 会自动跳转到“/accounts/login/”路径
-#                     若果要自定义跳转页面
-#                         在settings.py中设置
-#                             LOGIN_URL = '/自定义url/'
-#                 代码
-#                     from django.contrib.auth.decorators import login_required
-#                     from django.utils.decorators import method_decorator
-#                     class MakeSureLoginWithDecorators(View):
-#
-#                         @method_decorator(login_required)
-#                         def get(self, request):
-#                             return HttpResponse('用户处于登录状态')
-#
-#             create_user()
-#                 创建普通新用户，必要参数（usename,password）
-#                     1 导入User模块
-#                         from django.contrib.auth.models import User
-#
-#                     2 使用User模块，传入参数
-#                         User.objects.create_user(username='xx', password='xxx',...)
-#                             User的其他属性
-#                                 User对象属性：username， password
-#                                 is_staff ： 用户是否拥有网站的管理权限.
-#                                 is_active ： 是否允许用户登录, 设置为 False，可以在不删除用户的前提下禁止用户登录。
-#
-#                     代码
-#                         from django.contrib.auth.models import User
-#                         class CreateUser(View):
-#                             def get(self, request):
-#                                 form_obj = RegCreateUser()
-#                                 return render(request, 'register.html', {'form_obj': form_obj})
-#
-#                             def post(self, request):
-#                                 username = request.POST.get('name')
-#                                 passord = request.POST.get('pwd')
-#                                 User.objects.create_user(username=username, password=passord)
-#                                 return HttpResponse('注册完毕')
-#
-#             create_superuser()
-#                 创建超级新用户，必要参数（username, password）
-#                     和创建普通用户一样
-#
-#             check_password()
-#                 检验密码是否正确，必要参数密码
-#                     1 获取用户输入密码
-#
-#                     2 利用 request.user.check_password(‘密码’) 检验用户密码是否正确
-#
-#                     代码
-#                     class CheckPwd(View):
-#
-#                         def post(self, request):
-#                             pwd = request.POST.get('pwd')
-#                             if not request.user.check_password(pwd):
-#                                 return HttpResponse('密码不正确')
-#                             else:
-#                                 return HttpResponse('登录成功')
-#
-#             set_password()
-#                 修改密码，必要参数 新密码
-#                     1 修改密码
-#                         request.user.set_password(password='')
-#                     2 保存修改的密码
-#                         request.user.save()
-#
-#                     代码
-#                         class ChangPwd(View):
-#                         def get(self, request):
-#                             request.user.set_password('a3134402')
-#                             request.user.save()
-#                             return HttpResponse('修改密码成功')
-#
-#         3 扩展用户信息存储表（不使用原来的auth_user表，创建新的表会进程auth_user表的属性，此表中添加新属性）
-#             0 写的位置 应用下的models.py文件中
-#             1 导入AbstractUser模块
-#                 from django.contrib.auth.models import AbstractUser
-#             2 创建类继承AbstractUser
-#                 class xx(AbstractUser):
-#             3 在类中创建表的字段(必须有个字段带有unique属性)
-#                 class xx(AbstractUser):
-#                     phone = models.CharFiled(max_length=11)
-#
-#                     def __str__(self):
-#                         reutrn self.username
-#             4 在settings.py中设置，告诉django，使用创建的类来做用户认证
-#                 AUTH_USER_MODEL = '应用名.创建的类名'
-#             5 执行命令建该表
-#
-#
-#                 python manage.py makemigrations （如果执行此命令是次项目的第一次，没有问题，
-#                                                   如果不是第一次，会出现问题，删除数据库更新记录等会解决此问题）
-#
-#
-#
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# django缓存
-#
-#     1 缓存概念
-#         把数据先保存在某个地方，下次再读取的时候不用再去原位置读取
-#
-#         什么情况下设置缓存？
-#         1 不经常变换的数据应设置缓存
-#
-#     2 配置缓存（内存，文件, 数据库，Memcache）
-#         1 配置缓存到内存中， 放到settings文件中
-#             CACHES = {
-#             'default': {
-#                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # 缓存的位置，django所在程序的内存当中
-#                 'LOCATION': 'unique-snowflake',     # 在内存当中的唯一标识
-#                 'TIMEOUT': 300,          # 缓存超时时间（默认300，None表示永不过期，0表示立即过期）
-#                 'OPTIONS':{
-#                     'MAX_ENTRIES': 300,  # 最大缓存个数（默认300）
-#                     'CULL_FREQUENCY': 3, # 缓存到达最大个数之后，剔除缓存个数的比例，即：1/CULL_FREQUENCY（默认3）
-#                         },
-#
-#                     }
-#                 }
-#
-#
-#         2 配置缓存到文件中
-#             settings文件中修改原缓存的配置
-#                 CACHES = {
-#                     'default': {
-#                         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',  # 缓存到文件中
-#                         'LOCATION': 'xx/xx',     # 指定缓存文件的路径位置
-#                         'TIMEOUT': 300,          # 缓存超时时间（默认300，None表示永不过期，0表示立即过期）
-#                         'OPTIONS':{
-#                             'MAX_ENTRIES': 300,  # 最大缓存个数（默认300）
-#                             'CULL_FREQUENCY': 3, # 缓存到达最大个数之后，剔除缓存个数的比例，即：1/CULL_FREQUENCY（默认3）
-#                                 },
-#
-#                             }
-#                         }
-#
-#         3 配置缓存到数据库
-#             1 settings配置
-#                 CACHES = {
-#                     'default': {
-#                         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-#                         'LOCATION': '数据库表', # 数据库表
-#                     }
-#                 }
-#
-#             2 执行创建表命令
-#                 python manage.py createcachetable
-#
-#         4 配置缓存到Memcache（使用python-memcached模块，类似redis的内存数据库）
-#
-#             配置缓存到另一台服务器服务器内存中
-#                 CACHES = {
-#                     'default': {
-#                         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#                         'LOCATION': '127.0.0.1:11211', # 另一台服务器的地址
-#                     }
-#                 }
-#
-#
-#             CACHES = {
-#                 'default': {
-#                     'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#                     'LOCATION': 'unix:/tmp/memcached.sock',
-#                 }
-#             }
-#
-#             配置缓存到多台服务器服务器内存中（分布式）
-#                 CACHES = {
-#                     'default': {
-#                         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#                         'LOCATION': [
-#                             '172.19.26.240:11211',
-#                             '172.19.26.242:11211',
-#                         ]
-#                     }
-#                 }
-#
-#         5 配置缓存到Memcache（使用python-memcached模块，类似redis的内存数据库）
-#              CACHES = {
-#                 'default': {
-#                     'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-#                     'LOCATION': '127.0.0.1:11211',
-#                 }
-#             }
-#
-#             CACHES = {
-#                 'default': {
-#                     'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-#                     'LOCATION': '/tmp/memcached.sock',
-#                 }
-#             }
-#
-#             CACHES = {
-#                 'default': {
-#                     'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-#                     'LOCATION': [
-#                         '172.19.26.240:11211',
-#                         '172.19.26.242:11211',
-#                     ]
-#                 }
-#             }
-#
-#     2 使用缓存
-#         1 全站使用缓存
-#             1 在settings中配置缓存
-#                 MIDDLEWARE = [
-#                 'django.middleware.cache.UpdateCacheMiddleware',    # 如果缓存不存在将会保存至缓存
-#                 # 其他中间件...
-#                 'django.middleware.cache.FetchFromCacheMiddleware', # 获取内容返回给用户
-#             ]
-#
-#             CACHE_MIDDLEWARE_ALIAS = ""
-#             CACHE_MIDDLEWARE_SECONDS = ""   # 配置缓存的时间
-#             CACHE_MIDDLEWARE_KEY_PREFIX = ""
-#
-#         2 局部模板使用缓存
-#             1 模板中引入 cache
-#                 ｛% load cache %｝
-#             2 使用缓存
-#                 {% cache 秒 缓存的key(随意) %}
-#                     缓存的内容
-#                 {% endcache %}
-#
-#         3 单独视图的缓存
-#             方法一 在视图上使用缓存
-#                 1 导入装饰器cache_page
-#                     from django.views.decorators.cache import cache_page
-#                 2 应用到视图之上，视图中的变量就会缓存
-#                     @cache_page(秒)
-#                     def 视图名(request)
-#             方式二 在路由上使用缓存urls.py中
-#                 1 导入装饰器cache_page
-#                     from django.views.decorators.cache import cache_page
-#                 2 应用到路由之中
-#                     url(r'', cache_page(秒)(视图名))
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# django序列化
-#     1 方法
-#         1 serializers（了解）
-#             缺点：传递数据的时候，会把数据库中的表名也传过去
-#         2 json(推荐使用)
-#             技巧一 从数据库取出的内容进行序列化
-#                 从数据库从取去的类型是queryset类型
-#                 a = xx.objects.all().value('字段1', '字段2'。。。)
-#                 序列化结果 = json.dumps(list(a))
-#             技巧二 存储的数据类型含有不能序列化的类型如：datetime类型
-#                 解决方法
-#                     本质的处理将datetime类型转换成字符串类型再进行序列化
-#                 解决
-#                     1 导入JSONEncoder模块
-#                         from json import JSONEncoder
-#                     2 创建类继承JSONEncoder
-#                         class A(JSONEncoder):
-#                     3 重构 default方法
-#                         class A(JSONEncoder):
-#                             def default(self, field):   # 对数据字段进行判断
-#                                 if isinstance(field, datetime):
-#                                     return field.strftime('%y-%m-%d %H:%M:%S') # 把datetime类型变成字符串
-#                                 elif isinstance(field, date):
-#                                     return field.strftime('%Y-%m-%d') 把date类型转换成字符串
-#                                 else:
-#                                     return JSONEncoder.default(self, field)  # 其他类型进行默认转换
-#                     4 使用创建的类进行转换
-#                         json.dumps(data, cls=A)
-# --------------------------------------------------
-#
-#
-# --------------------------------------------------
-# django信号
-#     1 概念
-#         是django中预留的对象，达到特定调前后自动触发
-#         中间件掌管进和出，信号遍布django
-#
-#     2 django的内置信号
-#         Model signals
-#             pre_init                    # django的model执行其构造方法前，自动触发
-#             post_init                   # django的model执行其构造方法后，自动触发
-#             pre_save                    # django的model对象保存前，自动触发
-#             post_save                   # django的model对象保存后，自动触发
-#             pre_delete                  # django的model对象删除前，自动触发
-#             post_delete                 # django的model对象删除后，自动触发
-#             m2m_changed                 # django的model中使用m2m字段操作第三张表（add,remove,clear）前后，自动触发
-#             class_prepared              # 程序启动时，检测已注册的app中modal类，对于每一个类，自动触发
-#         Management signals
-#             pre_migrate                 # 执行migrate命令前，自动触发
-#             post_migrate                # 执行migrate命令后，自动触发
-#         Request/response signals
-#             request_started             # 请求到来前，自动触发
-#             request_finished            # 请求结束后，自动触发
-#             got_request_exception       # 请求异常后，自动触发
-#         Test signals
-#             setting_changed             # 使用test测试修改配置文件时，自动触发
-#             template_rendered           # 使用test测试渲染模板时，自动触发
-#         Database Wrappers
-#             connection_created          # 创建数据库连接时，自动触发
-#     3 使用信号
-#         方式一
-#             1 位置
-#                 写在settings.py目录中的__init__文件中
-#             2 在文件中导入信号相关模块（一共就这么多，用哪个导入哪个就行）
-#                     from django.core.signals import request_finished
-#                     from django.core.signals import request_started
-#                     from django.core.signals import got_request_exception
-#
-#                     from django.db.models.signals import class_prepared
-#                     from django.db.models.signals import pre_init, post_init
-#                     from django.db.models.signals import pre_save, post_save
-#                     from django.db.models.signals import pre_delete, post_delete
-#                     from django.db.models.signals import m2m_changed
-#                     from django.db.models.signals import pre_migrate, post_migrate
-#
-#                     from django.test.signals import setting_changed
-#                     from django.test.signals import template_rendered
-#
-#                     from django.db.backends.signals import connection_created
-#
-#             3 定义一个方法
-#                 def a(sender, **kwargs):  # 参数sender为触发该信号的相关信息和操作
-#                     ...
-#
-#             4 指定信号触发之后使用的函数(举例子：post_save)
-#                 post_save.connect(a)
-#
-#         方式二
-#             1 位置
-#                 写在settings.py目录中的__init__文件中
-#             2 在文件中导入信号相关模块（一共就这么多，用哪个导入哪个就行）
-#                     from django.core.signals import request_finished
-#                     from django.core.signals import request_started
-#                     from django.core.signals import got_request_exception
-#
-#                     from django.db.models.signals import class_prepared
-#                     from django.db.models.signals import pre_init, post_init
-#                     from django.db.models.signals import pre_save, post_save
-#                     from django.db.models.signals import pre_delete, post_delete
-#                     from django.db.models.signals import m2m_changed
-#                     from django.db.models.signals import pre_migrate, post_migrate
-#
-#                     from django.test.signals import setting_changed
-#                     from django.test.signals import template_rendered
-#
-#                     from django.db.backends.signals import connection_created
-#
-#             3 定义一个方法
-#                 def a(sender, **kwargs):  # 参数sender为触发该信号的相关信息和操作
-#                     ...
-#
-#             4 导入receiver模块
-#                 from django.dispatch impor receiver
-#
-#             5 将receiver装饰在定义的方法之上
-#                 @receive(触发的信号)
-#                 def a(sender, **kwargs):
-#                     ....
-#
-#     4 指定发送者（sender=xx）
-#         指定哪个对象能够触发该信号
-#             利用方式二的写法
-#                 @receiver(pre_save, sender=MyModel)
-#                 def my_handler(sender, **kwargs):
-#                     ...
-#     5 自定义信号
-#         1 位置
-#                 随意
-#         2 导入模块django.dispatch
-#             import django.dispatch
-#         3 使用Signal类创建对象
-#             pizza_done = django.dispatch.Signal(providing_ags=['a', 'b'])
-#         4 注册创建的对象，位置settings同目录下__init__.py中
-#             导入创建的对象
-#                 from xxx import pizza_done
-#         5 使用创建的对象
-#             @receiver(pizza_done)
-#             def xxxx(sender, **kwargs):
-#                 ......
-#         6 自定义触发信号
-#             1 想在哪触发信号 就导入要触发的信号
-#                 from xxx import pizza_done
-#             2 触发信号(可以少传参数)
-#                 pizza_done.send(sender='haha', a='xx',b='xx')
-# --------------------------------------------------
-#
-#
-#
-# --------------------------------------------------
-# django权限(有待练习)
-#     1 概念
-#         拥有某些权限才能访问某些网页
-#         web开发中 url约等于权限
-#     2 设计表
-#         1 创建权限表记录所有url
-#             id       url        title
-#             1         /xxx/     说明作用
-#             2         /yyy/
-#         2 创建用户表
-#             id    name   pwd
-#             1       aa   213
-#
-#         3 用户和权限的关系表（多对多）
-#             id      use_id      bumen_id
-#             1        1              1
-#
-#         4 角色表
-#             id      bumen
-#             1       xxx
-#         5 角色和权限关系表
-#             id      role_id     qianxian_id
-#
-#         通过用户拿角色 通过角色拿权限
-#
-#     3 再创建个应用
-#         将设计的表写新应用的models.py中写入
-#
-#     4 权限限制
-#         1 查询出用户的权限写入session
-#         2 读取权限信息，判断是否有权限
-#     5 使用中间件校验权限
-#         1 当前访问的URL
-#         2 获取当前用户的所有权限信息
-#         3 权限的校验
-#
-# --------------------------------------------------
-#
-#
-#
+                # 4 is_authenticated()
+                    # 用来判断当前请求是否通过了认证
+                        # request.user.is_authenticated()
+
+
+                # 5 login_required
+                    # 使用装饰器验证当前状态是否是登录状态
+                    # from django.contrib.auth.decorators import login_required
+                    # from django.utils.decorators import method_decorator
+
+                    # class A(View):
+                    #     @method_decorator(login_required)
+                    #     def get(self, request):
+                    #         return HttpResponse('用户处于登录状态')
+                    # 如果处于非登录状态 会自动跳转到settings.py中的
+                    # LOGIN_URL = '/自定义url/'定义的参数路径
+
+
+                # 6 create_user()
+                    # 创建普通新用户，必要参数（usename,password）
+
+                    # from django.contrib.auth.models import User
+
+                    # User.objects.create_user(username='xx', password='xxx',...)
+                        # User的其他属性
+                            # User对象属性：username， password
+                            # is_staff ： 用户是否拥有网站的管理权限.
+                            # is_active ： 是否允许用户登录, 设置为 False，可以在不删除用户的前提下禁止用户登录。
+
+                # 7 create_superuser()
+                    # 创建超级新用户，必要参数（username, password）和创建普通用户一样
+
+                # 8 check_password()
+                    # 检验密码是否正确，必要参数密码
+                    # request.user.check_password(‘密码’) 检验用户密码是否正确
+
+
+
+                # 9 set_password()
+                    # 修改密码，必要参数 新密码
+                    # 保存密码
+                    # request.user.set_password(password='新密码')
+                    # request.user.save()
+
+        # 3 扩展用户存储的信息
+            # 1 创建新的模型(必须有个字段带有unique属性)
+                # from django.contrib.auth.models import AbstractUser
+                # class A(AbstractUser):
+                    # phone = models.CharFiled(max_length=11, unique=True)
+                    # def __str__(self):
+                         # reutrn self.username
+            # 2 注册类
+                # settings.py中AUTH_USER_MODEL = '应用名.创建的类名'
+
+            # 3 生成表
+                # python manage.py makemigrations(如果执行此命令是次项目的第一次，没有问题，
+                                              # 如果不是第一次，会出现问题，删除数据库更新记录等会解决此问题)
+        1
+
+    # 8 缓存
+        1
+        # 1 概念
+            # 把数据先保存在某个地方，下次再读取的时候不用再去原位置读取
+            # 不经常变换的数据应设置缓存
+        # 2 配置
+            # 1 缓存类型
+                # 内存，文件，数据库 Memcache
+            # 2 配置
+                # 1 配置缓存到内存
+                    # settings文件中
+                        # CACHES = {
+                            # 'default': {
+                            # 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # 缓存的位置，django所在程序的内存当中
+                            # 'LOCATION': 'unique-snowflake',     # 在内存当中的唯一标识
+                            # 'TIMEOUT': 300,          # 缓存超时时间（默认300，None表示永不过期，0表示立即过期）
+                            # 'OPTIONS':{
+                                # 'MAX_ENTRIES': 300,  # 最大缓存个数（默认300）
+                                # 'CULL_FREQUENCY': 3, # 缓存到达最大个数之后，剔除缓存个数的比例，即：1/CULL_FREQUENCY（默认3）
+                                    # },
+
+                                # }
+                            # }
+
+
+                # 2 配置缓存到文件中
+
+                    # settings文件中修改原缓存的配置
+                    # CACHES = {
+                        # 'default': {
+                        # 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',  # 缓存到文件中
+                        # 'LOCATION': 'xx/xx',     # 指定缓存文件的路径位置
+                        # 'TIMEOUT': 300,          # 缓存超时时间（默认300，None表示永不过期，0表示立即过期）
+                            # 'OPTIONS':{
+                                # 'MAX_ENTRIES': 300,  # 最大缓存个数（默认300）
+                                # 'CULL_FREQUENCY': 3, # 缓存到达最大个数之后，剔除缓存个数的比例，即：1/CULL_FREQUENCY（默认3）
+                            # },
+                        #
+                        # }
+                    # }
+
+                # 3 配置缓存到数据库
+                    # 1 settings.py中配置
+                        # CACHES = {
+                            # 'default': {
+                                # 'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+                                # 'LOCATION': '数据库表', # 数据库表
+                            # }
+                        # }
+
+                    # 2 执行创建表命令
+                        # python manage.py createcachetable
+
+                # 4 配置缓存到Memcache（使用python-memcached模块，类似redis的内存数据库）
+
+                    # 配置缓存到另一台服务器服务器内存中
+                    # CACHES = {
+                    # 'default': {
+                            # 'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                            # 'LOCATION': '127.0.0.1:11211', # 另一台服务器的地址
+                        # }
+                    # }
+
+
+                    # CACHES = {
+                        # 'default': {
+                            # 'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                            # 'LOCATION': 'unix:/tmp/memcached.sock',
+                        # }
+                    # }
+
+                # 5 配置缓存到多台服务器服务器内存中（分布式）
+                    # CACHES = {
+                        # 'default': {
+                            # 'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                            # 'LOCATION': [
+                            # '172.19.26.240:11211',
+                            # '172.19.26.242:11211',
+                            # ]
+                        # }
+                    # }
+
+
+        # 3 使用
+
+        # 1 全站使用缓存
+            # 1 在settings中配置缓存
+                # MIDDLEWARE = [
+                    # 'django.middleware.cache.UpdateCacheMiddleware',    # 如果缓存不存在将会保存至缓存
+                    # 其他中间件...
+                    # 'django.middleware.cache.FetchFromCacheMiddleware', # 获取内容返回给用户
+                # ]
+
+                # CACHE_MIDDLEWARE_ALIAS = ""
+                # CACHE_MIDDLEWARE_SECONDS = ""   # 配置缓存的时间
+                # CACHE_MIDDLEWARE_KEY_PREFIX = ""
+
+        # 2 局部模板使用缓存
+            # 1 模板中引入 cache
+                # ｛% load cache %｝
+            # 2 使用缓存
+                # {% cache 秒 缓存的key(随意) %}
+                    # 缓存的内容
+                # {% endcache %}
+
+            # 3 单独视图的缓存
+                # 方法一 在视图上使用缓存
+                    # 1 导入装饰器cache_page
+                        # from django.views.decorators.cache import cache_page
+                    # 2 应用到视图之上，视图中的变量就会缓存
+                        # @cache_page(秒)
+                        # def 视图名(request)
+                # 方式二 在路由上使用缓存urls.py中
+                    # 1 导入装饰器cache_page
+                        # from django.views.decorators.cache import cache_page
+                    # 2 应用到路由之中
+                        # url(r'', cache_page(秒)(视图名))
+        1
+
+    # 9 序列化
+        1
+        # 1 使用
+            # 1 serializers（了解）
+                # 缺点：传递数据的时候，会把数据库中的表名也传过去
+        # 2 json(推荐使用)
+            # 1 从数据库取出的内容进行序列化
+                # 从数据库从取去的类型是queryset类型
+                # a = xx.objects.all().value('字段1', '字段2'。。。)
+                # 序列化结果 = json.dumps(list(a))
+            # 2 存储的数据类型含有不能序列化的类型如：datetime类型
+                # 1 解决方法
+                    # 本质的处理将datetime类型转换成字符串类型再进行序列化
+                        # 1 导入JSONEncoder模块
+                        # 2 创建类继承JSONEncoder
+                        # 3 重构 default方法
+                        # 4 使用创建的类进行转换
+
+                        # from json import JSONEncoder
+                        # class A(JSONEncoder):
+                            # def default(self, field):   # 对数据字段进行判断
+                                # if isinstance(field, datetime):
+                                    # return field.strftime('%y-%m-%d %H:%M:%S') # 把datetime类型变成字符串
+                                # elif isinstance(field, date):
+                                    # return field.strftime('%Y-%m-%d') 把date类型转换成字符串
+                                # else:
+                                    # return JSONEncoder.default(self, field)  # 其他类型进行默认转换
+                                # json.dumps(data, cls=A)
+        1
+
+    # 10 信号
+        1
+        # 1 概念
+            # 是django中预留的对象，达到特定条件后自动触发
+            # 中间件掌管进和出，信号遍布django
+        # 2 内置信号
+
+            # Model signals
+                # pre_init                    # django的model执行其构造方法前，自动触发
+                # post_init                   # django的model执行其构造方法后，自动触发
+                # pre_save                    # django的model对象保存前，自动触发
+                # post_save                   # django的model对象保存后，自动触发
+                # pre_delete                  # django的model对象删除前，自动触发
+                # post_delete                 # django的model对象删除后，自动触发
+                # m2m_changed                 # django的model中使用m2m字段操作第三张表（add,remove,clear）前后，自动触发
+                # class_prepared              # 程序启动时，检测已注册的app中modal类，对于每一个类，自动触发
+            # Management signals
+                # pre_migrate                 # 执行migrate命令前，自动触发
+                # post_migrate                # 执行migrate命令后，自动触发
+            # Request/response signals
+                # request_started             # 请求到来前，自动触发
+                # request_finished            # 请求结束后，自动触发
+                # got_request_exception       # 请求异常后，自动触发
+            # Test signals
+                # setting_changed             # 使用test测试修改配置文件时，自动触发
+                # template_rendered           # 使用test测试渲染模板时，自动触发
+            # Database Wrappers
+                # connection_created          # 创建数据库连接时，自动触发
+        # 3 使用信号
+            # 方法1
+                # 1 位置
+                    # 写在settings.py目录中的__init__文件中
+                # 2 在文件中导入信号相关模块（一共就这么多，用哪个导入哪个就行）
+                    # from django.core.signals import request_finished
+                    # from django.core.signals import request_started
+                    # from django.core.signals import got_request_exception
+                    #
+                    # from django.db.models.signals import class_prepared
+                    # from django.db.models.signals import pre_init, post_init
+                    # from django.db.models.signals import pre_save, post_save
+                    # from django.db.models.signals import pre_delete, post_delete
+                    # from django.db.models.signals import m2m_changed
+                    # from django.db.models.signals import pre_migrate, post_migrate
+                    #
+                    # from django.test.signals import setting_changed
+                    # from django.test.signals import template_rendered
+                    #
+                    # from django.db.backends.signals import connection_created
+
+                # 3 定义一个方法
+                    # def a(sender, **kwargs):  # 参数sender为触发该信号的相关信息和操作
+                    # ...
+
+                # 4 指定信号触发之后使用的函数(举例子：post_save)
+                    # post_save.connect(a)
+
+            # 方法2
+                # 1 位置
+                    # 写在settings.py目录中的__init__文件中
+                # 2 在文件中导入信号相关模块（一共就这么多，用哪个导入哪个就行）
+                    # from django.core.signals import request_finished
+                    # from django.core.signals import request_started
+                    # from django.core.signals import got_request_exception
+                    #
+                    # from django.db.models.signals import class_prepared
+                    # from django.db.models.signals import pre_init, post_init
+                    # from django.db.models.signals import pre_save, post_save
+                    # from django.db.models.signals import pre_delete, post_delete
+                    # from django.db.models.signals import m2m_changed
+                    # from django.db.models.signals import pre_migrate, post_migrate
+                    #
+                    # from django.test.signals import setting_changed
+                    # from django.test.signals import template_rendered
+                    #
+                    # from django.db.backends.signals import connection_created
+
+                # 3 定义一个方法
+                    # def a(sender, **kwargs):  # 参数sender为触发该信号的相关信息和操作
+                    # ...
+
+                # 4 导入receiver模块
+                    # from django.dispatch import receiver
+
+                # 5 将receiver装饰在定义的方法之上
+                    # @receive(触发的信号)
+                    # def a(sender, **kwargs):
+                    # ....
+
+        # 4 指定发送者（sender=xx）
+            # 指定哪个对象能够触发该信号
+            # 利用方法的写法
+                # @receiver(pre_save, sender=MyModel)
+                # def my_handler(sender, **kwargs):
+                # ...
+        # 5 自定义信号
+            # 1 创建信号
+                # import django.dispatch
+                # pizza_done = django.dispatch.Signal(providing_ags=['a', 'b'])
+            # 2 注册创建的信号（settings同目录下__init__.py）
+
+                # from xxx import pizza_done
+                # @receiver(pizza_done)
+                # def xxxx(sender, **kwargs):
+                    # ......
+            # 3 触发信号
+                # 想在哪触发信号 就导入要触发的信号
+                # from xxx import pizza_done
+                # pizza_done.send(sender='haha', a='xx',b='xx') # 触发信号(可以少传参数)
+        1
+
+
+
+
 # --------------------------------------------------
 # Django admin
 #
