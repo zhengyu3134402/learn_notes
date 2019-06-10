@@ -1,4 +1,9 @@
 
+
+# django -->搜索django
+# Django REST framework -->搜索Django REST framework
+
+
 # -i https://pypi.douban.com/simple
 #  =================================================
 # Django
@@ -2473,25 +2478,18 @@
         # 10
         1
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# --------------------------------------------------
+# ================================================
+
+
+# ================================================
 # Django REST framework
 1
-#
-#     0 知识回顾
-#         django中间件和装饰器
-#             适用于所有请求批量做操作
-#                 场景
-#                     基于角色的权限控制
-#                     用户认证
-#                     csrf
-#                     session
-#                     黑名单
-#                     日志记录
+
 #
 #     1 安装
 #
 #         pip install djangorestframework
+
 #     2 注册
 #
 #         INSTALLED_APPS = (
@@ -2500,7 +2498,7 @@
 #         )
 #
 #     3 验证用户是否登录
-#
+1
 #         1 源码流程
 #
 #             1 django接受请求
@@ -2537,8 +2535,9 @@
 #             补充orm操作
 #                 数据不存在就创建，数据存在就更新
 #                 xx.objects.updata_or_create(user=obj, defaults={'token':token})
-#
+1
 #     4 认证
+1
 #         1 有些api需要用户登录成功之后才能访问，有些无需登录才能访问
 #             1 创建两张表
 #             2 用户登录（返回token并保存到数据库）# 通过客户端的post请求 使用用户名生成随机字符串（md5）
@@ -2601,9 +2600,9 @@
 #             from rest_framework.authentication import BasicAuthentication
 #             1 BasicAuthentication自己写认证推荐继承
 #
-#
+1
 #     5 权限
-#
+1
 #         1 有的网页符合权限等级可以访问，符合权限等级的不能访问
 #
 #             1 源码流程
@@ -2643,9 +2642,9 @@
 #
 #                 1 自定义权限类推荐继承BasePermission
 #
-#
+1
 #     5 访问频率控制(节流)
-#
+1
 #         0 基本使用
 #
 #             类，继承 BaseThrottle，实现 allow_request, wait
@@ -2798,9 +2797,9 @@
 #                     匿名用户 局部限制  # 登录和匿名用户限制次数一致
 #
 #
-#
+1
 #     6 版本
-#
+1
 #         1 从url参数中获取版本信息（http://127.0.0.1:8000/test_version/?version=v1）
 #
 #             class My_version:
@@ -2837,9 +2836,9 @@
 #                     print(request.versioning_scheme.reverse(viewname='url的name参数值', request=request)) # 反向解析
 #                     return HttpResponse('版本控制')
 #
-#
+1
 #     7 解析器
-#
+1
 #         1 内容回顾
 #
 #             django：request.POST和 request.body
@@ -2877,9 +2876,9 @@
 #                                            'rest_framework.parsers.FormParser']  # 只解析content-type:application/x-www-form-urlencoded头
 #             }
 #
-#
+1
 #     8 序列化
-#
+1
 #         1 概念
 #             请求数据进行校验
 #             queryset进行序列化
@@ -3055,9 +3054,9 @@
 #                             raise exceptions.validataionError('xxxx')
 #                             # 如果通过验证
 #                             return value
-#
+1
 #     9 分页
-#
+1
 #         1 分类
 #             from rest_framework.pagination import ..
 #             1 看第n页 每页显示n条数据 （PageNumberPagination）
@@ -3129,9 +3128,9 @@
 #                             ser = Test_girl_page(instance=page_data, many=True)
 #
 #                             return pg.get_paginated_response(ser.data) # 返回的内容带有下一页和上一页的url
-#
+1
 #     10 视图
-#
+1
 #         总结：
 #
 #             1 只使用基本的增删改查
@@ -3251,9 +3250,9 @@
 #
 #                         queryset = Girls.objects.all()
 #                         serializer_class = GirlsSerializer1
-#
+1
 #     11 路由
-#
+1
 #         http://127.0.0.1:8000/test_modelviewset/?format=json  # 生成不渲染json数据 第一种
 #         http://127.0.0.1:8000/test_modelviewset.json    # 生产部渲染json数据 第二种
 #         http://127.0.0.1:8000/test_modelviewset/
@@ -3267,9 +3266,9 @@
 #             urlpatterns = {
 #                 url(r'^/', include(router.urls))
 #             }
-#
+1
 #     12 渲染器
-#
+1
 #         0 作用
 #
 #             返回好看的数据
@@ -3284,9 +3283,9 @@
 #
 #                     .....
 #
-#
+1
 #     13 django组件 contenttype
-#
+1
 #         1 概念
 #
 #             django内置组件，用于连表操作
@@ -3339,7 +3338,6 @@
 #
 #                     A.a_c_list.all()
 #
-#
-# --------------------------------------------------
 1
-# --------------------------------------------------
+
+# ================================================
