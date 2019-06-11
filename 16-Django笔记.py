@@ -536,7 +536,8 @@
                 # 4 is_authenticated()
                     # 用来判断当前请求是否通过了认证
                         # request.user.is_authenticated()
-
+                    # 也可用于模板
+                        # {% if user.is_authenticated %}
 
                 # 5 login_required
                     # 使用装饰器验证当前状态是否是登录状态
@@ -2478,6 +2479,18 @@
         # 10
         1
 
+    # 22 django发送邮件
+    #     1 settings中配置信息
+    #         EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    #         EMAIL_USE_TLS = False   #是否使用TLS安全传输协议(用于在两个通信应用程序之间提供保密性和数据完整性。)
+    #         EMAIL_USE_SSL = False    #是否使用SSL加密，qq企业邮箱要求使用True
+    #         EMAIL_HOST = 'smtp.qq.com'   #发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
+    #         EMAIL_PORT = 25     #发件箱的SMTP服务器端口
+    #         EMAIL_HOST_USER = '174927390@qq.com'    #发送邮件的邮箱地址
+    #         EMAIL_HOST_PASSWORD = 'baleguedteflbhci'         #发送邮件的邮箱密码(这里使用的是授权码)
+    #     2 使用内置函数发送邮件
+    #         from django.core.mail import send_mail
+    #         send_mail(subject, message, from_email, recipient_list)
 # ================================================
 
 

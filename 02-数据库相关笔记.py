@@ -1,4 +1,4 @@
-
+﻿
 # -i https://pypi.douban.com/simple
 # 此文档包含
     # 1 mysql-->mysqlmysql
@@ -272,6 +272,10 @@
 
         # 5 删除外键
             # alter table 表名 drop foreign key 外键名称
+	# 6 删除1行
+	    # delete from 表名 where 条件
+	# 7 删除多行
+	    # delete form 表名 where xx in（值1，值2）
     # 3 改
         # 1 设定表的自增值（数据中不能有数据）
             # alter table 表名 auto_increment=值
