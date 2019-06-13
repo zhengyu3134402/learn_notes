@@ -1,3 +1,7 @@
+﻿
+@@@@@@@@@@@@@@@@@@把创建的django项目重写 
+@@@@@@@@@@@@@1 重写部分 自己创建用户表 不适用django自带的用户表
+@@@@@@@@@@ 2一直做到 功能登录记载登录时间，退出记载退出时间	
 
 
 # django -->搜索django
@@ -579,6 +583,7 @@
                     # request.user.save()
 
         # 3 扩展用户存储的信息
+	    # 作用 在原有User表的基础上添加属性
             # 1 创建新的模型(必须有个字段带有unique属性)
                 # from django.contrib.auth.models import AbstractUser
                 # class A(AbstractUser):
@@ -588,10 +593,25 @@
             # 2 注册类
                 # settings.py中AUTH_USER_MODEL = '应用名.创建的类名'
 
-            # 3 生成表
+            # 3 生成表(记住若果不是第一次迁移一定会出错)
                 # python manage.py makemigrations(如果执行此命令是次项目的第一次，没有问题，
                                               # 如果不是第一次，会出现问题，删除数据库更新记录等会解决此问题)
-        1
+      
+		迁移后原来数据库中的app_auth 表变成了 app_类名
+
+	    # 4 如果要用admin网址
+		from django.contrib import admin
+
+		from django.contrib.auth.admin import UserAdmin
+
+		from .models import UserProfile
+ 
+ 
+# Register your models here.
+
+		admin.site.register(UserProfile,UserAdmin)
+
+	  1
 
     # 8 缓存
         1
@@ -2480,6 +2500,7 @@
         1
 
     # 22 django发送邮件
+    1
     #     1 settings中配置信息
     #         EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     #         EMAIL_USE_TLS = False   #是否使用TLS安全传输协议(用于在两个通信应用程序之间提供保密性和数据完整性。)
@@ -2491,6 +2512,90 @@
     #     2 使用内置函数发送邮件
     #         from django.core.mail import send_mail
     #         send_mail(subject, message, from_email, recipient_list)
+    #     3 使用itsdangerous组件生产令牌
+    1
+    @@@@@@@@@@@@@@@@@@@@@@@@@等有增删改查之后再做权限
+    # 23 django中的权限
+        1
+        # 1 概念
+        #     表
+        #         经过迁移后，数据库中会生成auth_permission权限表
+        #     基本逻辑流程
+        #         1 用户发起操作请求，根据url匹配到响应的视图处理，返回相关信息
+        #         2 在给用户返回信息之前， 先验证该用户是否有权限查看所有请求的信息（装饰器）
+        #         3 装饰器函数中，通过监视用户http请求的url，method和参数来确定权限
+        #         4 若验证通过，返回查询信息（执行被装饰器的函数），若验证不荣国返回其他
+        # 2 使用
+        #     1 创建权限相关关系表（模型，建议单独app）
+        #         1 设计表(model)
+        #             1 权限表(per)
+        #                 id  url name
+        #                 1   /a/
+        #                 2   /b/
+        #
+        #
+        #             2 用户表(user)
+        #                 id  name    pwd
+        #                 1    zheng   123
+        #                 2    ling    123
+        #
+        #              3 角色表(role)
+        #                 id   name
+        #
+        #             4 用户和角色关系表（多对多）
+        #                 id   user_id   role_id
+        #                 1      1         1
+        #                 2      1         2
+        #
+        #             5 角色和权限关系表
+        #                 id   role_id  per_id
+        #
+        #         2 创建模型
+        #
+        #
+        #             class Permission(models.Model):
+        #                 title = models.CharField()
+        #                 url = models.CharField()
+        #
+        #
+        #             class User(models.Model):
+        #                 name = models.CharField()
+        #                 password = models.CharField()
+        #                 roles = models.ManyToManyField(to='Role')
+        #
+        #
+        #             class Role(models.Model):
+        #                 name = models.CharField()
+        #                 permissons = models.ManyToManyField(to='Permission')
+        #
+        #         3 执行迁移
+        #
+        #         4 录入权限信息（url地址）
+        #
+        #         5 创建用户限制
+        #             1 查询用户权限写入session（用户登录时候）
+        #                 request.session['xx'] = list(yy)
+        #             2 读取权限信息，判断是否有权限
+        #                 使用中间件对读取权限信息进行验证等(别忘了注册中间件)
+        #                 使用process_request()
+        #
+        #                 1 当前访问的url
+        #                     b = request.path_info
+        #                 2 url的白名单判断
+        #                     for j in [推荐写在settings为正则的列表]
+        #                         if re.match(i, b)
+        #                             return
+        #                 3 获取当前用户的所有权限信息
+        #                     a = request.session.get(xx)
+        #                 4 权限的校验
+        #                     for i in a:
+        #                         url = i[0]
+        #                         if re.match("^{}$".format(url), b):
+        #                             return
+        #                     else:
+        #                         return HttpResponse('无访问权限')
+
+
 # ================================================
 
 
