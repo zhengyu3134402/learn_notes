@@ -1978,7 +1978,8 @@
 #
 #     DateTimeField(DateField)
 #         - 日期+时间格式 YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
-#
+#	  参数auto_now 最后修改时间 自动更新
+	      auto_now_add 创建时间 创建的时候自动更新 修改不更新
 #     DateField(DateTimeCheckMixin, Field)
 #         - 日期格式      YYYY-MM-DD
 #
