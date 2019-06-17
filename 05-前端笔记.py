@@ -1,4 +1,4 @@
-
+﻿
 # 目录
 # Bootstrap-->搜索bootstrap前端框架
 # css-->搜索csscss
@@ -309,6 +309,9 @@
 # {
 #     border: 3px solid red;
 # }
+
+# 3 input默认文本提示内容
+# placeholder="提示内容"
 
 # 4 文本相关样式
 

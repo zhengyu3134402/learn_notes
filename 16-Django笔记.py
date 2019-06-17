@@ -47,16 +47,16 @@
         # 2 配置与数据库连接
 
             # 1 settings.py文件中
-                # DATABASES = {
-                # "default": {
-                #     "ENGINE": "django.db.backends.mysql",
-                #     "NAME": "你的数据库名称",  # 需要自己手动创建数据库
-                #     "USER": "数据库用户名",
-                #     "PASSWORD": "数据库密码",
-                #     "HOST": "数据库IP",
-                #     "POST": 3306
-                #     }
-                # }
+            #     DATABASES = {
+            #     "default": {
+            #         "ENGINE": "django.db.backends.mysql",
+            #         "NAME": "你的数据库名称",  # 需要自己手动创建数据库
+            #         "USER": "数据库用户名",
+            #         "PASSWORD": "数据库密码",
+            #         "HOST": "数据库IP",
+            #         "POST": 3306
+            #         }
+            #     }
             # 2 进入mysql创建数据库（数据库名和配置的名字要一样）
                 # create database 数据库名 charset=utf8;
 
@@ -546,7 +546,7 @@
                 # 5 login_required
                     # 使用装饰器验证当前状态是否是登录状态
                     # from django.contrib.auth.decorators import login_required
-                    # from django.utils.decorators import method_decorator
+#                     # from django.utils.decorators import method_decorator
 
                     # class A(View):
                     #     @method_decorator(login_required)
@@ -583,6 +583,7 @@
                     # request.user.save()
 
         # 3 扩展用户存储的信息
+
 	    # 作用 在原有User表的基础上添加属性
             # 1 创建新的模型(必须有个字段带有unique属性)
                 # from django.contrib.auth.models import AbstractUser
@@ -597,19 +598,16 @@
                 # python manage.py makemigrations(如果执行此命令是次项目的第一次，没有问题，
                                               # 如果不是第一次，会出现问题，删除数据库更新记录等会解决此问题)
       
-		迁移后原来数据库中的app_auth 表变成了 app_类名
+		        # 迁移后原来数据库中的app_auth 表变成了 app_类名
 
 	    # 4 如果要用admin网址
-		from django.contrib import admin
+            # from django.contrib import admin
+            #
+            # from django.contrib.auth.admin import UserAdmin
+            #
+            # from .models import UserProfile
 
-		from django.contrib.auth.admin import UserAdmin
-
-		from .models import UserProfile
- 
- 
-# Register your models here.
-
-		admin.site.register(UserProfile,UserAdmin)
+		    # admin.site.register(UserProfile,UserAdmin)
 
 	  1
 
@@ -2595,7 +2593,27 @@
         #                     else:
         #                         return HttpResponse('无访问权限')
 
+    # 24 生成令牌
+    1
+    #     1 安装
+    #         pip3 install itsdangerous
+    #     2 使用
+    #         >>> s = TimedJSONWebSignatureSerializer(SECRET_KEY)
+    #         >>> code = s.dumps({"user_id": 1})
+    #         >>> code
+    #         >>> b'eyJhbGciOiJIUzUxMiIsImlhdCI6MTU2MDUxNjA5MiwiZXhwIjoxNTYwNTE5NjkyfQ.eyJ1c2VyX2lkIjoxfQ.wrvqWIn6jGwdX4YqRgYe2cZah0
+    #         VFVAwEmwDv2lsp4nooOL0n2HpS - 9
+    #         oJT6AaEurZarZImYIqV2Rrq - X15KY0oA
+    #         '
+    #         >>> s.loads(code) # 注意code为字节类型
+    #         >>> {'user_id': 1}
+    1
 
+    # 25 模板
+
+        # 1 url
+        #     1 多个参数的传递
+        #         {% url 'detail' book_id='1' catgray=2 %}
 # ================================================
 
 
