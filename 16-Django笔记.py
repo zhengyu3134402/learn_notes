@@ -1383,104 +1383,261 @@
         1
         # 1 概念
             # 后端实现分页的原理就是每次只请求一页数据。
+            # 实现过程
+                # 1 切片数据，整理页数
+                #
+                # 获取当前页数
+                #
+                # 每页显示数据个数
+                # 所有数据的个数
+                # 计算出总页数 = divmod(所有数的个数，每页显示数据个数)
+                #
+                #
+                # 开始页数 = 当前页数
+                # 结束页数 = 当前页数+总页数
+                #
+                #
+                # 数据切片
+                #
+                # 开始数据索引 = （当前页数-1）*10
+                # 结束数据索引 = 当前页数*10
+                #
+                # 返回给前端   总页数 range（1，总页数+1）
+                # 	     数据[开始数据索引， 结束数据索引]
+
+
+
+                # 注意分页会出现的问题
+                    # 获取页码会出现的问题
+                    # 获取页码为空
+                    # 获取页码为负数
+
+
+                # 2 实现  1 2 3 4 5 6 7 8 9 10 11
+                # 最多显示的页码数(推荐奇数)
+                # 左右各5个页码  最多页码数除以2
+                # 开始页码数-5  结束页码数+5
+                # 会出现左右没有限制的问题 点页码5 后最左边页码会是0
+                # 右面页面无限
+                # 总页码数小于最大显示数，只显示总页码数字
+                # 总页码数大于最大显示数，最多显示11个（最大显示数）
+
+                # 解决左面出现0和负数问题
+                # 如果当前页码数小于显示也数的一半
+                    # 开始页码变成1
+                    # 结束页码变成最大显示页码数字
+
+                # 解决右面无限页码数字
+                    # 如果当前页码数+一半显示数字大于等于页码总数
+                    # 开始页码 = 页码总数-最大显示数+1
+                    # 结束页码 = 页码总数
 
 
         # 2 使用
 
             # 2 封装保存版
-                # class Pagination(object):
-                #     """自定义分页（Bootstrap版）"""
-                #     def __init__(self, current_page, total_count, base_url, per_page=10, max_show=11):
-                #         """
-                #         :param current_page: 当前请求的页码
-                #         :param total_count: 总数据量
-                #         :param base_url: 请求的URL
-                #         :param per_page: 每页显示的数据量，默认值为10
-                #         :param max_show: 页面上最多显示多少个页码，默认值为11
-                #         """
-                #         try:
-                #             self.current_page = int(current_page)
-                #         except Exception as e:
-                #             # 取不到或者页码数不是数字都默认展示第1页
-                #             self.current_page = 1
-                #         # 定义每页显示多少条数据
-                #         self.per_page = per_page
-                #         # 计算出总页码数
-                #         total_page, more = divmod(total_count, per_page)
-                #         if more:
-                #             total_page += 1
-                #         self.total_page = total_page
-                #         # 定义页面上最多显示多少页码(为了左右对称，一般设为奇数)
-                #         self.max_show = max_show
-                #         self.half_show = max_show // 2
-                #         self.base_url = base_url
-                #
-                #     @property
-                #     def start(self):
-                #         return (self.current_page-1) * self.per_page
-                #
-                #     @property
-                #     def end(self):
-                #         return self.current_page * self.per_page
-                #
-                #     def page_html(self):
-                #         # 计算一下页面显示的页码范围
-                #         if self.total_page <= self.max_show:  # 总页码数小于最大显示页码数
-                #             page_start = 1
-                #             page_end = self.total_page
-                #         elif self.current_page + self.half_show >= self.total_page:  # 右边越界
-                #             page_end = self.total_page
-                #             page_start = self.total_page - self.max_show
-                #         elif self.current_page - self.half_show <= 1:  # 左边越界
-                #             page_start = 1
-                #             page_end = self.max_show
-                #         else:  # 正常页码区间
-                #             page_start = self.current_page - self.half_show
-                #             page_end = self.current_page + self.half_show
-                #         # 生成页面上显示的页码
-                #         page_html_list = []
-                #         page_html_list.append('<nav aria-label="Page navigation"><ul class="pagination">')
-                #         # 加首页
-                #         first_li = '<li><a href="{}?page=1">首页</a></li>'.format(self.base_url)
-                #         page_html_list.append(first_li)
-                #         # 加上一页
-                #         if self.current_page == 1:
-                #             prev_li = '<li><a href="#"><span aria-hidden="true">&laquo;</span></a></li>'
-                #         else:
-                #             prev_li = '<li><a href="{}?page={}"><span aria-hidden="true">&laquo;</span></a></li>'.format(
-                #                 self.base_url, self.current_page - 1)
-                #         page_html_list.append(prev_li)
-                #         for i in range(page_start, page_end + 1):
-                #             if i == self.current_page:
-                #                 li_tag = '<li class="active"><a href="{0}?page={1}">{1}</a></li>'.format(self.base_url, i)
-                #             else:
-                #                 li_tag = '<li><a href="{0}?page={1}">{1}</a></li>'.format(self.base_url, i)
-                #             page_html_list.append(li_tag)
-                #         # 加下一页
-                #         if self.current_page == self.total_page:
-                #             next_li = '<li><a href="#"><span aria-hidden="true">&raquo;</span></a></li>'
-                #         else:
-                #             next_li = '<li><a href="{}?page={}"><span aria-hidden="true">&raquo;</span></a></li>'.format(
-                #                 self.base_url, self.current_page + 1)
-                #         page_html_list.append(next_li)
-                #         # 加尾页
-                #         page_end_li = '<li><a href="{}?page={}">尾页</a></li>'.format(self.base_url, self.total_page)
-                #         page_html_list.append(page_end_li)
-                #         page_html_list.append('</ul></nav>')
-                #         return "".join(page_html_list)
+            #     1 简约版（没有style修饰）
+            #
+            #
+                    # class Pagination:
+                    #     """分页类"""
+                    #
+                    #     def __init__(self, base_url, current_page, data, page_show_data_num, max_page_num):
+                    #         self.page_show_data_num = page_show_data_num
+                    #         self.max_page_num = max_page_num
+                    #         self.half_page = self.max_page_num // 2
+                    #         self.total_data_num = len(data)
+                    #         self.total_page_num = self.compute_total_page_num(page_show_data_num)
+                    #         self.current_page = self.clean_current_page(current_page)
+                    #         self.data = data
+                    #         self.base_url = base_url
+                    #
+                    #     def clean_current_page(self, current_page):
+                    #         """处理当前页问题"""
+                    #         try:
+                    #             current_page = int(current_page)
+                    #
+                    #             if current_page < self.half_page:
+                    #
+                    #                 return current_page
+                    #             elif current_page < 1:
+                    #
+                    #                 return 1
+                    #             elif current_page > self.total_page_num:
+                    #
+                    #                 return 1
+                    #         except Exception as e:
+                    #             # print(e)
+                    #             return 1
+                    #         return current_page
+                    #
+                    #     def compute_total_page_num(self, page_show_data_num):
+                    #         """计算总页数"""
+                    #         total_page_num, more = divmod(self.total_data_num, page_show_data_num)
+                    #         if more:
+                    #             return total_page_num + 1
+                    #         return total_page_num
+                    #
+                    #     def make_start_end_page_list(self):
+                    #         """创建开始页数，结束页数"""
+                    #
+                    #         if self.total_page_num <= self.max_page_num:
+                    #
+                    #             start_page = 1
+                    #             end_page = self.total_page_num
+                    #
+                    #             return range(start_page, end_page + 1)
+                    #
+                    #         else:
+                    #
+                    #             if self.current_page <= self.half_page:
+                    #
+                    #                 start_page = 1
+                    #                 end_page = self.max_page_num
+                    #                 return range(start_page, end_page + 1)
+                    #             elif (self.current_page + self.half_page) >= self.total_page_num:
+                    #
+                    #                 start_page = self.total_page_num - self.max_page_num + 1
+                    #                 end_page = self.total_page_num
+                    #                 return range(start_page, end_page + 1)
+                    #             else:
+                    #                 start_page = self.current_page - self.half_page
+                    #                 end_page = self.current_page + self.half_page
+                    #                 return range(start_page, end_page + 1)
+                    #
+                    #     def make_start_end_data_list(self):
+                    #         """创建开始数据索引，结束数据索引"""
+                    #         start_data = (self.current_page - 1) * self.page_show_data_num
+                    #
+                    #         end_data = self.current_page * self.page_show_data_num
+                    #         return self.data[start_data: end_data]
+                    #
+                    #     def make_html(self):
+                    #
+                    #         html_list = []
+                    #
+                    #         html_list.append('<div>')
+                    #         first_li = '<a href="{}?current_page={}">首页</a>'.format(self.base_url, 1)
+                    #         html_list.append(first_li)
+                    #
+                    #         if self.current_page == 1:
+                    #             prev_li = '<a href="#" hiden></a>'
+                    #         else:
+                    #             prev_li = '<a href="{}?current_page={}" hiden></a>'.format(self.base_url, self.current_page - 1)
+                    #         html_list.append(prev_li)
+                    #
+                    #         for i in self.make_start_end_page_list():
+                    #             li_tag = '<a href="{0}?current_page={1}">{1}</a>'.format(self.base_url, i)
+                    #             html_list.append(li_tag)
+                    #
+                    #         if self.current_page == self.total_page_num:
+                    #             next_li = '<a href="#" hidden></a>'
+                    #         else:
+                    #             next_li = '<a href="{}?current_page={}" hidden></a>'.format(self.base_url, self.current_page + 1)
+                    #         html_list.append(next_li)
+                    #
+                    #         page_end_li = '<a href="{}?current_page={}">尾页</a>'.format(self.base_url, self.total_page_num)
+                    #
+                    #         html_list.append(page_end_li)
+                    #         html_list.append('</div>')
+                    #         return "".join(html_list)
+                # 2 豪华版（和Bootstrap版配合，没用过）
 
 
 
-                # 封装保存版使用示例
-                # def publisher_list(request):
-                #     # 从URL中取当前访问的页码数
-                #     current_page = int(request.GET.get('page'))
-                #     # 比len(models.Publisher.objects.all())更高效
-                #     total_count = models.Publisher.objects.count()
-                #     page_obj = Pagination(current_page, total_count, request.path_info)
-                #     data = models.Publisher.objects.all()[page_obj.start:page_obj.end]
-                #     page_html = page_obj.page_html()
-                #     return render(request, "publisher_list.html", {"publisher_list": data, "page_html": page_html})
+                    # class Pagination(object):
+                    #     """自定义分页（Bootstrap版）"""
+                    #     def __init__(self, current_page, total_count, base_url, per_page=10, max_show=11):
+                    #         """
+                    #         :param current_page: 当前请求的页码
+                    #         :param total_count: 总数据量
+                    #         :param base_url: 请求的URL
+                    #         :param per_page: 每页显示的数据量，默认值为10
+                    #         :param max_show: 页面上最多显示多少个页码，默认值为11
+                    #         """
+                    #         try:
+                    #             self.current_page = int(current_page)
+                    #         except Exception as e:
+                    #             # 取不到或者页码数不是数字都默认展示第1页
+                    #             self.current_page = 1
+                    #         # 定义每页显示多少条数据
+                    #         self.per_page = per_page
+                    #         # 计算出总页码数
+                    #         total_page, more = divmod(total_count, per_page)
+                    #         if more:
+                    #             total_page += 1
+                    #         self.total_page = total_page
+                    #         # 定义页面上最多显示多少页码(为了左右对称，一般设为奇数)
+                    #         self.max_show = max_show
+                    #         self.half_show = max_show // 2
+                    #         self.base_url = base_url
+                    #
+                    #     @property
+                    #     def start(self):
+                    #         return (self.current_page-1) * self.per_page
+                    #
+                    #     @property
+                    #     def end(self):
+                    #         return self.current_page * self.per_page
+                    #
+                    #     def page_html(self):
+                    #         # 计算一下页面显示的页码范围
+                    #         if self.total_page <= self.max_show:  # 总页码数小于最大显示页码数
+                    #             page_start = 1
+                    #             page_end = self.total_page
+                    #         elif self.current_page + self.half_show >= self.total_page:  # 右边越界
+                    #             page_end = self.total_page
+                    #             page_start = self.total_page - self.max_show
+                    #         elif self.current_page - self.half_show <= 1:  # 左边越界
+                    #             page_start = 1
+                    #             page_end = self.max_show
+                    #         else:  # 正常页码区间
+                    #             page_start = self.current_page - self.half_show
+                    #             page_end = self.current_page + self.half_show
+                    #         # 生成页面上显示的页码
+                    #         page_html_list = []
+                    #         page_html_list.append('<nav aria-label="Page navigation"><ul class="pagination">')
+                    #         # 加首页
+                    #         first_li = '<li><a href="{}?page=1">首页</a></li>'.format(self.base_url)
+                    #         page_html_list.append(first_li)
+                    #         # 加上一页
+                    #         if self.current_page == 1:
+                    #             prev_li = '<li><a href="#"><span aria-hidden="true">&laquo;</span></a></li>'
+                    #         else:
+                    #             prev_li = '<li><a href="{}?page={}"><span aria-hidden="true">&laquo;</span></a></li>'.format(
+                    #                 self.base_url, self.current_page - 1)
+                    #         page_html_list.append(prev_li)
+                    #         for i in range(page_start, page_end + 1):
+                    #             if i == self.current_page:
+                    #                 li_tag = '<li class="active"><a href="{0}?page={1}">{1}</a></li>'.format(self.base_url, i)
+                    #             else:
+                    #                 li_tag = '<li><a href="{0}?page={1}">{1}</a></li>'.format(self.base_url, i)
+                    #             page_html_list.append(li_tag)
+                    #         # 加下一页
+                    #         if self.current_page == self.total_page:
+                    #             next_li = '<li><a href="#"><span aria-hidden="true">&raquo;</span></a></li>'
+                    #         else:
+                    #             next_li = '<li><a href="{}?page={}"><span aria-hidden="true">&raquo;</span></a></li>'.format(
+                    #                 self.base_url, self.current_page + 1)
+                    #         page_html_list.append(next_li)
+                    #         # 加尾页
+                    #         page_end_li = '<li><a href="{}?page={}">尾页</a></li>'.format(self.base_url, self.total_page)
+                    #         page_html_list.append(page_end_li)
+                    #         page_html_list.append('</ul></nav>')
+                    #         return "".join(page_html_list)
+
+
+
+                    # 封装保存版使用示例
+                    # def publisher_list(request):
+                    #     # 从URL中取当前访问的页码数
+                    #     current_page = int(request.GET.get('page'))
+                    #     # 比len(models.Publisher.objects.all())更高效
+                    #     total_count = models.Publisher.objects.count()
+                    #     page_obj = Pagination(current_page, total_count, request.path_info)
+                    #     data = models.Publisher.objects.all()[page_obj.start:page_obj.end]
+                    #     page_html = page_obj.page_html()
+                    #     return render(request, "publisher_list.html", {"publisher_list": data, "page_html": page_html})
 
             # 3 Django内置分页
                 # from django.shortcuts import render
@@ -2592,7 +2749,7 @@
         #                             return
         #                     else:
         #                         return HttpResponse('无访问权限')
-
+        1
     # 24 生成令牌
     1
     #     1 安装
