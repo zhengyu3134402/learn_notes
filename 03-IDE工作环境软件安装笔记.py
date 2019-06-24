@@ -1,4 +1,4 @@
-# 说明：
+﻿# 说明：
     # 此文档包含IDE软件相关安装信息
     # 1 vscode-->搜索vscodevscode
     # 2 pycharm-->搜索pycharmpycharm

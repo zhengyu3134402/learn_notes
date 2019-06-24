@@ -1,4 +1,4 @@
-#
+﻿#
 # 说明：
 #
 #     此文档包含操作系统相关
@@ -1152,6 +1152,21 @@
 #
 #                         source /ect/profile
 #
+#	  28.0 windows下安装虚拟环境
+# 		
+#		pip3 install virtualenv
+#		pip3 install virtualenvwrapper-win 
+#		设置WORKON_HOME环境变量
+#		1 创建虚拟环境
+#			mkvirtualenv 虚拟环境名
+#		2 激活虚拟环境
+#			workon 虚拟环境名
+#		3 查看所有虚拟环境
+#			workon
+#		4 退出虚拟环境
+#			deactivate
+#		5 删除虚拟环境
+#			rmvirtualenv 虚拟环境名
 #         28 linux安装虚拟环境（推荐安第2个）
 #
 #             1 虚拟环境安装1
@@ -1259,7 +1274,9 @@
 #
 #
 #         31 安装mariadb
-#
+#             0 windows安装
+# 		下一步
+#		配置环境变量 path变量中 配置mariadb安装路径
 #             1 概念
 #
 #                 mysql已经被oracle收购，他即将闭源，马上就要开始收费
@@ -1305,7 +1322,7 @@
 #
 #                 1 执行命令初始化
 #
-#                     mysql_secure_installation
+#                     mysql secure installation
 #
 #                     初始密码为空 ，按空格就行
 #                     会提示设置密码

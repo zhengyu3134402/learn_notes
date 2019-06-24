@@ -1,4 +1,4 @@
-
+﻿
 # 说明：
 #     此文档包含github相关信息
 
@@ -36,7 +36,7 @@
         # 2 初始化仓库
             # git init
         # 3 尝试下载任意一个项目为了获取.ssh
-            # git glone xxxxx  会在 ~/下生成.ssh文件
+            # git clone xxxxx  会在 ~/下生成.ssh文件
         # 4 获取秘钥为了连接远程仓库
             # 1 在文件中 右键点击Gir Bash Here
             # 2 在弹出的页面进行操作 操作命令是linux命令
