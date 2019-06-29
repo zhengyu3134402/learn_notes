@@ -1698,6 +1698,22 @@
         # 	}
         # })
         1
+    # 18 vue中操作cookie
+        1
+        # 建议使用工具js-cookie 网址https://www.npmjs.com/package/js-cookie
+        # 引用方式使用
+            # <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+        # 使用
+        #     1 增
+        #         Cookies.set("name","ling")
+        #         Cookies.set('name', 'value', { expires: 7 }); # 设置过期时间
+        #     2 查
+        #         Cookies.get("xx")
+        #         Cookies.get() # 读取所有cookie
+        #     3 删
+        #         Coolies.remove("xx")
+        1
 # =======================================================
 
 
@@ -1960,6 +1976,17 @@
 # =================================================
 # AxiosAxios
 1
+# 注意：
+#   vue使用axios的回调函数中this不指向vue实例，为undefined
+#     解决方法：
+#         使用匿名函数的语法糖 => 即
+#           .....
+#           .then((response) =>{
+#               ....
+#             })
+#           .catch((error) =>{
+#              .....
+#           })
 # 作用：
 #     前后端交互工具
 #
