@@ -3197,7 +3197,7 @@
 #                     json_data = json.dumps(ser.data, ensure_ascii=False)
 #                     return HttpResponse(json_data)
 #
-#         3 处理choick字段以及外键字段的显示，和自定义字段显示
+#         3 处理choice字段以及外键字段的显示，和自定义字段显示
 #
 #             class Foreignkey_serializers(serializers.Serializer):
 #                 """测试外键字段choice字段和自定义序列化显示 序列化器"""
