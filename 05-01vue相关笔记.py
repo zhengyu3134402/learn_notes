@@ -766,7 +766,7 @@
             1
             # v-on:click.passive
 
-            # 在a跳转之前触发事件
+            # 在a跳转之前触发事件@@@@@@@@@@@@@@@@@@@@@@@@
             # <div id="app">
             # 		<a v-on:click.passive="aa" href="http://www.baidu.com">11</div>
             # </div>
@@ -1714,6 +1714,8 @@
         #     3 删
         #         Coolies.remove("xx")
         1
+        # 刷新页面@@@@@@@@@@@@@@@@@@@@@@@
+            # location.reload()
 # =======================================================
 
 
