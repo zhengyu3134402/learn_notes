@@ -2803,27 +2803,29 @@
 #             8 执行了user_auth_tuple = authenticator.authenticate(self)如果登录了旧返回一个元祖杜若没登录就报错
 #             9  创建自定义类 重写 authenticate方法 将这个自定义添加乳到authentication_classes中可以进行用自己的规则判断用户是否登录
 #         2 基本使用
-#
-#             class Myrenzheng（BasicAuthentication）: # 推荐继承BasicAuthentication类
-#                 def authenticate(self, request):
-#                     。。。。自己想写的认证条件，校验数据库等
-#                     return ('xx', None)
-#
-#                 def authenticate_header(self,request):  # 作用是如果校验认证失败做的事情
-#                     pass
-#
-#             class GirlsList(APIView):
-#
-#                 authentication_classes = [Myrenzheng,]
-#
-#                 def get(self, request):
-#
-#                     print(request.user)  # 会获取上面return的内容
-#
-#                     girls = Girls.objects.all()
-#                     s = GirlsSerializer(girls, many=True)
-#
-#                     return Response(s.data)
+
+                # class UserLoginAuthentication(BasicAuthentication):
+                #     """check user login or not class"""
+                #     def authenticate(self, request):
+                #
+                #         token = request.META.get("HTTP_TOKEN")
+                #         if token:
+                #             token_obj = UserToken.objects.filter(token=token).first()
+                #             user = token_obj.user
+                #             return user, token_obj
+                #         raise exceptions.ValidationError("token有误认证失败")
+                #
+                #
+                # class ChangePassword(APIView):
+                #     """user change password"""
+                #     authentication_classes = [UserLoginAuthentication, ]
+                #
+                #     def get(self, request):
+                #         print(request.user, "user")   # request.user 为认真类中返回的user
+                #         print(request.auth, "token")  # request.auth 为认证类中返回的token_obj
+                #
+                #         return JsonResponse({"a": 1})
+
 #             补充orm操作
 #                 数据不存在就创建，数据存在就更新
 #                 xx.objects.updata_or_create(user=obj, defaults={'token':token})
