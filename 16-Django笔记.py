@@ -2904,7 +2904,7 @@
 #                 和用户认证基本一致
 #
 #             2 基本使用
-#                 class MyPerssoin:
+#                 class MyPerssoin(BasePermission):
 #                     message = '您的权限不是1，不能访问此网页'
 #                     def has_permission(self, request, view): # 必须实现的方法
 #
@@ -3635,3 +3635,10 @@
 1
 
 # ================================================
+
+
+
+
+django的字段类型URLField
+	和Charfield类似 最大字段默认200
+
