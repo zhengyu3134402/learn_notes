@@ -1,4 +1,4 @@
-#
+﻿#
 # =========================================================
 # 随机验证码
 #
@@ -113,3 +113,188 @@
 #             wb.save(filepath)
 #
 # =========================================================
+
+
+# ========================================================
+# celery
+
+# 	介绍分布式任务队列
+# 	处理大量消息的分布式系统，实时处理任务队列，同时也支持任务调度
+# 	流程
+# 		发出任务(项目代码)  ----》 任务队列（中间人broker）---》处理任务worker
+
+# 安装条件
+# 	中间人（发送和接收消息）独立的服务形式
+# 		RabbiMQ
+# 		Redis
+# 		数据库
+# 		。。。。
+# 安装
+# 	pip3 isntall celery
+
+# 使用
+# 	1 创建包和文件
+# 		推荐项目根目录下创建包 包中创建tasks.py文件
+# 	2 文件中导入类 创建对象
+# 		from celery import Celery
+# 		app = Celery("推荐写次文件的路径", broker="redis://127.0.0.1:6379/0"')
+	
+# 	3 定义任务函数 在任务函数上面加上 @app.task 进行装饰
+# 		@app.task
+# 		def xx():
+			
+# 	4 其他模块中使用该函数
+# 		导入
+# 		xx.delay(如果需要传参数在此传参)
+# 	5 启动任务处理者worker
+		
+# 		celery初始化
+# 			django环境初始化(django中wsgi.py中自动进行了初始化django,celery需要手动处理初始化,) # 如果处理者在不用的机器
+# 				import os
+# 				imort django
+# 				os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rest_api2.settings")
+# 				django.setup()
+		
+# 		celery -A 创建Celery中写的路径 worker  不显示打印信息
+# 		或
+# 		celery -A 创建Celery中写的路径 worker -l info显示打印信息
+
+# 出现错误处理
+# 	windows会出现的错误
+# 		ValueError: not enough values to unpack (expected 3, got 0)
+		
+# 		解决
+			
+# 			pip3 install eventlet
+
+# 			启动 celery -A <mymodule> worker -l info -P eventlet
+
+# 传入@app.task的下的函数参数不要有对象类型 因为序列化会出现错误
+
+# ========================================================
+# 
+# ========================================================
+# django中全文搜索功能
+	
+# 	介绍
+# 		1 用mysql的like语句也能做，但效率极低，一般不用
+# 		2 使用搜索引擎
+# 			搜索引擎做的事情
+# 				1 可以对表中某些字段进行关键词分析，建立关键词对应的索引数据
+# 		3 使用全文检索框架
+# 			用户通过--》全文检索框架--》使用搜索引擎
+# 	全文检索框架haystack
+		
+# 		支持whoosh, solr, xapian, elasticsearc四种搜索引擎
+			
+# 			1 whoosh 为python编写的搜索因此，性能不如以上其他3个，但稳定对于小型网站足够使用
+	
+# 	使用whoosh
+# 		1安装
+
+# 			pip3 install django-haystack
+# 			pip3 install whoosh
+# 		2注册应用
+# 			‘haystack’
+# 		3配置
+# 			HAYSTACK_CONNECTIONS={
+# 				'default':{
+# 					"ENGINE":"haystack.backends.whoosh_cn_backend.WhooshEngine", # 搜索引擎
+# 					"PATH": os.path.join(BASE_DIR, 'whoosh_index'),# 搜索文件路径
+# 					}
+# 			}
+			
+# 			HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor' # 当添加，修改，删除数据时候，自动生成索引
+
+# 		4 创建索引文件
+			
+# 			对模型类创建索引类
+
+# 			1在应用下面创建search_indexes.py文件
+# 			2定义索引类
+
+# 				from haystack import indexes
+# 				from xx # 导入要创建索引类的模型
+# 				class A(indexes.SearchIndex, indexes.Indexable):
+# 					text = indexes.CharField(document=True, use_template=True)# 索引字段
+# 						# use_template=True 指定根据表中的哪些字段建立索引文件的说明放在一个文件中
+					
+# 					def get_model(self):
+# 						return 导入的模型类
+# 					def index_queryset(self, using=None):        # 建立索引的数据
+# 						return self.get_model().objects.all()
+					
+# 		5 创建索引文件目录
+# 			templates下创建 search/indexes/模型类所在应用名的目录/模型类小写_text.txt
+# 		6 配置索引文件（模型类小写_text.txt）
+# 			# 指定根据表中的哪些字段建立索引数据 可以写多个以为这在哪些字段范围内查找
+# 			{{ object.字段 }}  # 根据字段建立索引
+# 		7 建立索引文件
+# 			执行命令
+# 				python manage.py rebuild_index
+
+# 		8 前段html配置
+
+# 			搜索框
+# 				<form method="get" action="xx">
+# 					<input type="text" name="q">  # name="q" 固定写法
+# 					<input type="submit">
+# 				</form>
+# 		9 配置路由
+# 			url(r'^xx/', include('haystack.urls')),
+# 		10 配置search.html
+# 			搜索的结果会返回到search.html文件
+# 			1 创建search.html
+# 				templates/search/search.html
+			
+# 			2 获取返回的信息
+
+# 				{{ query }} # 搜索的关键字
+# 				{{ page }} # 当页的配置对象集合
+				
+# 				{% for i in page %}
+# 					{{ i.object }} # 获取对象
+# 				{% endfor %}
+
+# 				{{ paginator }}  # 获取分页对象
+		
+# 		11 改变分词方式
+			
+# 			因为有的中文搜索不出来
+			
+# 			jieba分词包
+# 				1  安装
+# 					1 pip3 install jieba
+# 				2 在虚拟环境包下..../python3.6/site-packages/haystack/backends/ 创建 ChineseAnalyzer.py文件
+				
+# 				3 ChineseAnalyzer.py中创建类
+# 					class ChineseTokenizer(Tokenizer):
+# 						def __call__(self, value, positions=False, chars=False,
+# 								keeporiginal=False, removestops=True,
+# 								start_pos=0, start_char=0, mode="", **kwargs):
+# 						t = Token(positions, chars, removestops=removestops, mode=mode, **kwargs)
+# 						seglist = jieba.cut(vaule, cut_all=True)
+# 						for w in seglist:
+# 							t.original = t.text = w
+# 							t.boost = 1.0
+# 							if positions:
+# 								t.pos = start_pos + value.find(w)
+# 							if chars:
+# 								t.startchar = start_char + value.find(w)
+# 								t.endchar = start_char + value.find(w) + len(w)
+# 							yield t
+					
+# 					def ChineseAnalyzer():
+# 						return ChineseTokenizer()
+# 				4 备份 ..../python3.6/site-packages/haystack/backends/ 的whoosh_backend.py文件
+# 					拷贝文件
+# 						在拷贝文件中
+# 							导入 .ChineseAnalyzer import ChineseAnalyzer
+# 							在此文件中 查找 analyzer=StemmingAnalyzer()
+# 							将StemmingAnalyzer()改成ChineseAnalyzer（）
+# 				5 更改settings中的HAYSTACK_CONNECTIONS 下的 "ENGINE"配置 换乘上面 改变的文件
+			
+# 				6 重新生产索引文件
+# 					python manage.py rebuild_index
+
+# ========================================================

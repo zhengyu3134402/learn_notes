@@ -339,6 +339,7 @@
 
     # 6 Form
         1
+        # 0 如果邓毅了clean，必须返回带有self.cleaned_data
         # 1 概念
 
             # 1 生成页面可用的HTML标签
@@ -508,6 +509,9 @@
 
     # 7 用户认证
         1
+        # 0 注意
+            # 如果使用自定义的User模型，模型中必须有last_login字段
+            # @method_decorator(login_required)
         # 1 概念
             # django内置认证系统
             # 默认使用 auth_user 表来存储用户数据
@@ -2085,6 +2089,64 @@
             # class xx(..):
                 # class Meta:
                 #   db_table = "表名"
+        # 2 django的字段类型URLField
+            #   和Charfield类似 最大字段默认200
+        # 3 django自定义user模型
+            # 1 创建自定义模型继承内置User模型（目前发现坏处，因为会生产两张表，删除其中一个表内容另一个表内容不删除）
+            #     1 如果想使用django内置的User模型的方法
+            #         创建自定义user模型时候 继承User方法即可，
+            #         创建字段类型的时候，不能和内置模型字段相同，会报错       
+            #         这样会生成另一个列表
+            #     2 若想删除用户 使用自定义user模型删除，使用内置删除会出现问题
+            
+            #     3 建议不使用原字段中
+            # 2 扩展User模型字段（推荐使用）
+            #     1 继承抽象基类的方式
+            #     2 onetoone连接方式
+            #         from django.db import models
+            #         from django.contrib.auth.models import User
+            #         # 引入内置信号
+            #         from django.db.models.signals import post_save
+            #         # 引入信号接收器的装饰器
+            #         from django.dispatch import receiver
+
+
+            #         # 用户扩展信息
+            #         class Profile(models.Model):
+            #             # 与 User 模型构成一对一的关系
+            #             user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+            #         # 电话号码字段
+            #             phone = models.CharField(max_length=20, blank=True)
+            #             # 头像
+            #             avatar = models.ImageField(upload_to='avatar/%Y%m%d/', blank=True)
+            #             # 个人简介
+            #             bio = models.TextField(max_length=500, blank=True)
+
+            #             def __str__(self):
+            #                 return 'user {}'.format(self.user.username)
+
+
+            #         # 信号接收函数，每当新建 User 实例时自动调用
+            #         @receiver(post_save, sender=User)
+            #         def create_user_profile(sender, instance, created, **kwargs):
+            #             if created:
+            #                 Profile.objects.create(user=instance)
+
+
+            #         # 信号接收函数，每当更新 User 实例时自动调用
+            #         @receiver(post_save, sender=User)
+            #         def save_user_profile(sender, instance, **kwargs):
+            #             instance.profile.save()
+        # 4 DateTimeField字段参数
+    
+            # DateField.auto_now
+            #     每次保存对象时，自动设置该字段为当前时间。 
+            #     用于"最后一次修改"的时间戳调用Model.save()时，该字段才会自动更新。 
+
+            # DateField.auto_now_add
+            #     当对象第一次被创建时自动设置当前时间。 用于创建时间的时间戳. 
+        # 5 删除关联数据,与之关联也删除
+            # on_delete=models.CASCADE, 
         1
 
     # 19 django的cbv
@@ -2589,6 +2651,23 @@
         # 1 vue和django csrf_token解决
             # 1.在django的view里设置request的cookie，让他带csrftoke。
             # 2.修改前端的代码，获取cooke和请求头里的token值做比较。
+        # 1.1
+        #   放在process_view中（判断函数有没有csrf认证，有没有带随机字符串）
+            # @csrf_exempt 函数免除csrf认证
+            
+            # 注释掉csrf中间件认证
+            #     @csrf_protect 函数需要认证
+                        
+            # cbv的csrf_token认证
+                
+            #     @method_decorator(csrf_exempt)
+            #     def dispatch(xxx)
+            #         xxx
+            #     或
+            #     @method_decorator(csrf_exempt, name="dispatch")
+            #     class xx(view):
+            #         xxxx
+
         # 2 django解决css文件更改后由于缓存问题页面不跟新
             # 1 解决问题思路
                 # 基于md5解决根据js, css的内容生成一个字符串，
@@ -2648,7 +2727,57 @@
             # csrf_protect，为当前函数强制设置防跨站请求伪造功能，即便settings中没有设置全局中间件。
             # csrf_exempt，取消当前函数防跨站请求伪造功能，即便settings中设置了全局中间件
 
-        # 10
+        # 10 django的url匹配
+
+            # http://127.0.0.1:8000/app_auth/member_active/?code=eyJhbGciOi&name=adg
+            # 路由能匹配上面的url配置
+            #     url(r'/member_active/'.....)
+            # 视图获取路由参数内容
+            #     code = reuqest.GET.get('code')
+            #     name = request.GET.get('name')
+        # 11 django 后端关闭转义
+        #   from django.utils.safestring import mark_safe 
+        # 12 django的request.POST能获得到值得前提条件
+                # 1 请求头要求
+                #     如果请求头中的 Content-Type: application/x-www-form-urlencoded, request.POST中才会有值（去request.body中解析数据）
+                # 2 数据格式要求：
+                #     name=alex&age=18&gender=男
+
+                
+                # 满足以上条件的规则
+                #     1 form表单提交 自动转换能上述前提条件
+                #     2 ajax提交
+                #         1 request.POST能拿到数据
+                #             $.ajax({
+                #                 url:....
+                #                 type:POST,
+                #                 data:{name:alex,age=18}
+                #             })
+                #             自动转换能上述前提条件
+
+
+                #         2 request.POST不能拿到数据,request.body能拿到数据
+                #             $.ajax({
+                #                 url:....
+                #                 type:POST,
+                #                 headers:{'Content-Type': 'application/json'}
+                #                 data:{name:alex,age=18} # 此行自动转换能上述前提条件
+                #             })
+
+                #         3 request.POST不能拿到数据,request.body能拿到数据
+                #             $.ajax({
+                #                 url:....
+                #                 type:POST,
+                #                 headers:{'Content-Type': 'application/json'}
+                #                 data:JSON.stringfy({name:alex,age=18}) # 会转换成｛name:alex, age:18｝
+                
+                # 需要转换 json.loads(request.body)
+        # 13 django中的settings和global_settings
+
+            # 配置参数查找顺序 
+            #     先去项目中settings中查找，在去django配置文件中global_settings中查找
+
+            
         1
 
     # 22 django发送邮件
@@ -2768,6 +2897,58 @@
         # 1 url
         #     1 多个参数的传递
         #         {% url 'detail' book_id='1' catgray=2 %}
+    # 26 restful规范
+    #       1 url命名
+            #     url一个根据method不同，做不同操作增删改查
+            #     /名词/
+            # 2 域名命名
+            #     1 url方式接口（推荐）
+            #         www.aaa.com
+            #         www.aaa.com/api/
+            #     2 子域名方式(跨域问题)
+            #         www.aaa.com
+            #         api.aaa.com
+            # 3 版本命名
+            #     1 url www.aaa.com/v1/ （推荐）
+            #     2 请求头
+            # 4 method
+            #     GET     获取
+            #     POST    创建
+            #     PUT 完整更新修改
+            #     PATCH   局部更新修改
+            #     DELETE  删除
+            # 5 过滤
+            #     通过在url上传参的形式传递搜索条件
+            # 6 状态码
+            #     200系列 成功
+            #     300系列 重定向
+            #     400系列 客户端错误
+            #     500系列 服务器错误
+                
+            #     code和状态码并用
+                
+            # 7 错误处理 
+            #     状态码4xx
+            #     ｛
+            #         error:"xx"  
+            #     ｝
+            # 8 返回结果
+                
+            #     GET /aa/
+            #         返回资源对象的列表（数组）
+            #     GET /aa/1/
+            #         返回单个资源对象
+            #     POST /aa/
+            #         返回新生产的资源队形
+            #     PUT  /aa/1/
+            #         返回完整的资源对象
+            #     PATCH /aa/1/
+            #         返回一个空文档
+            # 9 Hypermedia
+            #     返回结果中提供链接， 链接其他api方法
+
+            #     DELETE /aa/1/
+
 # ================================================
 
 
@@ -2788,9 +2969,34 @@
 #             ...
 #             'rest_framework',
 #         )
-#
+#     2.1 rest_framework中的dispatch
+#           对原生request进行了改变丰富了一些功能，
+            # return Request(
+            #     request, 
+            #     parsers=self.get_parsers(),
+            #     authenticators=self.get_authenticators(),
+            #     parser_context=parser_context)
+            # 不是原来的request了
+            # 新的request中authenticators=self.get_authenticators() 为 [auth() for auth in self.authentication_classes]
+            # 而self.authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES 
+            
+            # 如果在自己的类中写了authentication_classes = [] 就不去执行 [auth() for auth in self.authentication_classes]
+      # 2.2 rest_framework中获取原生request
+      #       request._request
+      # 2.3 rest_framework中获取原生认证类的对象
+      #       request.authenticators
 #     3 验证用户是否登录
 1
+#         0 逻辑流程
+#             
+            #     1 创建token存储表    
+            #     2 通过post请求得到的用户名和密码
+            #     3 通过md5 创建token值 存储在token表中存在就更新不存在就创建update_or_create
+            # 2 将生成的token值返回给用户 用户吧token放在url里（推荐） 请求头 请求体都行@@@@@@@@@@@@@@
+            # 3 判断用户是否登录，即判断用户是否鞋带有"token"参数
+            # 4 通过认证类用拿token去数据库中检测是否一样 一样则通过后返回元祖（用户对象,token对象）
+            # 5 认证之后 request.user 为认证类中返回元祖的第一个元素 request.auth为返回元祖的第二个元素
+            
 #         1 源码流程
 #
 #             1 django接受请求
@@ -3145,8 +3351,26 @@
 #                         name=xx&age=yy
 #
 #         2 概念
-#
-#             对请求体数据的解析
+            # 对于接受到不同格式的数据，直接能拿到，不像django还得用request.body接收
+            # 解析器适用 request.data接收数据
+            # 通过request.data触发解析器
+            # 执行dispatch的封装request的时候对解析器进行了配置
+            # 可以全局配置
+       
+        # 2.0 可以接受json格式数据（即 请求头可以是content-type:application/json,请求体可以是{"name":"zzzz", age:18}）
+        #         class A(APIView):
+        #             parser_classes = [JSONParser,] # 注意只能解析content-type:application/json头
+        #                             # FormParser只能解析"application/x-www-form-urlencoded"
+        #                             # 如果[JSONParser, FormParser] 两种请求头都能解析
+        #             def post(self, request):
+        #                 request.data  # 接收前段发过来的数据  
+
+        # 2.1 流程
+        #     1 获取用户请求
+        #     2 回去用户请求体
+        #     3 根据用户请求头 和 parser_classes = [JSONParser, ..]支持的请求头进行比较
+        #     4 JSONParser对象去请求体
+        #     5 对request.data进行赋值
 #
 #         3 获取json格式数据自动解析
 #
@@ -3176,6 +3400,11 @@
 #         1 概念
 #             请求数据进行校验
 #             queryset进行序列化
+#             
+#           1 序列化字段
+#                   read_only 不包含创建或更新的操作中，序列化表示时使用，不验证得字段
+                    # write_only 更新或创建时使用，序列化表示时不包括该字段
+
 #
 #         2 基本使用
 #             1 创建序列化类继承 （serializers.Serializer）
@@ -3348,6 +3577,114 @@
 #                             raise exceptions.validataionError('xxxx')
 #                             # 如果通过验证
 #                             return value
+#         8 总结
+#           1 对queryset进行序列化
+#               A(instance=queryset, many=True)
+#           2 自定义字段验证
+
+                    # def validate_字段名(self, value):   # 用钩子函数对单个字段进行检验 value为username的值
+                    #     if len(value) == 10:
+       
+                    #             raise exceptions.ValidationError("字符串等于10了 不可以") # 验证不成功的返回信息
+                    #     return value  # 验证成功返回值
+        
+                    # def validate(self, attrs):  # 用钩子函数与validate_xx的区别是能获取到所有字段
+                    #     pass
+                    #     
+            # 3 深度控制
+            #     depth = 1
+            # 4 返回的数据变成url
+        
+                # 即数据为
+                #     ｛
+                #         "name":"zzz",
+                #         "age": url地址
+                #     ｝
+                # 方法
+                #     对生产url的字段进行自定义
+                #         class A(....)
+                #             s = serializers.HyperlinkedIdentiyField(view_name='url中的name的值')
+                #             class Meta:
+                #                 ....
+                #     注意：
+                #         实例化序列化器的参数中在多加一个 context={'request':request} c参数
+
+            # 5 JsonResponse()的参数
+
+                # safe = False  若返回的对象中含有不能自动转换成json的类型 可以设置 safe=False就能自动转换
+                #         成json格式数据，比如datatime类型
+            # 6 modelSerializer中的 read_only_fields字段
+                # 不进行验证，不进行改变的字段要填入到read_only_fiellds字段中
+            # 7 序列化类可传入额外参数
+    
+                # a = A(instance=xx， context={"aa":1})
+
+                # 序列号器类中获取传入的额外参数
+
+                # self.context
+            # 8 # 一对多关系型序列化的增删改查
+                # 序列化器
+                # class CommodityManageSer(serializers.ModelSerializer):
+
+                #  kind = serializers.SerializerMethodField()
+                #  kind_id = serializers.IntegerField(write_only=True)
+                #  class Meta:
+
+                #         model = Commodity
+                #         fields = ["id", "title", "info", "price", "inventory", "photo", "kind", "kind_id"]
+                   
+
+                #  def update(self, instance, validated_data):
+
+                #         print(validated_data, 11111111111)
+                #         Commodity.objects.filter(id=instance.id).update(**validated_data)
+
+                #         return instance
+
+                #  def create(self, validated_data):
+                #         return Commodity.objects.create(**validated_data)
+
+
+                #     def get_kind(self, com_obj):
+
+                #         ret = {"id": com_obj.kind.id, "title": com_obj.kind.title}
+
+                #         return ret  
+        
+
+
+                # 视图
+                # class CommodityManage(APIView):
+               
+                #     def get(self,request):
+
+                #         commoditys = Commodity.objects.all()
+                #         ser = CommodityManageSer(instance=commoditys, many=True)
+                #         return JsonResponse(ser.data, safe=False)
+
+                #     def post(self, request):
+
+                #         ser = CommodityManageSer(data=request.data)
+                #         if ser.is_valid():
+                #             ser.save()
+                #             return JsonResponse(ser.data)
+                #         return JsonResponse({"error": "验证失败"})
+
+
+                #     def put(self, request):
+
+                #         com_obj = Commodity.objects.filter(id=request.data.get("id")).first()
+                #         ser = CommodityManageSer(data=request.data, instance=com_obj)
+                #         if ser.is_valid():
+                #                 ser.save()
+                #                 return JsonResponse({"message":"更新成功"})
+                #         return JsonResponse({"error": "验证失败"})
+
+                #     def delete(self, request):
+
+                #         com_obj = Commodity.objects.filter(id=request.data.get("id")).delete()
+
+                #         return JsonResponse({"a":1})
 1
 #     9 分页
 1
@@ -3631,14 +3968,37 @@
 #                 获取表关联对象的所有信息
 #
 #                     A.a_c_list.all()
+#     14 配合bootstarp
+            # 1 下载 bootstrap生产环境版即可
+            # 2 html文件中引入
+            #     <!DOCTYPE html>
+            #     <html lang="en">
+            #     <head>
+            #         <meta charset="UTF-8">
+            #         <title>Title</title>
+            #         {% load staticfiles %}
+            #         <link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+            #     </head>
+            #     <body>
+
+            #     <button class="btn btn-default" type="submit">Button</button>
+
+
+
+            #     <script src="{% static 'bootstrap-3.3.7-dist/js/jquery.js' %}"></script>
+            #     <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+            #     </body>
+            #     </html>
 #
 1
-
+# rest_framework发现总结
+#   1 个人发现的好处 
+    #   user字段可重写，应为rest_framework的组件基本实现了用户的认证权限相关的功能
+    #   不比在使用django自带User模型
 # ================================================
 
 
 
 
-django的字段类型URLField
-	和Charfield类似 最大字段默认200
+
 
