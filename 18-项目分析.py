@@ -1028,7 +1028,149 @@
 
 # 2 登录逻辑
 
+    # 1 登录校验流程
+
+        # from django.contrib.auth import authenticate, login
+        # class LoginView(View):
+        #
+        #     def get(self, request):
+        #         判断是否记住了用户名
+        #         if 'username' in request.COOKIES:
+        #             username = request.COOKIES.get('username')
+        #             checked = 'checked'
+        #         else:
+        #             username = ''
+        #             checked = ''
+        #         return render(request, 'xx.html', {"username":username, 'check':checked})
+
+        #
+        #     def post(self, request):
+        #         """登录校验"""
+
+        #
+        #         接收数据
+        #         username = request.POST.get("username")
+        #         password = request.POST.get("pwd")
+        #
+        #         校验数据
+        #         if not all([username, password]):
+        #             return render(xxxx)
+        #
+        #         业务处理:登录校验
+        #
+        #         user = authenticate(username=username, password=password)
+        #         if user is not None:
+        #             if user.is_active:
+        #                 print("用户已经激活")
+        #
+        #                 记录登录状态
+        #                 login(request, user)
+        #                 return redirect(xx)
+        #                 获取登录后所要跳转的地址
+        #                 next_url = request.GET.get('next', reverse(xx)) # 如果获取不到 设置默认值
+        #                 response = redirect(next_url)
+        #                 判断是否需要记住用户名
+        #                 remember = request.POST.get('remember')
+        #                 if remember == 'on':
+        #                     response.set_cookie('username', username, max_age=7*24*3600)
+        #                 else:
+        #                     response.delete_cookie('username')
+        #                 return response
+        #
+        #             else:
+        #                 # 用户名密码错误
+        #                 return '用户未激活'
+        #         else:
+        #             return '用户名或密码错误'
+
+    # 2 使用redis存储session信息
+
+        # 方式1
+        #     1 安装
+        #         pip3 install django-redis-session
+        #
+        #     2 配置
+        #
+        #         SESSION_ENGINE = "redis_sessions.session"
+        #         SESSION_REDIS_HOST = "localhost"
+        #         SESSION_REDIS_PORT = 6379
+        #         SESSION_REDIS_DB = 2
+        #         SESSION_REDIS_PASSWORD = ''
+        #         SESSION_REDIS_PREFIX = 'session'
+        #
+        #     3 使用
+        #         def test(request):
+        #             request.session['h1'] = 'hello'
+        #             a = reuquest.session.get('h1')
+        #             del request.session['h1']
+        #             request.session.flush()
+        # 方式2
+        #
+        #     django-redis 使django支持Redis cache/session后端的全功能支持
+        #
+        #     1 安装
+        #         pip3 install django-redis
+        #
+        #     2 配置
+        #
+        #
+        #             django的配置缓存
+        #
+        #                 CACHES = {
+        #                     "default":{
+        #                         "BACKEND":'django_redis.cache.RedisCache',
+        #                         "LOCATION": 'redis://127.0.0.1:6379/1',
+        #                         "OPTIONS": {
+        #                                 "CLIENT_CLASS":"django_redis".clent.DefaultClient,
+        #                             }
+        #                         }
+        #                     }
+        #
+        #             配置为sesshon存储
+        #
+        #                 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+        #                 SESSION_CACHE_ALIAS = "default"
+        #
 
 
+# 3 抽离父模板
 
+# 4 登录装饰器和登录后页面跳转
 
+    # 1 配置未登录后的的自动跳转地址
+    #
+    #     LOGIN_URL = '/XX/XXXX'
+    #     注意
+    #         前段表单不要设置action属性
+    #         因为默认提交地址就是当前页地址
+    #         如果设置了action, 获取next参数的时候会出现问题
+    # 2 判断用户是否登录
+    #
+    #     创建类重写as_view方法类判断用户是否登录
+    #         from django.contrib.auth.decorators import login_required
+    #
+    #         class A:
+    #             @classmethod
+    #             def as_view(cls, **initkwargs):
+    #                 view = super(A, cls).as_view(**initkwargs)
+    #                 return login_required(view)
+    #
+    #
+    #         视图的使用
+    #
+    #             class B(A, view):
+    #                 .....
+
+# 5 登录后欢迎信息
+    
+    # is_authenticated() # 除了给模板文件传递的模板变量之外，django框架会吧request.user也传递给模板文件
+    # 后端中判断
+    # def get(self, request):
+    #     # 如果登录a为True(request.user为User类一个实例) 否则False（request.user为AnonymousUser一个实例）
+    #     a = request.user.is_authenticated()
+    # 前段中判断
+    #     {% if user.is_authenticated %}
+    #         xxx
+    #     {% else %}
+    #         yyy
+    #     {% end %}
