@@ -1174,3 +1174,99 @@
     #     {% else %}
     #         yyy
     #     {% end %}
+
+# 6 退出登录
+#     from django.contrib.auth.decorators import login_out
+#     class LogutView(View):
+#
+#         def get(self, request):
+#
+#             清除session信息
+#             logout(request)
+#
+#             跳转到首页
+#             return redirect(xxx)
+#
+
+# 7 用户中心信息页
+
+    获取用户的个人信息
+
+    获取用户的历史浏览记录
+
+# 8 用户中心订单页
+
+    获取用户订单信息
+
+# 9 用户中心地址页
+
+    class AddressView(View):
+
+        def get(self,request):
+
+            获取用户默认收货地址
+            user = request.user
+
+            try:
+                address = Address.objects.get(user=user, is_default=True)
+
+            except Address.DoesNotExist:
+                不存在默认收货地址
+                address = None
+
+            return render(xxx,{"default_addr":address})
+
+        def post(self,request):
+            接收数据
+            receiver = request.POST.get('receiver')
+            addr = request.POST.get('addr')
+            zip_code = request.POST.get('zip_code')
+            phone = request.POST.get('phone')
+            校验数据
+            if not all([receiver, addr, phone]):
+                return render '数据不完整'
+
+            校验手机号
+            re.match(r'xxxx', phone)
+                return render '手机格式不正确'
+            业务处理: 地址添加
+            如果用户已存在默认收货地址, 添加的地址不作为默认收货地址，否则默认收货地址
+
+            user = request.user
+
+            address = Address.objects.get_default_address(user) # 使用了模型管理器类
+            if address:
+                is_default = False
+            else:
+                is_default = True
+
+            Address.objects.create(user=user, receiver=receiver,
+                                   addr=address,zip_code=zip_code,
+                                   phone=phone,
+                                   is_default=is_default)
+
+
+            返回应答 刷新地址页面
+            return redirect(reverse('user:address'))
+
+10 模型类管理器类
+    自定义管理器
+    models文件中（视图函数中存在了相同的查询方法，使用模型管理器类，进行封装）
+
+        class xxManager(model.Manager):
+
+            作用
+                1 改变原有查询的结果集all()
+                2 封装方法 用户操作模型类对应的数据表(增删改查)
+
+            获取用户默认地址
+            def get_defautl_address(self, user):
+                # self.model 获取self对象所在的模型类
+                try:
+                    address = self.get(user=user, is_default=True)
+
+                except self.model.DoesNotExist:
+                    不存在默认收货地址
+                    address = None
+
+                return address
