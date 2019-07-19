@@ -1027,7 +1027,7 @@
 
 
 # 2 登录逻辑
-
+1
     # 1 登录校验流程
 
         # from django.contrib.auth import authenticate, login
@@ -1131,12 +1131,12 @@
         #                 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
         #                 SESSION_CACHE_ALIAS = "default"
         #
-
+1
 
 # 3 抽离父模板
 
 # 4 登录装饰器和登录后页面跳转
-
+1
     # 1 配置未登录后的的自动跳转地址
     #
     #     LOGIN_URL = '/XX/XXXX'
@@ -1160,9 +1160,9 @@
     #
     #             class B(A, view):
     #                 .....
-
+1
 # 5 登录后欢迎信息
-    
+1
     # is_authenticated() # 除了给模板文件传递的模板变量之外，django框架会吧request.user也传递给模板文件
     # 后端中判断
     # def get(self, request):
@@ -1174,8 +1174,9 @@
     #     {% else %}
     #         yyy
     #     {% end %}
-
+1
 # 6 退出登录
+1
 #     from django.contrib.auth.decorators import login_out
 #     class LogutView(View):
 #
@@ -1187,86 +1188,193 @@
 #             跳转到首页
 #             return redirect(xxx)
 #
-
+1
 # 7 用户中心信息页
-
-    获取用户的个人信息
-
-    获取用户的历史浏览记录
+1
+    # class UserInfo(xx):
+    #     def get(self, request):
+    #
+    #     获取用户的个人信息
+    #     user = request.user
+    #     address = Address.objects.get_default_address(user) # 模型类管理器
+    #
+    #     获取用户历史浏览记录
+    #     创建redis操作对象的方式二
+    #     from django_redis import get_redis_connection
+    #     con = get_redis_connection('default')
+    #     history_key = 'history_%d'%user.id
+    #
+    #
+    #     获取用户最新浏览的5个商品id
+    #     sku_ids = con.lrage(history_key, 0 ,4)
+    #
+    #     从数据空中查询用户浏览的商品的具体信息(通过redis获取到浏览商品的列表商品id的顺序,
+    #                         去数据库中获取商品返回的顺序不一样)
+    #     goods_li = []
+    #     for id in sku_ids:
+    #         goods = GoodsSKU.object.get(id=id)
+    #         goods_li.append(goods)
+    #
+    #     return rendr(xxxxx)
+1
 
 # 8 用户中心订单页
-
-    获取用户订单信息
-
+1
+    # 获取用户订单信息
+    #
+1
 # 9 用户中心地址页
+1
+#     class AddressView(View):
+#
+#         def get(self,request):
+#
+#             获取用户默认收货地址
+#             user = request.user
+#
+#             try:
+#                 address = Address.objects.get(user=user, is_default=True)
+#
+#             except Address.DoesNotExist:
+#                 不存在默认收货地址
+#                 address = None
+#
+#             return render(xxx,{"default_addr":address})
+#
+#         def post(self,request):
+#             接收数据
+#             receiver = request.POST.get('receiver')
+#             addr = request.POST.get('addr')
+#             zip_code = request.POST.get('zip_code')
+#             phone = request.POST.get('phone')
+#             校验数据
+#             if not all([receiver, addr, phone]):
+#                 return render '数据不完整'
+#
+#             校验手机号
+#             re.match(r'xxxx', phone)
+#                 return render '手机格式不正确'
+#             业务处理: 地址添加
+#             如果用户已存在默认收货地址, 添加的地址不作为默认收货地址，否则默认收货地址
+#
+#             user = request.user
+#
+#             address = Address.objects.get_default_address(user) # 使用了模型管理器类
+#             if address:
+#                 is_default = False
+#             else:
+#                 is_default = True
+#
+#             Address.objects.create(user=user, receiver=receiver,
+#                                    addr=address,zip_code=zip_code,
+#                                    phone=phone,
+#                                    is_default=is_default)
+#
+#
+#             返回应答 刷新地址页面
+#             return redirect(reverse('user:address'))
+#
+1
+# 10 模型类管理器类
+1
+#     自定义管理器
+#     models文件中（视图函数中存在了相同的查询方法，使用模型管理器类，进行封装）
+#
+#         class xxManager(model.Manager):
+#
+#             作用
+#                 1 改变原有查询的结果集all()
+#                 2 封装方法 用户操作模型类对应的数据表(增删改查)
+#
+#             获取用户默认地址
+#             def get_defautl_address(self, user):
+#                 # self.model 获取self对象所在的模型类
+#                 try:
+#                     address = self.get(user=user, is_default=True)
+#
+#                 except self.model.DoesNotExist:
+#                     不存在默认收货地址
+#                     address = None
+#
+#                 return address
+1
 
-    class AddressView(View):
+# 11 获取用户的历史浏览记录
+1
+#     1 访问商品详情页面的时候添加浏览记录,在商品详情对应的视图中
+#     2 访问用户中心个人信息的时候获取历史浏览记录
+#     3 历史浏览记录存储在redis数据库
+#     4 redis中粗出历史浏览记录的格式
+#         每个用户的历史浏览记录用一条数据保存
+#         list:
+#             history_用户id:[2,3,1]
+#         添加历史浏览记录时, 用户最新浏览的商品的id从列表左侧插入
+1
 
-        def get(self,request):
+# 12 分布式图片服务器FastDFS
 
-            获取用户默认收货地址
-            user = request.user
+    # 1 介绍
+    #
+    #     用c语言编写的一款开源的分布式文件系统
+    #     提供文件上传和下载的服务
+    #     架构包括 Tracker server 和Strorage server
+    #         Tracker server进行文件上传, 下载 调度作用
+    #         Tracker server 通过调度最终由Strorage server
+    #         完成文件上传和下载, 文件存储作用
+    #
+    #     优点
+    #         海量存储, 存储容量扩展方便
+    #         文件内容重复, 只保存一份
+    #
+    # 2 安装和配置
+    #
+    #     linux安装
+    #
+    #         1 安装fastdfs依赖包
+    #             1解压缩libfastcommon-master.zip
+    #             2进入libfastcommon-master目录
+    #             3执行 ./make.sh
+    #             4执行sudo ./make.sh install
+    #
+    #         2 安装fastdjs
+    #             1 接压缩fastdfs-master.zip
+    #             2 进入到 fastdfs-master 目录中
+    #             3 执行./make.sh
+    #             4 执行sudo ./make.sh install
+    #
+    #         3 配置跟踪服务器tracker
+    #             1 sudo cp /ect/fdfs/tracker.conf.sample /ect/fdfs/tracker.conf
+    #             2 在/home/python/目录中创建目录 fastdfs/tracker
+    #
+    #                 mkdir -p /home/python/fastdfs/tracker
+    #             3 编辑/ect/fdfs/tracker.conf配置文件
+    #                 sudo vim /etc/fdfs/tracker.conf
+    #                 修改 base_path=/home/python/fastdfs/tracker
+    #
+    #         4 配置存储服务器storage
+    #
+    #             1 sudo cp /ect/fdfs/storage.conf.sample /ect/fdfs/storage.conf
+    #             2 在/home/python/fastdfs/ 目录中创建目录 storage
+    #                 mkdir -p /home/python/fastdfs/storage
+    #             3 编辑/etc/fdfs/storage.conf配置文件
+    #                 sudo vim /ect/fdfs/storage.conf
+    #                 修改内容 base_path=/home/python/fastdfs/storage
+    #                         store_path0=/home/python/fastdfs/storage
+    #                         tracker_server = 自娱Ubuntu虚拟机的ip地址:22122
+    #         5 启动tracker和storage
+    #             sudo service fdfs_trackerd start
+    #             sudo service fdfs_storaged start
+    #
+    #         6 测试
+    #             1 sudo cp/etc/fdfs/client.conf.sample /etc/fdfs/client.conf
+    #             2 编辑/ect/fdfs/client.conf配置文件
+    #                 sudo vim /etc/fdfs/client.conf
+    #
+    #                 修改
+    #                     base_path=/home/python/fastdfs/tracker
+    #                     tracker_server=自己ubuntu虚拟机的ip地址22122
+    #             3 上传文件测试
+    #                 fdfs_upload_file /etc/fdfs/client.conf 要上传的图片文件
+    #                 如果返回类似 group1/Mod/00/00/fsdgfddhshsdhsdhssd.jpg 说明成功
 
-            try:
-                address = Address.objects.get(user=user, is_default=True)
-
-            except Address.DoesNotExist:
-                不存在默认收货地址
-                address = None
-
-            return render(xxx,{"default_addr":address})
-
-        def post(self,request):
-            接收数据
-            receiver = request.POST.get('receiver')
-            addr = request.POST.get('addr')
-            zip_code = request.POST.get('zip_code')
-            phone = request.POST.get('phone')
-            校验数据
-            if not all([receiver, addr, phone]):
-                return render '数据不完整'
-
-            校验手机号
-            re.match(r'xxxx', phone)
-                return render '手机格式不正确'
-            业务处理: 地址添加
-            如果用户已存在默认收货地址, 添加的地址不作为默认收货地址，否则默认收货地址
-
-            user = request.user
-
-            address = Address.objects.get_default_address(user) # 使用了模型管理器类
-            if address:
-                is_default = False
-            else:
-                is_default = True
-
-            Address.objects.create(user=user, receiver=receiver,
-                                   addr=address,zip_code=zip_code,
-                                   phone=phone,
-                                   is_default=is_default)
-
-
-            返回应答 刷新地址页面
-            return redirect(reverse('user:address'))
-
-10 模型类管理器类
-    自定义管理器
-    models文件中（视图函数中存在了相同的查询方法，使用模型管理器类，进行封装）
-
-        class xxManager(model.Manager):
-
-            作用
-                1 改变原有查询的结果集all()
-                2 封装方法 用户操作模型类对应的数据表(增删改查)
-
-            获取用户默认地址
-            def get_defautl_address(self, user):
-                # self.model 获取self对象所在的模型类
-                try:
-                    address = self.get(user=user, is_default=True)
-
-                except self.model.DoesNotExist:
-                    不存在默认收货地址
-                    address = None
-
-                return address
+    3 Nginx配合FastDFS使用安装和配置
