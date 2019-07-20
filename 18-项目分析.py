@@ -1314,6 +1314,7 @@
 # 12 分布式图片服务器FastDFS
 
     # 1 介绍
+    1
     #
     #     用c语言编写的一款开源的分布式文件系统
     #     提供文件上传和下载的服务
@@ -1326,7 +1327,17 @@
     #         海量存储, 存储容量扩展方便
     #         文件内容重复, 只保存一份
     #
+    1
+    # 1.1 流程
+    1
+    #     通过admin页面上传图片-->django服务器-->把文件上传到fast dfs文件存储服务器
+    #
+    #                         保存在django对应表中<--返回文件id<--
+    #     用户请求图片 -->django服务器渲染页面<img src="http:xx.xx.xxx.xx/文件id">
+    #             返回给浏览器<--nginx去FDFS文件存储服务器中获取文件--浏览器根据地址请求nginx<--返回给浏览器<--
+    1
     # 2 安装和配置
+    1
     #
     #     linux安装
     #
@@ -1376,5 +1387,137 @@
     #             3 上传文件测试
     #                 fdfs_upload_file /etc/fdfs/client.conf 要上传的图片文件
     #                 如果返回类似 group1/Mod/00/00/fsdgfddhshsdhsdhssd.jpg 说明成功
-
-    3 Nginx配合FastDFS使用安装和配置
+    1
+    # 3 Nginx配合FastDFS使用安装和配置
+    1
+    #     解决FastDFS用户量比较大的问题借助Nginx
+    #
+    #     1 安装nginx和fastdfs-nginx-module
+    #
+    #         1 解压缩 nginx-1.8.1   # web 服务器 epoll
+    #         2 解压缩 fastdfs-nginx-module-master.zip
+    #         3 进入nginx-1.8.1目录中
+    #         4 执行
+    #             sudo ./configure --prefix=/usr/local/nginx/ --add-module-fastdfs-nginx-module-master解压
+    #                 后的目录的绝对路径/src
+    #
+    #             sudo ./make
+    #             sudo ./make install
+    #
+    #             sudo cp fastdfs-nginx-module-master 解压后的目录中src下的
+    #                 mod_fastdfs.conf /etc/fdfs/mod_fastdfs.conf
+    #
+    #             sudo vim /etc/fdfs/mod_fastdfs.conf
+    #                 修改内容
+    #                     connect_timeout=10
+    #                     tracker_server=自己ubuntu虚拟机ip地址:22122
+    #                     url_have_group_name=true
+    #                     store_path0=/home/python/fastdfs/storage
+    #
+    #             sudo cp 解压缩的fastdfs-master目录conf目录中的http.conf /etc/fdfs/http.conf
+    #
+    #             sudo cp 解压缩的fastdfs-master目录conf目录中的mine.types /etc/fdfs/mime.types
+    #
+    #             sudo vim /user/local/nginx/conf/nginx.conf
+    #                 在http部分中添加配置信息:
+    #                     server{
+    #                         listen  8888;
+    #                         server_name  localhost;
+    #                         location ~/group[0-9]/{
+    #                             ngx_fastdfs_module;
+    #                         }
+    #                         error_page 500 502 503 504 /50x.html;
+    #                         location = /50x.html{
+    #                             root html;
+    #                         }
+    #                     }
+    #         5 启动nginx
+    #             sudo /usr/local/nginx/sbin/nginx
+    #
+    1
+    # 4 使用python客户端上传测试
+    1
+    #     1 安装依赖包
+    #         先下载源码包fdfs_client-py-master.zip
+    #         进入包所在目录 pip install fdfs_client-py-master.zip
+    #
+    #     2 上传文件
+    #         from fdfs_client.client import Fdfs_client
+    #         client = Fdfs_client("/ect/fdfs/client.conf") # 参数为client.conf文件所在路径
+    #         ret = client.upload_by_filename('test')
+    #         ret返回值 会返回来
+    #                 {
+    #                   'Group name':'xx', 'Status':'Upload successed', 'Remote file_id':'xxx',
+    #                   ........
+    #                 }
+    #
+    1
+    # 5 修改django的上传行为(即将原本文件存储路径存到FastDFS中)
+    1
+        # 1 自定义文件存储类
+        # from django.core.files.storage import Storage
+        # from fdfs_client.client import Fdfs_client
+        #
+        # class A(Storage):
+        #
+        #     def __init__(self, client_conf=None, base_url=None):
+        #         """为了动态配置文件路径，
+        #             和返回的文件路径
+        #
+        #         """
+        #         if client_conf is None:
+        #             client_conf = 'client.conf的相对项目路径'
+        #         self.client_conf = client_conf
+        #
+        #         if base_url is None :
+        #             base_url = 'http://127.0.0.1:80000'
+        #         self.base_url = base_url
+        #
+        #
+        #
+        #     def _open(self, name, mode='rb'):
+        #         """打开文件时使用"""
+        #         pass
+        #
+        #     def _save(self, name, content):
+        #         """
+        #         保存文件时使用
+        #         参数：
+        #             name 上传文件的名字
+        #             content 包含上传文件内容file类的对象
+        #         """
+        #
+        #         # 创建一个Fdfs_client对象
+        #         # 参数需要指定配置文件
+        #             # 需要client.conf配置文件放在此类文件的同目录下
+        #             #     修改 base_path = /xx/  记录日志路径
+        #             #         tacker_server=xxxx
+        #         client = Fdfs_client(self.client_conf)
+        #
+        #         # 上传文件到fast dfs系统中, 根据文件内容上传文件
+        #         res = client.upload_by_buffer(content.read())
+        #
+        #         if res.get('Status') != 'Upload successed':
+        #             # 上传失败
+        #             raise  Exception('删除文件fast dfs失败')
+        #         # 获取返回的文件id
+        #         filename = res.get('Remote file_id')
+        #
+        #         return filename
+        #
+        #     def exists(self, name):
+        #         """django判断文件名是否可用
+        #             因为上传的是fastdfs,不存在文件名不可用
+        #         """
+        #         return False
+        #
+        #     def url(self, name):
+        #         """返回范根文件的url路径"""
+        #         return self.base_url+name
+        #
+        #
+        # 2 让django使用自定义的存储类
+        #
+        #     settings中
+        #         DEFAULT_FILE_STORAGE='自定义类的路径'
+    1
