@@ -1308,7 +1308,21 @@
 #         每个用户的历史浏览记录用一条数据保存
 #         list:
 #             history_用户id:[2,3,1]
-#         添加历史浏览记录时, 用户最新浏览的商品的id从列表左侧插入
+#         添加历史浏览记录时, 用户最新浏览的商品的id从列表左侧插入,如果列表
+#         中存在此商品,则先删除，在从左面插入
+#         conn = get_redis_connection('default')
+#
+#         history_key = 'history_%d'%user.id
+
+#         移除列表中goods_id
+#         conn.lrem(history_key, 0, goods_id)
+
+#         把goods_id插入到列表左侧
+#         conn.lpush(history_key, goods_id)
+
+#         只保存用户最新浏览的5条信息
+#         conn.ltrim(history_key, 0, 4)
+
 1
 
 # 12 分布式图片服务器FastDFS
@@ -1625,27 +1639,122 @@
     1
 
 # 14 页面数据缓存
+    1
+    # 把页面使用的数据存放在缓存中, 当再次使用这些数据时,
+    #     先从缓存中获取,如果获取不到,再去查询数据库, 减少数据库查询的次数
+    #
+    #
+    # 1 设置缓存
+    #     from django.core.cache import cache
+    #
+    #     class A(View):
+    #
+    #         def get(self,request):
+    #
+    #             尝试从缓存中获取数据
+    #             context = cache.get('xxx')
+    #             if context is None:
+    #
+    #
+    #                 获取数据
+    #                     ...
+    #                 设置缓存
+    #                 context = {"a":1, "b":2}
+    #                 cache.set("aaaa", context, 3600) # 名称 缓存内容 过期时间
+    #
+    #             return render(xxxx)
+    #
+    # 2 缓存的数据更新
+    #     当管理员后台修改首页信息对应的表格中的数据时候,需要缓存更新
+    #     class Base_A(admin.ModelAdmin):
+    #         def save_model(self, request, obj, form, change):
+    #             """新增或更新表中的数据时调用"""
+    #             super().save_model(request, obj, form, change)
+    #
+    #             # 发出任务, 让celery 重新生产首页静态页面
+    #             xx.delay()
+    #
+    #             # 清除首页缓存数据(当首页数据进行跟新的时候, 清除
+    #             #               了缓存,视图就会重新创建缓存)
+    #             cache.delete("xxxx")
+    #
+    #         def delete_model(self, request, obj):
+    #             super().delete_model(request, obj)
+    #
+    #             # 发出任务, 让celery 重新生产首页静态页面
+    #             xx.delay()
+    #
+    #             # 清除首页缓存数据
+    #             cache.delete("xxxx")
+    #
+    #     class A(Base_A):
+    #         pass
+    #
+    #     class B(Base_A):
+    #         pass
+    #     ...
+    #
+    #     admin.site.register(xx, A)
+    #     admin.site.register(xxx, B)
+    1
 
-    把页面使用的数据存放在缓存中, 当再次使用这些数据时,
-        先从缓存中获取,如果获取不到,再去查询数据库, 减少数据库查询的次数
+# 15 首页内容获取和展示
+    1
+        # class Index(View):
+        #     def get(self, request):
+        #
+        #         # 获取商品的种类信息
+        #
+        #         # 获取首页轮播商品信息
+        #
+        #         # 获取首页促销活动信息
+        #
+        #         # 获取首页分类商品展示信息
+        #
+        #         # 获取用户购物车中商品的的数目
+        #
+        #         # 组织模板上下文
+        #
+        #         context = {xxx}
+        #         return render(xxx)
+    1
+# 16 redis存储购物车记录分析
+    1
+    # 1 分析
+        # 更新购物车记录
+        #
+        #     当用户点击加入购物车时需添加购物车记录
+        #
+        # 获取购物车记录
+        #
+        #     使用购物车中数据和访问购物车页面的时候需要获取购物车记录
+        #
+        # 使用redis存储购物车记录
+        #     需要记录的数据 商品sku 数量
+        #
+        #     cat_用户id:{"sku_id1": 商品数目, "sku_id2":商品数目}
+        #     获取商品条目数
+        #         hlen
+    # 2 使用
 
+        # conn = get_redis_connection('default')
+        # cart_key = 'xx%d'%user.id
+        # cart_count = conn.hlen(cart_key)
+        #
+    1
 
-    1 设置缓存
-        from django.core.cache import cache
-
-        class A(View):
-
-            def get(self,request):
-
-                尝试从缓存中获取数据
-                context = cache.get('xxx')
-                if context is None:
-
-
-                    获取数据
-                        ...
-                    设置缓存
-                    context = {"a":1, "b":2}
-                    cache.set("aaaa", context, 3600) # 名称 缓存内容 过期时间
-
-                return render(xxxx)
+# 17 商品详细页信息的获取和显示
+    1
+    # class Detail(View):
+    #     def get(self, request, goods_id):
+    #
+    #         验证是否有商品信息
+    #         try:
+    #             sku = xx.Objects.get(id=goods_id)
+    #         except xx.DoesNotExist:
+    #             ......
+    #
+    #         获取页面上相关信息去数据库查询
+    #
+    #         return render(xx)
+    1
