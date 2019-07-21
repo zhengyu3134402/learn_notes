@@ -1326,7 +1326,7 @@
     #     优点
     #         海量存储, 存储容量扩展方便
     #         文件内容重复, 只保存一份
-    #
+    #         结合nginx提高网站提供图片的效率
     1
     # 1.1 流程
     1
@@ -1521,3 +1521,131 @@
         #     settings中
         #         DEFAULT_FILE_STORAGE='自定义类的路径'
     1
+# 13 网站首页生成静态页面
+    1
+    # 1作用
+    #     对于不经常改变的网页而言,减轻服务器查询数据库压力
+    #
+    # 2使用工具和考虑条件
+    #     首页页面的静态化
+    #         使用工具
+    #             celery
+    #         重新生成条件
+    #             当管理员后台修改首页数据的时候, 需要重新生成首页静态页面
+    #
+    # 3定义任务函数
+    #     from django.template import loader, RequestContext
+    #
+    #     @app.task
+    #     def a():
+    #         # 查询首页需要的数据
+    #
+    #         context = {xx:xxx}
+    #         1 加载模板文件, 返回模板对象
+    #             temp = loader.get_template('xx.html')
+    #
+    #         2 渲染模板
+    #             static_index_html = temp.render(context)
+    #
+    #         3 生成首页对应的静态文件
+    #             save_path = os.path.join(settings.BASE_DIR, 'static/index.html')
+    #             with open(save_path, 'w') as f:
+    #                 f.write(static_index_html)
+    #
+    # 4配置nginx提交静态页面
+    #
+    #     server{
+    #         listen  80;
+    #         server_name  localhost;
+    #         location /static {
+    #             xxxx
+    #         }
+    #         location / {
+    #             root 路径
+    #             index index.html index.htm
+    #         }
+    #     }
+    #
+    # 5 后台管理员更新首页数据时重新生产静态页面
+    #
+    #     class A(admin.ModelAdmin):
+    #         def save_model(self, request, obj, form, change):
+    #             """新增或更新表中的数据时调用"""
+    #             super().save_model(request, obj, form, change)
+    #
+    #             # 发出任务, 让celery 重新生产首页静态页面
+    #             xx.delay()
+    #
+    #         def delete_model(self, request, obj):
+    #             super().delete_model(request, obj)
+    #
+    #             # 发出任务, 让celery 重新生产首页静态页面
+    #             xx.delay()
+    #
+    #     admin.site.register(xx, A)
+    #
+    # 6 由于有多个类所以抽象基类
+    #
+    #
+    #     class Base_A(admin.ModelAdmin):
+    #         def save_model(self, request, obj, form, change):
+    #             """新增或更新表中的数据时调用"""
+    #             super().save_model(request, obj, form, change)
+    #
+    #             # 发出任务, 让celery 重新生产首页静态页面
+    #             xx.delay()
+    #
+    #         def delete_model(self, request, obj):
+    #             super().delete_model(request, obj)
+    #
+    #             # 发出任务, 让celery 重新生产首页静态页面
+    #             xx.delay()
+    #
+    #     class A(Base_A):
+    #         pass
+    #
+    #     class B(Base_A):
+    #         pass
+    #     ...
+    #
+    #     admin.site.register(xx, A)
+    #     admin.site.register(xxx, B)
+    #
+    # 7 通过nginx调度放分django网站返回index.html或
+    #     访问celery服务器返回index.html
+    #
+    #     设置
+    #         网址 ---> django网站
+    #         网址/index --> celery服务器
+    #
+    #     1 更改django index路由匹配
+    #         url(r'^/index$')
+    #
+    #     2 部署 未完。。。。
+    1
+
+# 14 页面数据缓存
+
+    把页面使用的数据存放在缓存中, 当再次使用这些数据时,
+        先从缓存中获取,如果获取不到,再去查询数据库, 减少数据库查询的次数
+
+
+    1 设置缓存
+        from django.core.cache import cache
+
+        class A(View):
+
+            def get(self,request):
+
+                尝试从缓存中获取数据
+                context = cache.get('xxx')
+                if context is None:
+
+
+                    获取数据
+                        ...
+                    设置缓存
+                    context = {"a":1, "b":2}
+                    cache.set("aaaa", context, 3600) # 名称 缓存内容 过期时间
+
+                return render(xxxx)
