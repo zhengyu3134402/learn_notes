@@ -1758,3 +1758,247 @@
     #
     #         return render(xx)
     1
+
+# 18 商品列表页的内容和显示
+
+    # 按照17
+
+# 19 购物车记录添加到后台
+    1
+    # 请求方式 采用ajax
+        # 请求方式
+        #     如果涉及到数据的修改(新增, 更新, 删除),采用post
+        #     如果只涉及到数据的获取, 采用get
+    # 传递参数 商品id 商品数量
+
+    # class A(View):
+    #     def post(self, request):
+    #
+    #         判断用户是否登录
+    #
+    #         接收数据
+    #         request.POST.get(xxx)
+    #         数据校验
+    #
+    #         if not all([xx,yy]): # 接收数据时候为空
+    #             return JsonResponse(xxxx)
+    #
+    #         try:
+    #             a = B.objects.get(id=xxxx) # 校验商品是否存在
+    #         except:
+    #             return JsonResponse(xxxx)
+    #
+    #         业务处理:添加购物车记录
+    #         先获取值是否有, 如果有进行累加
+    #         conn = get_redis_connection('default')
+    #         cart_key = 'cart_%d'%user.id
+    #         cart_count = conn.hget(cart_key, sku_id)
+    #         if cart_count:
+    #             累加
+    #             count += int(cart_count)
+    #
+    #         校验商品库存
+    #         if count > sku.stock:
+    #             return JsonResponse(xxx, '库存不足')
+    #
+    #         如果没有进行设置
+    #
+    #         conn.hset(cart_key, sku_id, count)
+    #
+    #         返回应答
+    #         return JsonResponse(xxxx)
+    1
+
+# 20 购物车页面显示
+
+    # class A(View):
+    #
+    #     def get(self, request):
+    #
+    #         获取登录的用户
+    #         user = request.user
+    #         获取用户购物车中信息
+    #         conn = get_redis_connection(xxx)
+    #         cart_key = 'cart_%d'%user.id
+    #         cart_dict = conn.hgetall(cart_key)
+    #
+    #         遍历获取商品信息
+    #         return xx
+
+# 21 订单页面的显示
+
+    # class A(View):
+    #     获取参数
+    #     校验参数
+    #     遍历参数获取用户要购买的商品的信息
+    #
+    #     运费
+    #
+    #     实付款
+    #
+    #     获取用户收货地址
+    #
+    #     上下文
+
+# 22 订单创建
+    1
+    # 用户每下一个订单, 就要向 订单表中添加一条记录
+    # 用户的订单中有几个商品, 就要向订单商品表中加入几条记录
+
+    # 1 视图
+    # class A(View):
+    #
+    #     def post(self,request):
+    #
+    #         判断用户是否登录
+    #
+    #         接收参数
+    #
+    #         校验参数
+    #             校验支付方式
+    #             校验地址
+    #         判断商品库存
+    #         创建订单
+    #
+    #             向订单表中添加记录
+    #
+    #             订单id
+    #             datatime.now().strftime('%Y%m%d%H%M%S')+str(user.id)
+    #
+    #
+    #         更新商品库存和销量
+    #
+    #         清除用户购物对应的订单信息
+
+
+    # 2 mysql 事务
+    #
+    #     一组mysql语句, 要么执行, 要么全不不执行
+    #     特点
+    #         原子性
+    #             一组事务,要么成功, 要么驳回
+    #         稳定性
+    #             有非法数据,外键约束之类, 事务驳回
+    #         隔离性
+    #             事务独立运行, 一个事务处理后的结果, 影响了其他事务, 那么其他事务
+    #             会驳回, 事务的100%隔离, 需要牺牲速度
+    #
+    #         可靠性
+    #             软, 硬件崩溃或, innoDB数据表驱动会利用日志文件重构修改
+    #
+    #
+    #     事务的控制语句
+    #
+    #         BEGIN;
+    #         ...
+    #         COMMIT; # 提交
+    #
+    #         BEGIN;
+    #         ...
+    #         ROOBACK; # 回滚
+    #
+    #
+    #         设置部分可回滚(设置事务保存点)
+    #
+    #             savepoint 名;
+    #                 .....
+    #             rooback to 名;
+    #
+    #         删除保存点
+    #             release savepoint 名
+
+    # 3 django视图中使用事务
+    #
+    #     事务全部成功或全部失败
+    #         函数中的数据库相关操作就会执行事务(要么都成功要么都撤销)
+    #         from django.db import transaction
+    #         @transaction.atomic
+    #         def a(self, request):
+    #
+    #
+    #     部分事务设置
+    #
+    #         @transaction.atomic
+    #         def a(self, request):
+    #
+    #             设置保存点
+    #             save_id = transaction.savepoint()
+    #             ...
+    #             回滚保存点
+    #             transaction.savepoint_rollback(save_id)
+    #
+    #             提交事务
+    #             transaction.savepoint_commit(save_id)
+
+
+    # 4 订单并发的控制
+    #
+    #     1 悲观锁解决
+    #
+    #         两个用户同意时间操作数据库中一个数据, 得到锁的用户可以对数据进行操作
+    #         没得到的等待用户锁的用户用完之后(事务结束之后锁会释放)再那锁进行对数据的操作
+    #
+    #         mysql中的悲观锁
+    #             语句 + for update
+    #
+    #         django中的悲观锁
+    #
+    #             A.objects.select_for_update().get(id=xx)
+    #
+    #     2 乐观锁解决
+    #
+    #         mysql事务的隔离界别
+    #
+    #             Read Uncommitted(读取未提交内容)
+    #                 事务A和事务B
+    #                 不管事务A是否提交, 事务B都能拿到内容
+    #
+    #             Read Committed(读取提交内容)
+    #                 事务A和事务B
+    #                     事务A提交之前 事务B拿不到内容
+    #
+    #             Repeatable Read(可重读 mysql默认的级别)
+    #                 事务A和事务B
+    #                     及时事务A对内容进行了修改, 事务B还是拿到之前的内容
+    #
+    #             Serializable(可串行化)
+    #
+    #                 最高隔离级别, 强制事务排序, 不互相冲突, 但耗时
+    #
+    #
+    #         查询数据的时候不加锁, 在修改时进行判断, 在更新时候的库存
+    #         和之前查出的库存是否一样
+    #
+    #         会有问题: 及时库存够, 库存也有可能和原来的不一样
+    #         a为返回受影响行数
+    #         a = A.objects.filter(id=xx, stock=xxxx).update(stock=ne_xx, sotck=new_xxxx)
+    #
+    #         if a == 0:
+    #             transaction.savepoint_rollback(save_id)
+    #             return ...
+    #
+    #         为了解决及时库存够,也有可能和原来不一样
+    #         应给进行循环 查询 但要有次数限制 for ,
+    #         但涉及到事务的隔离级别, 所以还是有问题
+    #         将隔离级别设置为 Read Committed(读取提交内容)
+    #
+    #             sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
+    #
+    #             skip-external-locking下面添加:
+    #                 transaction-isolation = READ-COMMITTED
+    #
+    #             重启mysql服务
+    #
+    #                 sudo service mysql restart
+    #
+    #     3 悲观锁和乐观锁使用建议
+    #
+    #         1 悲观锁
+    #             冲突比较多的时候使用
+    #         2 乐观锁
+    #             冲突比较少的时候使用
+    1
+
+# 23 订单的支付
+
+    1 支付宝
