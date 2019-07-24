@@ -2000,5 +2000,395 @@
     1
 
 # 23 订单的支付
+    1
+    # 1 支付宝
+    #
+    #     支付宝开放平台登录
+    #
+    #         正常流程
+    #             https://open.alipay.com/platform/home.htm
+    #
+    #             开发者中心-->网页&移动应用
+    #
+    #             创建应用--支付接入 --->创建--最后得到APPID
+    #
+    #         测试流程(沙箱--开发模拟环境)
+    #
+    #             开发者中心-->研发服务
+    #
+    # 2 电脑网站支付快速接口
+    #
+    #     1 创建应用
+    #
+    #     2 配置秘钥
+    #                   采用网络请求方式
+    #         django网站--------------->支付宝平台
+    #
+    #         需要用自己的私钥加密 ----> django网站公钥解密
+    #
+    #         用字符包公钥解密<---------支付宝用自己的私钥加密
+    #
+    # 3 搭建和配置开发环境
+    #
+    #     网站如果想让支付宝平台访问,需要有公网的ip
+    #     可以访问支付宝网站的接口,返回用户的支付结果
+    #
+    #
+    # 4 网站和支付宝支付接口对接流程
+    #
+    #     用户访问网站支付接口---->网站调用支付宝接口并传递参数(订单id, 总金额, 订单标题, returl_url, notify_url)--->
+    #     支付宝平台返回给网站支付页面--->网站返回给用户支付页面--->用户登录支付宝,确认支付--
+    #     --->同步访问网站的return_url传递参数告诉网站用户支付的结果(需要公网ip)
+    #     --->异步访问网站的notify_url传递参数告诉网站用户支付的结果(需要公网ip)
+    #
+    #     如果没有公网ip 用户浏览器访问交易结果,访问支付宝接口 返回用户支付的结果,显示用户支付结果
+    #
+    # 5 python工具包(支付宝python SDK)
+    #
+    #     https://github.com/fzlee/alipay/blob/master/README.zh-hans.md
+    #
+    #     1 安装
+    #         pip3 uninstall pycrypto
+    #         pip3 install python-alipay-sdk --upgrade
+    #         pip3 install openssl
+    #
+    #     2 生成秘钥文件
+    #         终端执行命令
+    #
+    #             openssl
+    #             OpenSSL> genrsa -out app_private_key.pem   2048  # 私钥
+    #             OpenSSL> rsa -in app_private_key.pem -pubout -out app_public_key.pem # 导出公钥
+    #             OpenSSL> exit
+    #
+    #
+    #         在支付宝上下载的公钥是一个字符串，你需要在文本的首尾添加标记位
+    #             (-----BEGIN PUBLIC KEY-----和-----END PUBLIC KEY-----)
+    #
+    #     3 初始化
+    #
+    #         alipay = AliPay(
+    #             appid="",
+    #             app_notify_url=None,  # 默认回调url
+    #             app_private_key_string=app_private_key_string, # 私钥路径
+    #             # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+    #             alipay_public_key_string=alipay_public_key_string, # 公钥路径
+    #             sign_type="RSA" # RSA 或者 RSA2
+    #             debug=False  # 默认False # 如果是沙箱环境需要改成true
+    #         )
+    #
+    #     4 视图
+    #         from alipay import AliPay
+    #         class A:
+    #
+    #             def post(self, request):
+    #                 # 用户是否登录
+    #
+    #                 # 接收参数
+    #                 order_id = request.POST.get("order_id")
+    #                 # 校验参数
+    #                 if not order_id:
+    #                     return xxxx
+    #
+    #                 try:
+    #                     order = xx.objects.get(order_id=order_id,
+    #                                            user=user,
+    #                                            pay_method=3, # 支付宝支付
+    #                                            order_status=1,# 未支付状态
+    #                                            )
+    #                 except xx.DoesNotExist:
+    #                     return JsonResponse(xxx)
+    #
+    #                 # 业务处理:使用python sdk低啊用支付宝的支付接口
+    #
+    #                 # 初始化
+    #                 alipay = AliPay(
+    #                     appid="xxxxx",
+    #                     app_notify_url=None,  # 默认回调url
+    #                     app_private_key_string='',  # 私钥路径 可使用路径拼接
+    #                     # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+    #                     alipay_public_key_string='',  # 公钥路径
+    #                     sign_type="RSA2",  # RSA 或者 RSA2
+    #                     debug = True  # 默认False # 如果是沙箱环境需要改成true
+    #                 )
+    #                 # 调用支付接口
+    #
+    #                 order_string = alipay.api_alipay_trade_page_pay(
+    #                     out_trade_no="20161112",# 订单id
+    #                     total_amount=0.01, # 总金额
+    #                     subject=subject, # 标题
+    #                     return_url=None,
+    #                     notify_url=None  # 可选, 不填则使用默认notify url
+    #                 )
+    #
+    #                 pay_url = 沙箱地址
+    #
+    #                 # 返回应答
+    #                 return xxxxx
+    #
+    #     5 查看订单支付结果
+    #
+    #         class A:
+    #
+    #             def post(self, request):
+    #                 # 用户是否登录
+    #
+    #                 # 接收参数
+    #                 order_id = request.POST.get("order_id")
+    #                 # 校验参数
+    #                 if not order_id:
+    #                     return xxxx
+    #
+    #                 try:
+    #                     order = xx.objects.get(order_id=order_id,
+    #                                            user=user,
+    #                                            pay_method=3,  # 支付宝支付
+    #                                            order_status=1,  # 未支付状态
+    #                                            )
+    #                 except xx.DoesNotExist:
+    #                     return JsonResponse(xxx)
+    #
+    #                 # 业务处理:使用python sdk低啊用支付宝的支付接口
+    #
+    #                 # 初始化
+    #                 alipay = AliPay(
+    #                     appid="xxxxx",
+    #                     app_notify_url=None,  # 默认回调url
+    #                     app_private_key_string='',  # 私钥路径 可使用路径拼接
+    #                     # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+    #                     alipay_public_key_string='',  # 公钥路径
+    #                     sign_type="RSA2",  # RSA 或者 RSA2
+    #                     debug=True  # 默认False # 如果是沙箱环境需要改成true
+    #                 )
+    #
+    #                 # 调用支付宝查询接口
+    #
+    #                 while True:
+    #                     a = alipay.alipay_trade_query(order_id)
+    #
+    #                     # a为返回
+    #                     #     a = {
+    #                     #         "trade_no": '..', # 支付宝交易号
+    #                     #         "code":'..' # 接口调用是否成功
+    #                     #         "trade_status": "TRADE_SUCCESS" # 支付结果
+    #                     #         ...
+    #                     #     }
+    #                     code = a.get('code')
+    #                     if code =='10000' and a.get('trade_status') == 'TRADE_SUCCESS':
+    #                         # 支付成功
+    #                         # 获取支付宝交易号
+    #                         trade_no = a.get('trade_no')
+    #                         # 更新订单状态
+    #                         order.trade_no = trade_no
+    #                         order.order_status = 4 # 待评价
+    #                         order.save()
+    #                         # 返回结果
+    #                         return JsonResponse(xxx)
+    #                     elif code=='40004' or (code == '10000' and a.get('trade_status') == 'WAIT_BUYER_PAY'):
+    #                         # 等待买家付款
+    #                         # 业务处理失败
+    #                         import time
+    #                         time.sleep(5)
+    #                         continue
+    #                     else:
+    #                         # 支付出错
+    #                         return xx
+    1
 
-    1 支付宝
+# 24 部署
+
+    0 部署的架构解析
+
+        1最简单的项目部署(无静态文件)
+            用户浏览器----uwsgi----django项目
+
+            用户向uwsgi发送请求--->uwsgi调用django项目应用--->
+            django项目应用进行处理返回给uwsgi---->uwsgi将信息返回给用户浏览器
+
+        2带有静态文件的项目部署
+            用户浏览器 ----nginx----uwsgi----django项目
+
+            1 动态请求
+                用户浏览器向nginx发送动态请求--->nginx转交给uwsgi-->uwsgi调用django项目应用-->
+                django项目应用返回给uwsgi-->uwsgi返回给nginx-->nginx返回给用户
+
+            2 静态请求
+
+                提前把静态文件放到nginx所在电脑的某个目录中,根据配置nginx就会去目录下方找到静态文件
+                返回给用户浏览器
+
+            动态和静态的请求区分
+                根据nginx中的 location配置
+                一般
+                    location / 动态
+                    location /static 静态
+
+# 1 uwsgi服务器
+    #     1 介绍
+    #         uwsgi作为web服务器(代替python manage.py runserver)
+    #     2 安装
+    #         pip3 install uwsgi
+    #
+    #     3 配置
+    #         settings.py
+    #             DEBUG=False
+    #             ALLOWED_HOST=['*']
+    #
+    #         创建配置文件uwsgi.ini
+    #             [uwsgi]
+    #             #使用nginx连接时使用
+    #             #socket=127.0.0.1:8000
+    #             #直接做web服务器使用
+    #             http=127.0.0.1:8000
+    #             #项目目录
+    #             chdir=/////////
+    #             #项目中wsgi.py文件的目录,项对于项目目录
+    #             wsgi-file=xx
+    #             #指定启动的工作进程数
+    #             processes=4
+    #             #指定工作进程的线程数
+    #             threads=2
+    #             #在这些进程中有一个主进程
+    #             master=True
+    #             #保存启动之后主进程的pid
+    #             pidfile=uwsgi.pid
+    #             #设置uwsgi后台运行不在占用终端,保存日志信息到uwsgi.log
+    #             daemonize=uwsgi.log
+    #             #设置虚拟环境的路径
+    #             virtualent=/////
+    #     4 启动和停止
+    #
+    #         1 启动
+    #             uwsgi --ini 配置文件路径
+    #             例子
+    #                 uwsgi --ini uwsgi.ini
+    #         2 停止
+    #             uwsgi --stop uwsgi.pid路径
+    #             例子
+    #                 uwsgi --stop uwsgi.pid
+
+# 2 nginx和uwsgi对接
+#
+#     1 配置uwsgi.ini文件
+#         [uwsgi]
+#         #使用nginx连接时使用
+#         socket=127.0.0.1:8000   # 和nginx的对接配置！！
+#         #直接做web服务器使用
+#         # http=127.0.0.1:8000 注释掉！！！
+#         #项目目录
+#         chdir=/////////
+#         #项目中wsgi.py文件的目录,项对于项目目录
+#         wsgi-file=xx
+#         #指定启动的工作进程数
+#         processes=4
+#         #指定工作进程的线程数
+#         threads=2
+#         #在这些进程中有一个主进程
+#         master=True
+#         #保存启动之后主进程的pid
+#         pidfile=uwsgi.pid
+#         #设置uwsgi后台运行不在占用终端,保存日志信息到uwsgi.log
+#         daemonize=uwsgi.log
+#         #设置虚拟环境的路径
+#         virtualent=/////
+#
+#
+#     2 配置nginx文件
+#
+#         /user/local/nginx/conf/nginx.conf
+#
+#         修改配置文件
+#
+#             server{
+#
+#                 location / {
+#                     # 包含uwsgi的请求参数
+#                     include uwsgi_parmas;
+#                     # 转交请求给uwsgi
+#                     uwsgi_pass 127.0.0.1:8000 # uwsgi.ini 配置文件中的socket地址
+#                 }
+#
+#             }
+
+# 3 nginx处理静态文件
+#
+#
+#     1 创建静态文件存储目录
+#
+#         sudo mkdir -p /var/www/项目../static
+#
+#     2 修改用户使用目录权限
+#
+#         sudo chmod 777 /var/www/项目../static/
+#
+#     2 收集所有的静态文件到指定路径
+#
+#         settings.py下
+#
+#             STATIC_ROOT=/var/www/项目../static
+#         执行命令
+#             python manage.py collectstatic
+#
+#     3 修改配置文件
+#
+#
+#         /user/local/nginx/conf/nginx.conf
+#
+#         server{
+#
+#             location / {
+#                 # 包含uwsgi的请求参数
+#                 include uwsgi_parmas;
+#                 # 转交请求给uwsgi
+#                 uwsgi_pass 127.0.0.1:8000 # uwsgi.ini 配置文件中的socket地址
+#             }
+#
+#             location /static {
+#                 # 指定静态文件存放目录
+#                 alias /var/www/项目../static/;
+#             }
+#
+#         }
+
+
+# 4 首页静态页面服务器配置
+#
+#     1 流程
+#                     ---- uwsgo+django
+#
+#         用户---nginx
+#
+#                     -----静态页面服务器,nginx
+#
+#
+#         如果访问 /  就访问静态页面服务器
+#
+#         如果访问 其他 就转交给uwsgi
+#
+#
+#     2 配置/user/local/nginx/conf/nginx.conf
+#
+#         server {
+#
+#             location = / {  # 精确匹配只是斜杠
+#                 # 传递请求给静态文件服务器的nginx
+#                 proxy_pass http://ip地址:80;
+#             }
+#         }
+
+# 5 实现负载均衡
+
+    # 可以启动多个项目(即多个uwsgi+django 业务处理服务器)
+    #
+    # 配置/user/local/nginx/conf/nginx.conf
+    #
+    #     upstream xx {
+    #
+    #         server 127.0.0.1:8000;
+    #         server 127.0.0.1:8001;
+    #     }
+    #     server {
+    #
+    #         location / {
+    #             proxy_pass xx # 就会从上面的服务器中进行转交
+    #         }
+    #     }
