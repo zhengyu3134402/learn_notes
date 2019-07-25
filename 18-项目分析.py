@@ -1810,7 +1810,7 @@
     1
 
 # 20 购物车页面显示
-
+    1
     # class A(View):
     #
     #     def get(self, request):
@@ -1824,9 +1824,9 @@
     #
     #         遍历获取商品信息
     #         return xx
-
+    1
 # 21 订单页面的显示
-
+    1
     # class A(View):
     #     获取参数
     #     校验参数
@@ -1839,7 +1839,7 @@
     #     获取用户收货地址
     #
     #     上下文
-
+    1
 # 22 订单创建
     1
     # 用户每下一个订单, 就要向 订单表中添加一条记录
@@ -2195,200 +2195,247 @@
     1
 
 # 24 部署
-
-    0 部署的架构解析
-
-        1最简单的项目部署(无静态文件)
-            用户浏览器----uwsgi----django项目
-
-            用户向uwsgi发送请求--->uwsgi调用django项目应用--->
-            django项目应用进行处理返回给uwsgi---->uwsgi将信息返回给用户浏览器
-
-        2带有静态文件的项目部署
-            用户浏览器 ----nginx----uwsgi----django项目
-
-            1 动态请求
-                用户浏览器向nginx发送动态请求--->nginx转交给uwsgi-->uwsgi调用django项目应用-->
-                django项目应用返回给uwsgi-->uwsgi返回给nginx-->nginx返回给用户
-
-            2 静态请求
-
-                提前把静态文件放到nginx所在电脑的某个目录中,根据配置nginx就会去目录下方找到静态文件
-                返回给用户浏览器
-
-            动态和静态的请求区分
-                根据nginx中的 location配置
-                一般
-                    location / 动态
-                    location /static 静态
-
-# 1 uwsgi服务器
-    #     1 介绍
-    #         uwsgi作为web服务器(代替python manage.py runserver)
-    #     2 安装
-    #         pip3 install uwsgi
+1
+    # 0 部署的架构解析
     #
-    #     3 配置
-    #         settings.py
-    #             DEBUG=False
-    #             ALLOWED_HOST=['*']
+    #     1最简单的项目部署(无静态文件)
+    #         用户浏览器----uwsgi----django项目
     #
-    #         创建配置文件uwsgi.ini
-    #             [uwsgi]
-    #             #使用nginx连接时使用
-    #             #socket=127.0.0.1:8000
-    #             #直接做web服务器使用
-    #             http=127.0.0.1:8000
-    #             #项目目录
-    #             chdir=/////////
-    #             #项目中wsgi.py文件的目录,项对于项目目录
-    #             wsgi-file=xx
-    #             #指定启动的工作进程数
-    #             processes=4
-    #             #指定工作进程的线程数
-    #             threads=2
-    #             #在这些进程中有一个主进程
-    #             master=True
-    #             #保存启动之后主进程的pid
-    #             pidfile=uwsgi.pid
-    #             #设置uwsgi后台运行不在占用终端,保存日志信息到uwsgi.log
-    #             daemonize=uwsgi.log
-    #             #设置虚拟环境的路径
-    #             virtualent=/////
-    #     4 启动和停止
+    #         用户向uwsgi发送请求--->uwsgi调用django项目应用--->
+    #         django项目应用进行处理返回给uwsgi---->uwsgi将信息返回给用户浏览器
     #
-    #         1 启动
-    #             uwsgi --ini 配置文件路径
-    #             例子
-    #                 uwsgi --ini uwsgi.ini
-    #         2 停止
-    #             uwsgi --stop uwsgi.pid路径
-    #             例子
-    #                 uwsgi --stop uwsgi.pid
-
-# 2 nginx和uwsgi对接
-#
-#     1 配置uwsgi.ini文件
-#         [uwsgi]
-#         #使用nginx连接时使用
-#         socket=127.0.0.1:8000   # 和nginx的对接配置！！
-#         #直接做web服务器使用
-#         # http=127.0.0.1:8000 注释掉！！！
-#         #项目目录
-#         chdir=/////////
-#         #项目中wsgi.py文件的目录,项对于项目目录
-#         wsgi-file=xx
-#         #指定启动的工作进程数
-#         processes=4
-#         #指定工作进程的线程数
-#         threads=2
-#         #在这些进程中有一个主进程
-#         master=True
-#         #保存启动之后主进程的pid
-#         pidfile=uwsgi.pid
-#         #设置uwsgi后台运行不在占用终端,保存日志信息到uwsgi.log
-#         daemonize=uwsgi.log
-#         #设置虚拟环境的路径
-#         virtualent=/////
-#
-#
-#     2 配置nginx文件
-#
-#         /user/local/nginx/conf/nginx.conf
-#
-#         修改配置文件
-#
-#             server{
-#
-#                 location / {
-#                     # 包含uwsgi的请求参数
-#                     include uwsgi_parmas;
-#                     # 转交请求给uwsgi
-#                     uwsgi_pass 127.0.0.1:8000 # uwsgi.ini 配置文件中的socket地址
-#                 }
-#
-#             }
-
-# 3 nginx处理静态文件
-#
-#
-#     1 创建静态文件存储目录
-#
-#         sudo mkdir -p /var/www/项目../static
-#
-#     2 修改用户使用目录权限
-#
-#         sudo chmod 777 /var/www/项目../static/
-#
-#     2 收集所有的静态文件到指定路径
-#
-#         settings.py下
-#
-#             STATIC_ROOT=/var/www/项目../static
-#         执行命令
-#             python manage.py collectstatic
-#
-#     3 修改配置文件
-#
-#
-#         /user/local/nginx/conf/nginx.conf
-#
-#         server{
-#
-#             location / {
-#                 # 包含uwsgi的请求参数
-#                 include uwsgi_parmas;
-#                 # 转交请求给uwsgi
-#                 uwsgi_pass 127.0.0.1:8000 # uwsgi.ini 配置文件中的socket地址
-#             }
-#
-#             location /static {
-#                 # 指定静态文件存放目录
-#                 alias /var/www/项目../static/;
-#             }
-#
-#         }
-
-
-# 4 首页静态页面服务器配置
-#
-#     1 流程
-#                     ---- uwsgo+django
-#
-#         用户---nginx
-#
-#                     -----静态页面服务器,nginx
-#
-#
-#         如果访问 /  就访问静态页面服务器
-#
-#         如果访问 其他 就转交给uwsgi
-#
-#
-#     2 配置/user/local/nginx/conf/nginx.conf
-#
-#         server {
-#
-#             location = / {  # 精确匹配只是斜杠
-#                 # 传递请求给静态文件服务器的nginx
-#                 proxy_pass http://ip地址:80;
-#             }
-#         }
-
-# 5 实现负载均衡
-
-    # 可以启动多个项目(即多个uwsgi+django 业务处理服务器)
+    #     2带有静态文件的项目部署
+    #         用户浏览器 ----nginx----uwsgi----django项目
     #
-    # 配置/user/local/nginx/conf/nginx.conf
+    #         1 动态请求
+    #             用户浏览器向nginx发送动态请求--->nginx转交给uwsgi-->uwsgi调用django项目应用-->
+    #             django项目应用返回给uwsgi-->uwsgi返回给nginx-->nginx返回给用户
     #
-    #     upstream xx {
+    #         2 静态请求
     #
-    #         server 127.0.0.1:8000;
-    #         server 127.0.0.1:8001;
-    #     }
-    #     server {
+    #             提前把静态文件放到nginx所在电脑的某个目录中,根据配置nginx就会去目录下方找到静态文件
+    #             返回给用户浏览器
     #
-    #         location / {
-    #             proxy_pass xx # 就会从上面的服务器中进行转交
+    #         动态和静态的请求区分
+    #             根据nginx中的 location配置
+    #             一般
+    #                 location / 动态
+    #                 location /static 静态
+
+    # 1 uwsgi服务器
+        #     1 介绍
+        #         uwsgi作为web服务器(代替python manage.py runserver)
+        #     2 安装
+        #         pip3 install uwsgi
+        #
+        #     3 配置
+        #         settings.py
+        #             DEBUG=False
+        #             ALLOWED_HOST=['*']
+        #
+        #         创建配置文件uwsgi.ini
+        #             [uwsgi]
+        #             #使用nginx连接时使用
+        #             #socket=127.0.0.1:8000
+        #             #直接做web服务器使用
+        #             http=127.0.0.1:8000
+        #             #项目目录
+        #             chdir=/////////
+        #             #项目中wsgi.py文件的目录,项对于项目目录
+        #             wsgi-file=xx
+        #             #指定启动的工作进程数
+        #             processes=4
+        #             #指定工作进程的线程数
+        #             threads=2
+        #             #在这些进程中有一个主进程
+        #             master=True
+        #             #保存启动之后主进程的pid
+        #             pidfile=uwsgi.pid
+        #             #设置uwsgi后台运行不在占用终端,保存日志信息到uwsgi.log
+        #             daemonize=uwsgi.log
+        #             #设置虚拟环境的路径
+        #             virtualent=/////
+        #     4 启动和停止
+        #
+        #         1 启动
+        #             uwsgi --ini 配置文件路径
+        #             例子
+        #                 uwsgi --ini uwsgi.ini
+        #         2 停止
+        #             uwsgi --stop uwsgi.pid路径
+        #             例子
+        #                 uwsgi --stop uwsgi.pid
+
+    # 2 nginx和uwsgi对接
+    #
+    #     1 配置uwsgi.ini文件
+    #         [uwsgi]
+    #         #使用nginx连接时使用
+    #         socket=127.0.0.1:8000   # 和nginx的对接配置！！
+    #         #直接做web服务器使用
+    #         # http=127.0.0.1:8000 注释掉！！！
+    #         #项目目录
+    #         chdir=/////////
+    #         #项目中wsgi.py文件的目录,项对于项目目录
+    #         wsgi-file=xx
+    #         #指定启动的工作进程数
+    #         processes=4
+    #         #指定工作进程的线程数
+    #         threads=2
+    #         #在这些进程中有一个主进程
+    #         master=True
+    #         #保存启动之后主进程的pid
+    #         pidfile=uwsgi.pid
+    #         #设置uwsgi后台运行不在占用终端,保存日志信息到uwsgi.log
+    #         daemonize=uwsgi.log
+    #         #设置虚拟环境的路径
+    #         virtualent=/////
+    #
+    #
+    #     2 配置nginx文件
+    #
+    #         /user/local/nginx/conf/nginx.conf
+    #
+    #         修改配置文件
+    #
+    #             server{
+    #
+    #                 location / {
+    #                     # 包含uwsgi的请求参数
+    #                     include uwsgi_parmas;
+    #                     # 转交请求给uwsgi
+    #                     uwsgi_pass 127.0.0.1:8000 # uwsgi.ini 配置文件中的socket地址
+    #                 }
+    #
+    #             }
+
+    # 3 nginx处理静态文件
+    #
+    #
+    #     1 创建静态文件存储目录
+    #
+    #         sudo mkdir -p /var/www/项目../static
+    #
+    #     2 修改用户使用目录权限
+    #
+    #         sudo chmod 777 /var/www/项目../static/
+    #
+    #     2 收集所有的静态文件到指定路径
+    #
+    #         settings.py下
+    #
+    #             STATIC_ROOT=/var/www/项目../static
+    #         执行命令
+    #             python manage.py collectstatic
+    #
+    #     3 修改配置文件
+    #
+    #
+    #         /user/local/nginx/conf/nginx.conf
+    #
+    #         server{
+    #
+    #             location / {
+    #                 # 包含uwsgi的请求参数
+    #                 include uwsgi_parmas;
+    #                 # 转交请求给uwsgi
+    #                 uwsgi_pass 127.0.0.1:8000 # uwsgi.ini 配置文件中的socket地址
+    #             }
+    #
+    #             location /static {
+    #                 # 指定静态文件存放目录
+    #                 alias /var/www/项目../static/;
+    #             }
+    #
     #         }
-    #     }
+
+
+    # 4 首页静态页面服务器配置
+    #
+    #     1 流程
+    #                     ---- uwsgo+django
+    #
+    #         用户---nginx
+    #
+    #                     -----静态页面服务器,nginx
+    #
+    #
+    #         如果访问 /  就访问静态页面服务器
+    #
+    #         如果访问 其他 就转交给uwsgi
+    #
+    #
+    #     2 配置/user/local/nginx/conf/nginx.conf
+    #
+    #         server {
+    #
+    #             location = / {  # 精确匹配只是斜杠
+    #                 # 传递请求给静态文件服务器的nginx
+    #                 proxy_pass http://ip地址:80;
+    #             }
+    #         }
+
+    # 5 实现负载均衡
+
+        # 可以启动多个项目(即多个uwsgi+django 业务处理服务器)
+        #
+        # 配置/user/local/nginx/conf/nginx.conf
+        #
+        #     upstream xx {
+        #
+        #         server 127.0.0.1:8000;
+        #         server 127.0.0.1:8001;
+        #     }
+        #     server {
+        #
+        #         location / {
+        #             proxy_pass xx # 就会从上面的服务器中进行转交
+        #         }
+        #     }
+1
+
+# 25 项目总结
+1
+    # 1 生鲜类产品 B2C PC电脑端网页
+    #
+    # 2 功能模: 用户模块 商品模块(首页, 搜索 , 商品)
+    #     购物车模块 订单模块(下单, 支付)
+    #
+    # 3 用户模块:注册,登录, 激活,退出,个人中心,地址
+    #
+    # 4 商品模块:首页, 详情, 列表, 搜索(haystack+whoosh)
+    #
+    # 5 购物车: 增加,删除,修改,查询
+    #
+    # 6 订单模块: 确认订单页面, 提交订单, 请求支付, 查询支付结果, 评论
+    #
+    # 7 django默认的认证系统AbstractUser
+    #
+    # 8 itsdangerous 生成签名的token(序列化工具dumps loads)
+    #
+    # 9 邮件(django提供邮件支持 配置参数 send_mail)
+    #
+    # 10 celery(重点, 整体认识, 异步任务)
+    #
+    # 11 页面静态化(缓解压力 celery nginx)
+    #
+    # 12 缓存(缓解压力, 保存的位置, 有效期, 与数据库的一致性问题)
+    #
+    # 13 FastDFS(分布式的图片存储服务, 修改了django的默认文件存储系统)
+    #
+    # 14 搜索(whoosh 索引 分词)
+    #
+    # 15 购物车redis 哈希 历史记录 redis list
+    #
+    # 16 ajax 前段用 ajax请求后端接口
+    #
+    # 17 事务
+    #
+    # 18 高并发的库存问题(悲观锁, 乐观锁)
+    #
+    # 19 支付宝使用流程
+    #
+    # 20 nginx(负载均衡 提供静态文件)
+    #
+    #
+1
