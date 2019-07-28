@@ -1,7 +1,7 @@
 # -i https://pypi.douban.com/simple
 
 
-
+1
 # HTTP通讯过程
 
 #     tcp传输
@@ -196,106 +196,287 @@
 #                 def s(bbb):
 #                     return 'xxxxx'
 
-        8 request
-            from flask import request
+        # 8 request
+        #     from flask import request
+        #
+        #     # 获取请求体数据
+        #     request.data
+        #
+        #     # 获取表单中数据, 类字典格式
+        #     request.form
+        #
+        #     # 获取url参数, 类字典格式
+        #     request.args
+        #
+        #     # 获取同名key的方法
+        #     request.data.getlist("xx")
+        #     request.form.getlist("xx")
+        #     request.args.getlist("xx")
+        #
+        #     # 获取请求中的cookies信息
+        #     request.cookies
+        #
+        #     # 获取请求中的报文头
+        #     request.headers
+        #
+        #     # 获取请求使用的HTTP方法
+        #     request.method
+        #
+        #     # 获取请求的url地址
+        #     request.url
+        #
+        #     # 获取请求的上传文件
+        #     request.files
+        #
+        #
+        #
+        # 9 获取上传文件并保存
+        #
+        #     # 得到的是类似文件句柄类型
+        #     a = request.files.get('xx')
+        #     # 保存文件
+        #     a.save("路径")
+        #
+        # 10 abort函数
+        #
+        #     from flask import abort, Response
+        #     # 终止视图执行 返回给前端信息
+        #
+        #     # 返回状态码, 必须是标准的http状态码
+        #     abort(404)
+        #
+        #     # 返回信息
+        #     abort(Response('xx'))
+        #
+        # 11 自定义异常处理
+        #
+        #     @app.errorhandler(404)
+        #     def handle_404_error(err):
+        #         return '40411'
+        #
+        # 12 响应信息处理
+        #     # 方法1
+        #         # 使用元祖返回自定义响应信息
+        #             # 响应体, 状态码, 响应头
+        #         return "xx", 200, [("a", "1"),("b","2")]
+        #         或
+        #         return "xx", 200, {"a":1, "b":2}
+        #             # 响应体, "状态码 状态码描述信息", 响应头
+        #         return "xx", "200 哈哈", {"a":1, "b":2}
+        #
+        #     # 方法2
+        #
+        #         from flask import make_response
+        #
+        #         resp = make_response("xx") # 响应体
+        #         resp.status = "999 vv" # 设置状态码
+        #         resp.headers["a"] = 1 # 设置响应头
+        #
+        #         return resp
+        #
+        # 13 返回json数据
+        #
+        #     from flask import jsonify
+        #
+        #     a = {"a":1}
+        #     return jsonify(a)
+        #
+        # 14 cookie的使用
+        #
+        #     原理
+        #         在响应头设置了Set_cookie: xxxxxx 的值
+        #
+        #     from flask import make_response
+        #
+        #     # 设置cookie, 默认临时会话
+        #     a = make_response("aa")
+        #     a.set_cookie("a", "1", max_age=None)
+        #     return a
+        #
+        #     # 获取cookie
+        #     request.cookies.get("xx")
+        #
+        #     # 删除cookie
+        #     a.delete_cookie("a")
+        #     return a
+        #
+        # 15 session
+        #
+        #     # 1 session的机制
+        #
+        #         flask默认把session默认保存到了cookie中
+        #         在前段当中保存session id 在后端当中保存session id的值
+        #
+        #         如果没有cookie也可以 使用session(放到url中, 局限性, 不能设置过期时间)
+        #
+        #
+        #     # 2 使用session
+        #         from flask import session
+        #
+        #         # 需要用秘钥
+        #         app.config["SECRET_KEY"] = "FSVXVSAFSADF"
+        #
+        #         # 设置session
+        #         session['a'] = "11"
+        #
+        #         # 获取session
+        #         session.get("a")
+        #
+        # 16 请求钩子
+        #
+        #     @app.before_first_request # 在第一次请求处理之前
+        #     def a():
+        #         xx
+        #
+        #     @app.before_request # 在每次请求之前
+        #     def a():
+        #         xx
+        #
+        #     @app.after_request # 视图函数无异常, 在每次请求之后执行
+        #     def a(response):
+        #         xx
+        #         return response
+        #
+        #     @app.teardown_request # 视图函数有异常, 在每次请求之后执行(调试模式下不起作用)
+        #     def a(response):
+        #         xx
+        #         return response
+        #
+        # 17 请求上下文和应用上下文
+        #
+        #     上下文概念
+        #         同样的代码 操作同一个对象, 执行的时候, 得到的值根据执行时候得具体环境有关系
+        #
+        #     请求上下文
+        #
+        #         request, session
+        #
+        #     应用上下文
+        #
+        #         current_app , g
+        #
+        #     实现上下文的原理
+        #
+        #         全局变量-线程局部变量
+        #
+        #         request = {
+        #             "线程编号A":{
+        #                 form:{"a":1}
+        #             }
+        #             "线程编号B":{
+        #                 form:{"b":1}
+        #             }
+        #         }
+        #
+        #     g变量 临时存储数据用
+        #         g.aa = "aa"
+        #
+        #         函数之间传递变量用, 每次处理请求之后自动清空
+        #         def a():
+        #
+        #             g.aa = 1
+        #
+        #         def b():
+        #             print(g.aa)
 
-            # 获取请求体数据
-            request.data
+        # 18 Flask-Script扩展命令行工具
+        #
+        #     1 安装
+        #         pip3 install flask-script
+        #
+        #     2 使用
+        #
+        #         from flask_script import Manager # 启动命令管理类
+        #
+        #         # 创建管理类对象
+        #         manage = Manager(app)
+        #
+        #         # 启动管理对象
+        #         manage.run()
+        #
+        #         # 执行启动命令
+        #         python 文件名 runserver
+        #
+        #         # shell
+        #         python 文件名 shell
+1
+        19 jinja2 模板
 
-            # 获取表单中数据, 类字典格式
-            request.form
+            1 变量
+                {{ name }}
 
-            # 获取url参数, 类字典格式
-            request.args
+            2 渲染模板
 
-            # 获取同名key的方法
-            request.data.getlist("xx")
-            request.form.getlist("xx")
-            request.args.getlist("xx")
+                from flask import render_template
 
-            # 获取请求中的cookies信息
-            request.cookies
+                return render_template("xx.html")
 
-            # 获取请求中的报文头
-            request.headers
+                传递参数
 
-            # 获取请求使用的HTTP方法
-            request.method
+                    return render_template("index.html",a=1)
+                    或
+                    return render_template("index.html",**a)
 
-            # 获取请求的url地址
-            request.url
+            3 模板中获取值
 
-            # 获取请求的上传文件
-            request.files
+                data = {
+                    "a":"aaa",
+                    "b":1,
+                    "c":{"cccc":4},
+                    "d":[1,2,3,4],
+                    "e":0
+                }
+                return render_template("index.html",**data)
 
+                {{c["cccc"]}}
+                {{c.cccc}}
+                {{d}}
+                {{d[e]}}
 
+                {{ d[0]+d[1] }} # 数字加法, 字符串加法
 
-        9 获取上传文件并保存
+            4 过滤器
 
-            # 得到的是类似文件句柄类型
-            a = request.files.get('xx')
-            # 保存文件
-            a.save("路径")
+                {{ '<p>sss</p>'|safe }} # 禁止转义
 
-        10 abort函数
+                {{ " flask world "|trim|upper }} # 可链式
+                ....
 
-            from flask import abort, Response
-            # 终止视图执行 返回给前端信息
+                1 列表过滤器
 
-            # 返回状态码, 必须是标准的http状态码
-            abort(404)
+                    取第一个元素
+                    {{ [1,2,3,4,5]|first }}
 
-            # 返回信息
-            abort(Response('xx'))
+                    取最后一个元素
+                    {{ [1,2,3,4,5]|last }}
 
-        11 自定义异常处理
+                    获取列表长度
+                    {{ [1,2,3,4,5]|length }}
 
-            @app.errorhandler(404)
-            def handle_404_error(err):
-                return '40411'
+                    列表求和
+                    {{ [1,2,3,4,5]|sum }}
 
-        12 响应信息处理
-            # 方法1
-                # 使用元祖返回自定义响应信息
-                    # 响应体, 状态码, 响应头
-                return "xx", 200, [("a", "1"),("b","2")]
-                或
-                return "xx", 200, {"a":1, "b":2}
-                    # 响应体, "状态码 状态码描述信息", 响应头
-                return "xx", "200 哈哈", {"a":1, "b":2}
+                    列表排序
+                    {{ [1,2,3,4,5]|sort }}
 
-            # 方法2
+                2 自定义过滤器
 
-                from flask import make_response
+                    方式1
 
-                resp = make_response("xx") # 响应体
-                resp.status = "999 vv" # 设置状态码
-                resp.headers["a"] = 1 # 设置响应头
+                        1 定义函数
+                            def a(li):
 
-                return resp
+                                return li[::2]
+                        2 注册过滤器
+                            app.add_template_filter(a, "xx") # 参数1 函数 参数2 模板中使用的名字
 
-        13 返回json数据
+                        3 模板使用
+                            {{ listxx|xx }}
 
-            from flask import jsonify
+                    方式2
 
-            a = {"a":1}
-            return jsonify(a)
+                    1 定义函数, 用装饰器注册并命名
 
-        14 cookie的使用
-
-            原理
-                在响应头设置了Set_cookie: xxxxxx 的值
-
-            from flask import make_response
-
-            # 设置cookie, 默认临时会话
-            a = make_response("aa")
-            a.set_cookie("a", "1", max_age=None)
-            return a
-
-            # 获取cookie
-            request.cookies.get("xx")
-
-            # 删除cookie
-            a.delete_cookie("a")
-            return a
+                    @app.template_filter("xx")
+                    def a(li):
+                        return li[::2]
