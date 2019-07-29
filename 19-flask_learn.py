@@ -399,84 +399,321 @@
         #
         #         # shell
         #         python 文件名 shell
-1
-        19 jinja2 模板
 
-            1 变量
-                {{ name }}
+        # 19 jinja2 模板
+        #
+        #     1 变量
+        #         {{ name }}
+        #
+        #     2 渲染模板
+        #
+        #         from flask import render_template
+        #
+        #         return render_template("xx.html")
+        #
+        #         传递参数
+        #
+        #             return render_template("index.html",a=1)
+        #             或
+        #             return render_template("index.html",**a)
+        #
+        #     3 模板中获取值
+        #
+        #         data = {
+        #             "a":"aaa",
+        #             "b":1,
+        #             "c":{"cccc":4},
+        #             "d":[1,2,3,4],
+        #             "e":0
+        #         }
+        #         return render_template("index.html",**data)
+        #
+        #         {{c["cccc"]}}
+        #         {{c.cccc}}
+        #         {{d}}
+        #         {{d[e]}}
+        #
+        #         {{ d[0]+d[1] }} # 数字加法, 字符串加法
+        #
+        #     4 过滤器
+        #
+        #         {{ '<p>sss</p>'|safe }} # 禁止转义
+        #
+        #         {{ " flask world "|trim|upper }} # 可链式
+        #         ....
+        #
+        #         1 列表过滤器
+        #
+        #             取第一个元素
+        #             {{ [1,2,3,4,5]|first }}
+        #
+        #             取最后一个元素
+        #             {{ [1,2,3,4,5]|last }}
+        #
+        #             获取列表长度
+        #             {{ [1,2,3,4,5]|length }}
+        #
+        #             列表求和
+        #             {{ [1,2,3,4,5]|sum }}
+        #
+        #             列表排序
+        #             {{ [1,2,3,4,5]|sort }}
+        #
+        #         2 自定义过滤器
+        #
+        #             方式1
+        #
+        #                 1 定义函数
+        #                     def a(li):
+        #
+        #                         return li[::2]
+        #                 2 注册过滤器
+        #                     app.add_template_filter(a, "xx") # 参数1 函数 参数2 模板中使用的名字
+        #
+        #                 3 模板使用
+        #                     {{ listxx|xx }}
+        #
+        #             方式2
+        #
+        #             1 定义函数, 用装饰器注册并命名
+        #
+        #             @app.template_filter("xx")
+        #             def a(li):
+        #                 return li[::2]
+        #     5 模板的继承
+        #
+        #         extend
+        #
+        #     6 模板的包含
+        #
+        #         # 与extend为相反的操作
+        #         include
+        #
+        #     7 flask中的特殊变量(可以模板中直接访问)
+        #
+        #         1 config对象
+        #         2 request对象
+        #         3 url_for方法
+        #
+        #     8 模板中的闪现
+        #
+        #         1 作用
+        #             是用户就能看到一次的提示消息
+        #
+        #         2 使用
+        #             视图
+        #                 def a():
+        #
+        #                     flash("111")
+        #                     flash("222")
+        #                     return xx
+        #             模板
+        #                 {% for message in get_flashed_messages() %}
+        #                     {{ message }}
+        #                 {% endfor %}
 
-            2 渲染模板
+        # 20 flask-wtf表单
+        #
+        #     1 介绍
+        #         校验数据
+        #         快速生成前端
+        #         完成csrf_token验证工作
+        #
+        #     2 pip3 install flask-wtf
+        #
+        #     3 使用
+        #
+        #         1 定义表单模型类
+        #             from flask_wtf import FlaskForm
+        #             from wtforms import StringField, PasswordField, SubmitField
+        #             from wtforms.validators import DataRequired,EqualTo
+        #             class AForm(FlaskForm):
+        #
+        #                 username = StringField(label="用户名", validators=[DataRequired(message="用户名不能为空")])
+        #                 password = PasswordField(label="密码", validators=[DataRequired(message="密码不能为空")])
+        #                 re_password = PasswordField(label="确认密码", validators=[DataRequired(message="密码不能为空"), EqualTo("password", message="两次输入密码不一致")])
+        #                 submit = SubmitField(label="提交")
+        #         2 使用表单类渲染
+        #
+        #             form = AForm()
+        #             return render_template("xx.html", form=form)
+        #
+        #             模板中
+        #
+        #                 # csrf认证
+        #                 {{ form.csrf_token }}
+        #
+        #                 # 展示表单字段
+        #                 {{ form.username.label }} {{ form.username }}
+        #
+        #                 # 显示表单错误信息
+        #                 {% for i in form.username.errors %}
+        #                     {{ i }}
+        #                 {% endfor %}
+        #
+        #                 # 展示表单字段
+        #                 {{ form.submit }}
+        #
+        #             3 使用表单类验证
+        #
+        #                 form = AForm()
+        #                 if form.validate_on_submit():
+        #                     return '验证成功'
+        #
+        #             4 表单类提取数据
+        #
+        #                 form = AForm()
+        #                 if form.validate_on_submit():
+        #
+        #                     username = form.username.data
+        #
+        #             5 宏
+        #
+        #                 1 作用
+        #                     模板中的函数
+        #
+        #                 2 创建宏
+        #                     1 不带参数的宏
+        #                         {% macro xx() %}
+        #                             <input type="text">
+        #                         {% endmarco %}
+        #                     2 带参数的宏
+        #                         {% macro xx(a) %}
+        #                             <input type="text" value="{{ a }}">
+        #                         {% endmarco %}
+        #                     3 带默认参数的宏
+        #                         {% macro xx(a=1) %}
+        #                             <input type="text" value="{{ a }}">
+        #                         {% endmarco %}
+        #
+        #                 3 使用宏
+        #                     不带参数的宏
+        #                         {{ xx() }}
+        #
+        #                     带参数的宏
+        #                         {{ xx(2) }}
+        #
+        #                 4 把宏作为模块
+        #
+        #                     1 使用html文件, 只写宏即可 其他标签都不要
+        #                     2 导入创建的宏
+        #                         {% improt 'xx.html' as a %}
+        #                         {{ a.yy() }}
+        #
 
-                from flask import render_template
 
-                return render_template("xx.html")
+        # 21 数据库
+        #
+        #
+        #     1 安装
+        #
+        #         pip3 install flask-sqlalchemy
+        #         pip3 install flask-mysqldb
+        #
+        #     2 配置
+        #
+        #         class Config:
+        #
+        #
+        #             SQLALCHEMY_DATABASE_URI = "mysql://用户名:密码@ip:端口号/数据库名"
+        #
+        #             # 自动跟踪数据库
+        #             SQLALCHEMY_TRACK_MODIFIVACTIONS = True
+        #
+        #     3 注册
+        #
+        #         from flask_sqlalchemy import SQLAlchemy
+        #         db = SQLAlchemy(app)
+        #
+        #     4 创建模型类
+        #
+        #         class User(db.Model):
+        #
+        #             __tablename__ = "test_users"
+        #
+        #             id = db.Column(db.Integer, primary_key=True) # 整型的主键, 会默认设置为自增主键
+        #             name = db.Column(db.String(64), unique=True)
+        #             email = db.Column(db.String(128), unique=True)
+        #             password = db.Column(db.String(128))
+        #             role_id = db.Column(db.Integer, db.ForeignKey("test_roles.id"))
+        #
+        #
+        #         class Role:
+        #
+        #             __tablename__ = "test_roles"
+        #
+        #             id = db.Column(db.Integer, primary_key=True)  # 整型的主键, 会默认设置为自增主键
+        #             name = db.Column(db.String(32), unique=True)
+        #             users = db.relationship("User", backref="role") # role.users 获取所有该角色用户 backref-->user.role获取对象
+        #     5 创建表
+        #
+        #         # 清除数据库里的所有数据
+        #         db.drop_all()
+        #
+        #         # 创建表
+        #         db.create_all()
+        #
+        #     6 增删改查
+        #
+        #         1 增
+        #             a = Role(name="admin")
+        #             db.session.add(a)
+        #             db.session.commit()
+        #
+        #             添加多个
+        #             db.session.add_all([a,b,c,d])
+        #             db.session.commit()
+        #         2 删
+        #
+        #             user = User.query.get(1)
+        #             db.session.delete(user)
+        #             db.session.commit()
+        #
+        #
+        #         3 改
+        #
+        #             user = User.query.get(1)
+        #             user.name = "xx"
+        #             db.session.add(user)
+        #             db.session.commit()
+        #
+        #
+        #             user = User.query.filter_by(name="xx").update("name":"aaa")
+        #             db.session.commit()
+        #
+        #         4 查
+        #             Role.query.all() 或 db.session.query(Role).all()
+        #
+        #             Role.query.first()
+        #
+        #             Role.query.get(2) # 参数只能接受主键
+        #
+        #             Role.query.filter(User.name=="wang")
+        #
+        #             from sqlalchemy import or_ # 或
+        #             User.query.filter(or_(User.name=="wang", User.email.endswith("11")))
+        #
+        #             Role.query.filter_by(name="wang") #
+        #
+        #             User.query.offset(2).all() # 从跳过两条数据取所有
+        #
+        #             User.query.offset(2).limit(2).all() # 跳过两条取两条数据
+        #
+        #             User.query.order_by("-id").all()
+        #             User.query.order_by(User.id.desc()).all() # 降序排序 升序asc()
+        #
+        #
+        #             from sqlalchemy import func
+        #             db.session.query(User.role_id, func.count(User.role_id)).group_by(User.role_id).all()  # 分组
+        #
+        #             # 关联查询
+        #
+        #                 # 从1向多中查询
+        #                     role = Role.query.get(1)
+        #                     users = role.users
+        #
+        #                 # 从多向1中查询
+        #                     user = User.quer.get(1)
+        #                     user.role
 
-                传递参数
 
-                    return render_template("index.html",a=1)
-                    或
-                    return render_template("index.html",**a)
-
-            3 模板中获取值
-
-                data = {
-                    "a":"aaa",
-                    "b":1,
-                    "c":{"cccc":4},
-                    "d":[1,2,3,4],
-                    "e":0
-                }
-                return render_template("index.html",**data)
-
-                {{c["cccc"]}}
-                {{c.cccc}}
-                {{d}}
-                {{d[e]}}
-
-                {{ d[0]+d[1] }} # 数字加法, 字符串加法
-
-            4 过滤器
-
-                {{ '<p>sss</p>'|safe }} # 禁止转义
-
-                {{ " flask world "|trim|upper }} # 可链式
-                ....
-
-                1 列表过滤器
-
-                    取第一个元素
-                    {{ [1,2,3,4,5]|first }}
-
-                    取最后一个元素
-                    {{ [1,2,3,4,5]|last }}
-
-                    获取列表长度
-                    {{ [1,2,3,4,5]|length }}
-
-                    列表求和
-                    {{ [1,2,3,4,5]|sum }}
-
-                    列表排序
-                    {{ [1,2,3,4,5]|sort }}
-
-                2 自定义过滤器
-
-                    方式1
-
-                        1 定义函数
-                            def a(li):
-
-                                return li[::2]
-                        2 注册过滤器
-                            app.add_template_filter(a, "xx") # 参数1 函数 参数2 模板中使用的名字
-
-                        3 模板使用
-                            {{ listxx|xx }}
-
-                    方式2
-
-                    1 定义函数, 用装饰器注册并命名
-
-                    @app.template_filter("xx")
-                    def a(li):
-                        return li[::2]
