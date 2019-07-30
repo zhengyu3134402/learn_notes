@@ -1147,6 +1147,10 @@
 #
 #         系统环境安装regis
 #             pip3 install redis
+# 		2.1 安装(ubuntu )
+# 				sudo apt-get install redis-server
+# 			配置文件
+# 				sudo vi /etc/redis/redis.conf
 #     3 配置（默认即可）
 #         redis.windows-service.conf文件
 #         (可选)
