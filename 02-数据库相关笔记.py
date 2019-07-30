@@ -8,6 +8,25 @@
     # 5 mongodb-->mongodbmongodb
     # 6 redis--> redisredis数据库
     # 7 sqlit3-->sqlit3sqlit3
+	# 8 mariadb-->mariadbmariadb
+
+# ===========================================
+# mariadbmariadb
+#   https://blog.csdn.net/zdyah/article/details/82354346
+# 	1 linux安装
+# 		sudo apt install mariadb-server
+# 	2 初始化
+# 		sudo mysql_secure_installation
+# 		初始密码为空 ，按空格就行
+# 		会提示设置密码
+# 		会提示是否删除匿名用户 yes
+# 		会提示不允许root远程登录 no
+# 		是否删除测试数据库 yes
+# 		是否立即刷新表  yes
+# 	3 进入数据库
+# 		sudo mysql -u root -p
+# ===========================================
+
 # ===========================================
 # mysqlmysql
 1
