@@ -62,8 +62,8 @@
         # 6验证
             # ssh -T git@github.com
         # 7设置
-            # git config –global user.name “your_name”
-            # git config –global user.email “your_email@youremail.com”
+            # git config –-global user.name “your_name”
+            # git config –-global user.email “your_email@youremail.com”
         # 8链接仓库
             # git clone 仓库地址的复制链接
         # 9命令
