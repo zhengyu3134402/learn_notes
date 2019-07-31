@@ -35,6 +35,8 @@
 #
 #         flask框架核心是Werkzeug和Jinja2
 #         flask.pocoo.org/docs/0.11/
+#     1.1 安装
+#         pip3 install flask
 #
 #     2 扩展包
 #
@@ -511,7 +513,7 @@
         #                 {% for message in get_flashed_messages() %}
         #                     {{ message }}
         #                 {% endfor %}
-
+fffffffffffffffffff
         # 20 flask-wtf表单
         #
         #     1 介绍
@@ -608,14 +610,14 @@
         #     1 安装
         #
         #         pip3 install flask-sqlalchemy
-        #         pip3 install flask-mysqldb
+        #         pip3 install pymysql
         #
         #     2 配置
         #
         #         class Config:
         #
         #
-        #             SQLALCHEMY_DATABASE_URI = "mysql://用户名:密码@ip:端口号/数据库名"
+        #             SQLALCHEMY_DATABASE_URI = "mysql+pymysql://用户名:密码@ip:端口号/数据库名"
         #
         #             # 自动跟踪数据库
         #             SQLALCHEMY_TRACK_MODIFIVACTIONS = True
@@ -638,7 +640,7 @@
         #             role_id = db.Column(db.Integer, db.ForeignKey("test_roles.id"))
         #
         #
-        #         class Role:
+        #         class Role(db.model):
         #
         #             __tablename__ = "test_roles"
         #

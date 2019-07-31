@@ -23,8 +23,15 @@
 # 		会提示不允许root远程登录 no
 # 		是否删除测试数据库 yes
 # 		是否立即刷新表  yes
-# 	3 进入数据库
+# 	3 配置（解决只能sudo mysql -u root -p 进入数据库问题, ）
+# 		sudo vim /etc/mysql/my.cnf
+# 			[mysqld]
+# 			skip-grant-tables
+
+# 	4 进入数据库
 # 		sudo mysql -u root -p
+
+
 # ===========================================
 
 # ===========================================
