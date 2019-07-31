@@ -513,7 +513,7 @@
         #                 {% for message in get_flashed_messages() %}
         #                     {{ message }}
         #                 {% endfor %}
-fffffffffffffffffff
+
         # 20 flask-wtf表单
         #
         #     1 介绍
@@ -665,6 +665,14 @@ fffffffffffffffffff
         #             添加多个
         #             db.session.add_all([a,b,c,d])
         #             db.session.commit()
+        #             一对多数据添加
+        #             author = Author(name=author_name)
+        #             book = Book(name=book_name)
+        #             author.books.append(book)
+        #             db.session.add_all([author, book])
+        #             db.session.commit()
+
+
         #         2 删
         #
         #             user = User.query.get(1)
