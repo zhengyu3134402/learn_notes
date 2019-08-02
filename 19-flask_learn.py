@@ -1,9 +1,9 @@
 # -i https://pypi.douban.com/simple
 
 
-1
-# HTTP通讯过程
 
+# HTTP通讯过程
+1
 #     tcp传输
 #         浏览器---发起HTTP请求(请求报文 请求头 请求体) ---> django--->
 #         返回HTTP响应(响应报文 起始行 响应头 响应体)--->浏览器
@@ -17,22 +17,23 @@
 #         将视图函数返回值打包成http响应报文
 #         借助刚才建立好的tcp链接将响应回传
 #
+1
 
 # web框架
-#
+1
 #     核心功能: 实现路由和视图
 #
 #
 # 框架的轻重
-
 #     重量级框架 django
 #     轻量级框架 flask Tornado(自由灵活)
 #
+1
 
 # Flask
 #
 #     1 介绍
-#
+1
 #         flask框架核心是Werkzeug和Jinja2
 #         flask.pocoo.org/docs/0.11/
 #     1.1 安装
@@ -49,18 +50,18 @@
 #         Flask-RESTful 开发REST API的工具
 #         Flask-Boostrap 集成前段Twitter Bootstrap框架
 #         Flask-Moment 本地化日期和时间
-#
+1
 #     3 虚拟环境创建
-#
+1
 #         查看 06-操作系统笔记.py
 #
 #         1 收集虚拟环境中的安装包
 #             pip3 freeze > requirements.txt
 #         2 安装收集的所有安装包
 #             pip3 install -r requeirements.txt
-#
+1
 #     4 flask基本程序
-#
+1
 #         from flask import Flask
 #
 #         # 创建flask应用对象
@@ -80,9 +81,9 @@
 #         if __name__ == '__main__':
 #             # 启动flask程序
 #             app.run()
-#
+1
 #     5 应用参数
-#
+1
 #
 #         1 Flask(参数)
 #             参数
@@ -96,9 +97,9 @@
 #                 app.run(host='0.0.0.0', port=5000) # 0.0.0.0 任何本机ip
 #             配置debug
 #                 app.run(debug=True)
-#
+1
 #     6 配置相关
-#
+1
 #         1 配置
 #             方式1
 #
@@ -130,9 +131,9 @@
 #             方式2
 #                 from flask import current_app
 #                 current_app.config.get(xx)
-#
+1
 #     7 路由相关
-#
+1
 #         1 获取flask路由信息
 #             app.url_map
 #
@@ -197,8 +198,9 @@
 #                 @app.route("/a/<re(r'匹配规则'):bbb>")
 #                 def s(bbb):
 #                     return 'xxxxx'
-
+1
         # 8 request
+        1
         #     from flask import request
         #
         #     # 获取请求体数据
@@ -230,17 +232,19 @@
         #     # 获取请求的上传文件
         #     request.files
         #
+        #     # 如果前段发送的请求数据是json格式 会解析成字典
+        #     a = request.get_json()
         #
-        #
+        1
         # 9 获取上传文件并保存
-        #
+        1
         #     # 得到的是类似文件句柄类型
         #     a = request.files.get('xx')
         #     # 保存文件
         #     a.save("路径")
-        #
+        1
         # 10 abort函数
-        #
+        1
         #     from flask import abort, Response
         #     # 终止视图执行 返回给前端信息
         #
@@ -249,14 +253,15 @@
         #
         #     # 返回信息
         #     abort(Response('xx'))
-        #
+        1
         # 11 自定义异常处理
-        #
+        1
         #     @app.errorhandler(404)
         #     def handle_404_error(err):
         #         return '40411'
-        #
+        1
         # 12 响应信息处理
+        1
         #     # 方法1
         #         # 使用元祖返回自定义响应信息
         #             # 响应体, 状态码, 响应头
@@ -275,16 +280,16 @@
         #         resp.headers["a"] = 1 # 设置响应头
         #
         #         return resp
-        #
+        1
         # 13 返回json数据
-        #
+        1
         #     from flask import jsonify
         #
         #     a = {"a":1}
         #     return jsonify(a)
-        #
+        1
         # 14 cookie的使用
-        #
+        1
         #     原理
         #         在响应头设置了Set_cookie: xxxxxx 的值
         #
@@ -301,9 +306,9 @@
         #     # 删除cookie
         #     a.delete_cookie("a")
         #     return a
-        #
+        1
         # 15 session
-        #
+        1
         #     # 1 session的机制
         #
         #         flask默认把session默认保存到了cookie中
@@ -323,9 +328,9 @@
         #
         #         # 获取session
         #         session.get("a")
-        #
+        1
         # 16 请求钩子
-        #
+        1
         #     @app.before_first_request # 在第一次请求处理之前
         #     def a():
         #         xx
@@ -343,9 +348,9 @@
         #     def a(response):
         #         xx
         #         return response
-        #
+        1
         # 17 请求上下文和应用上下文
-        #
+        1
         #     上下文概念
         #         同样的代码 操作同一个对象, 执行的时候, 得到的值根据执行时候得具体环境有关系
         #
@@ -380,9 +385,9 @@
         #
         #         def b():
         #             print(g.aa)
-
+        1
         # 18 Flask-Script扩展命令行工具
-        #
+        1
         #     1 安装
         #         pip3 install flask-script
         #
@@ -401,9 +406,9 @@
         #
         #         # shell
         #         python 文件名 shell
-
+        1
         # 19 jinja2 模板
-        #
+        1
         #     1 变量
         #         {{ name }}
         #
@@ -436,7 +441,7 @@
         #         {{d[e]}}
         #
         #         {{ d[0]+d[1] }} # 数字加法, 字符串加法
-        #
+
         #     4 过滤器
         #
         #         {{ '<p>sss</p>'|safe }} # 禁止转义
@@ -496,6 +501,7 @@
         #         1 config对象
         #         2 request对象
         #         3 url_for方法
+        #            {{ url_for('book_delete', id=book.id) }}
         #
         #     8 模板中的闪现
         #
@@ -513,9 +519,9 @@
         #                 {% for message in get_flashed_messages() %}
         #                     {{ message }}
         #                 {% endfor %}
-
+        1
         # 20 flask-wtf表单
-        #
+        1
         #     1 介绍
         #         校验数据
         #         快速生成前端
@@ -602,10 +608,10 @@
         #                         {% improt 'xx.html' as a %}
         #                         {{ a.yy() }}
         #
-
+        1
 
         # 21 数据库
-        #
+        1
         #
         #     1 安装
         #
@@ -667,9 +673,11 @@
         #             db.session.commit()
         #             一对多数据添加
         #             author = Author(name=author_name)
-        #             book = Book(name=book_name)
-        #             author.books.append(book)
-        #             db.session.add_all([author, book])
+        #             db.session.add(author)
+        #             db.session.commit()
+        #
+        #             book = Book(name=book_name, author_id=author.id)
+        #             db.session.add(book)
         #             db.session.commit()
 
 
@@ -725,5 +733,325 @@
         #                 # 从多向1中查询
         #                     user = User.quer.get(1)
         #                     user.role
+        1
 
+        # 22 flask-migrate数据库迁移工具
+        1
+            # 1 介绍
+            #
+            #     数据库迁移工具
+            #     配合flask_script使用
+            #
+            # 1 安装
+            #
+            #     pip3 install flask-migrate
+            #
+            # 2 配置
+            #
+            #     from flask_script import Manager
+            #     from flask_migrate import Migrate, MigrateCommand
+            #
+            #     # 创建对象
+            #     manager = Manager()
+            #     Migrate(app, db)
+            #
+            #     # 添加db命令
+            #     manager.add_command(('db', MigrateCommand)) # 此db非彼db
+            #
+            # 3 相关命令
+            #
+            #     1 迁移模型到数据库3步骤
+            #
+            #         1 初始化(生成migrations目录)
+            #
+            #             python3 xx.py db init
+            #
+            #         2 生成迁移文件
+            #
+            #             python3 xx.py db migrate
+            #             或
+            #             添加备注信息的文件迁移
+            #             python3 xx.py db migrate -m "备注信息"
+            #         3 迁移到数据库
+            #
+            #             python3 xx.py db upgrade
+            #
+            #     2 撤回迁移操作
+            #
+            #         1 查看迁移历史记录
+            #
+            #             python3 xx.py db history
+            #
+            #         2 撤回
+            #
+            #             python3 xx.py db downgrade 查询出来的状态码
+        1
 
+        # 23 flask发送邮件
+            1
+            # 1 安装
+            #
+            #     pip3 install flask-mail
+            #
+            # 2 配置
+            #
+            #     MAIL_SERVER='smtp.pp.com' # 邮件服务器
+            #     MAIL_PROT=465   # 服务器对应端口号
+            #     MAIL_USE_TLS = True # 传输层安全协议
+            #     MAIL_USERNAME = "xx@qq.com" # 用户名
+            #     MAIL_PASSWORD = "xxxxx" # 授权密码
+            #
+            # 3 使用
+            #
+            #     from mail import Mail, Message
+            #
+            #     mail = Mail(app)
+            #     msg = Message("xx", sender="xxx", recipients=["xxx"])
+            #     msg.body = "xxx"
+            #     mail.send(msg)
+            1
+        # 24 蓝图
+        1
+        #     1 介绍
+        #
+        #         模块的划分
+        #
+        #         划分模块 双方进行导入会产生循环导入的问题
+        #             解决方法1 是推迟一方的导入（但flask运行之后找
+        #                 不到推迟导入的路由及对应的函数）
+        #
+        #             解决方法2 让路由装饰器变成执行函数接受函数
+        #
+        #             @app.route("/xxx")
+        #             def xxx():
+        #                 return "z"
+        #             变成
+        #             从其他模块中导入xxx函数
+        #             app.route("/xxx")(xxx)
+        #
+        #         蓝图 将 路由和对应函数彻底划分
+        #
+        #     2 使用
+        #
+        #         1 创建注册蓝图
+        #
+        #             1 创建蓝图对象
+        #                 xx = Blueprint("蓝图名称", __name__)
+        #             2 注册蓝图路由
+        #
+        #                 @admin.route('/'):
+        #                 def xx():
+        #                     return 'xx'
+        #             3 在程序势力中注册蓝图
+        #                 app.register_blueprint(xx, url_prifix="名") # 该名为 xx:8000/名 也可省略
+        #                                                             #  省略后变成 xx:8000/蓝图名称
+        #         2 以目录形式构建蓝图
+        #
+        #             1 创建目录 及文件__init__
+        #
+        #             2 配置__init__.py
+        #
+        #                 from flask import Blueprint
+        #
+        #                 xx = Blueprint("xx", __name__)
+        #
+        #                 # 注册views
+        #                 from .views import aa
+        #
+        #             3 创建views文件
+        #
+        #                 from . import xx
+        #
+        #                 @xx.route("/")
+        #                 def aa():
+        #                     return 'zz'
+        #
+        #             4 注册蓝图
+        #
+        #
+        #
+        #                 主文件
+        #                 from 目录 import xx
+        #                 app.register_blueprint(xx, url_perfix="/aa")
+        #
+        #             5 处理蓝图目录中的模板和静态文件
+        #
+        #                 如果不配置就去主目录中的templates中找
+        #                 如果蓝图templates中和朱目录templates中有同名模板目录
+        #                     主模板目录优先级高于蓝图模板目录优先级
+        #
+        #                 __init__文件的蓝图
+        #                     xx = Blueprint("xx", __name__, template_folder="templates")
+        1
+        # 25 单元测试
+        1
+            # 1 介绍
+            #
+            #     功能代码完成后, 为了检验其是否满足程序的要求
+            #     可以通过编写测试代码, 模拟程序运行的过程, 检验功能
+            #     功能代码是否符合预期
+            #
+            #     使用断言assert
+            #
+            #         格式
+            #             assert 表达式
+            #
+            #         常用断言方法
+            #
+            #             assertEqual     如果两个值相等则pass
+            #             assertNotEqual  如果两个值不相等则pass
+            #             assertTrue      判断bool值为True则pass
+            #             assertFalse     判断bool值为False则pass
+            #             assertIsNone    不存在则pass
+            #             assertIsNotNone 存在则pass
+            #
+            #         如果断言为真程序正常运行
+            #         如果断言为假程序停止运行, 会抛出AssertionError
+            #
+            #
+            #         def a(b,c):
+            #             assert isinstance(b, int)
+            #             assert isinstance(c, int)
+            #             assert c !=0
+            #             print(b/c)
+            #
+            #         a("1", "2")
+            #
+            # 2 实现简单的单元测试
+            #
+            #     把想测试的逻辑函数 全部疯子到测试类中
+            #     函数方法名字必须以test_为前缀
+            #
+            #
+            #     import unittest
+            #     from xxxx import app
+            #
+            #     class xx(unittest.TestCase):
+            #
+            #         def setUp(self):
+            #             """执行测试之前执行该函数"""
+            #             self.client = app.test_client()
+            #
+            #             # 设置flask工作在测试模式下, 如果被测试的试图出现错误会提示
+            #                 # 出精确的测试位置, 如果不开启, 只在本车是类中报错(不精确)
+            #             app.testing = True 或 app.config["TESTING"] = True
+            #
+            #         def test_xx1(self):
+            #
+            #             # 创建进行web请求的客户端, 使用flask提供的
+            #             # client = app.test_client() 可写在setUp函数中
+            #
+            #             # 利用客户端模拟发送web请求, 返回值为试图响应对象
+            #             ret = client.post("/路径", data={数据})
+            #
+            #             # 响应体数据
+            #             resp = ret.data
+            #
+            #             # 开始断言测试
+            #             self.assertIn("aa", resp)
+            #             self.assertEqual(resp["code"], 1)
+            #
+            #     if __name__ == '__main__':
+            #         unittest.main()
+            #
+            # 3 数据库测试
+            #
+            #     import unittest
+            #     from xxxx import app
+            #     from xxxxx import Author, db
+            #
+            #     class xx(unittest.TestCase):
+            #
+            #         def setUp(self):
+            #
+            #             app.testing = True
+            #
+            #             # 构造测试数据库, 并进入mysql创建测试数据库
+            #             app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://用户名:密码@ip:端口号/数据库名"
+            #
+            #             # 创建测试数据库表
+            #             db.create_all()
+            #         def test_xx(self):
+            #             """测试添加作者的数据库操作"""
+            #             author = Author(name="yy")
+            #             db.session.add(author)
+            #             db.session.commit()
+            #
+            #             result_author = Author.query.filter_by(name="yy").first()
+            #             self.assertIsNotNone(result_author)
+            #
+            #         def tearDown(self):
+            #             """所有测试执行后执行tearDown函数, 通常用来清理操作"""
+            #
+            #             db.session.remove()
+            #             db.drop_all()
+        1
+
+        # 26 部署
+        1
+            # 框架
+            #     Nginx(负载均衡, 提供静态文件) -->可以多台Gunicorn + Flask-->共享mysql和redis
+            #
+            #
+            # 1 安装gunicorn
+            #
+            #     pip3 install gunicorn
+            #
+            # 2 启动gunicorn
+            #
+            #     1 以执行命令方式运行
+            #
+            #         1 执行命令
+            #
+            #             # -w 4 开启4个进程
+            #             # -b 绑定端口号
+            #             # --access-logfile ./logs/log  获取日志信息放在相对当前文件logs目录下的log文件中
+            #             # main:app 使用启动main文件中的 app实例
+            #             gunicorn -w 4 -b 127.0.0.1:5000 --access-logfile ./logs/log main:app
+            #
+            #     2 以后台形式运行
+            #
+            #         # -D 以后台形式运行
+            #         gunicorn -w 4 -b 127.0.0.1:5000 -D --access-logfile ./logs/log main:app
+            #
+            #         # 停止
+            #         kill ...
+            #
+            # 3 配置nginx
+            #
+            #     注意 nginx配置文件名为 nginx.conf的配置 注意备份
+            #
+            #
+            #     1 配置文件
+            #         /usr/local/nginx/conf/nginx.conf
+            #
+            #         # 配置负载均衡服务器
+            #         upstream 名 {
+            #
+            #             server ip地址:端口号1;
+            #             server ip地址:端口号2;
+            #             ......
+            #         }
+            #
+            #         server {
+            #             ...
+            #
+            #             location / {
+            #                 # 转发请求地址
+            #                 proxy_pass http://名; # 负载均衡中的所起的名
+            #
+            #                 # 携带用户信息
+            #                 proxy_set_header Host $host;
+            #                 proxy_set_header x-Real-IP $remote_adder
+            #
+            #
+            #         }
+            #
+            #     2 重启nginx
+            #
+            #         执行命令
+            #             sudo /usr/local/nginx/sbin/nginx -s relaod
+            #
+            #
+            #
+        1
