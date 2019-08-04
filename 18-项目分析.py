@@ -1,11 +1,189 @@
+# ======================================================================================
+# flask 我爱房屋项目
+
+1 在单一文件中构建所有依赖工具（然后逐一拆解到其他模块）
+
+    1 创建manage.py文件
+
+        配置信息类
+            DEBUG
+            SECRET_KEY
+
+            # 数据库
+            SQLALCHEMY_DATABASE_URI
+            SQLALCHEMY_TRACK_MODIFICATIONS
+
+            app.config.form_object(xx)
+
+            # redis
+            REDIS_HOST = "ip:port"
+            REDIS_PORT = 6317
+
+            # session配置(配合了flask-session)
+            SESSION_TYPE = "redis"
+            SESSION_REDIS = redis.StricRedis(host=xx, prot=6379)
+            SESSION_USE_SIGNER = True # 对cookie中的session_id进行隐藏
+            PERMANENT_SESSION_LIFETIME = 86400 # session数据的有效期
+
+
+        数据库对象
+
+        redis对象
+
+            import redis
+            redis_store = redis.StricRedis(host=xx, port=6379)
+
+        session储存位置设置(flask默认session存在浏览器)
+
+            1 安装flask-session工具
+
+                pip3 install flask-session
+
+            2 使用
+                from flask_session import Session
+
+                # 利用flask-session,将sessin数据保存到redis中
+                Session(app) # 修改了flask的中的session的默认机制
+
+
+        添加csrf防护机制
+            from flask_wtf import CSRFProtect
+            CSRFProtect(app)
+
+2 拆分文件manage.py
+
+    0 项目推荐目录
+
+        ihome
+            /蓝图目录1.0   # 按照版本区分
+                __init__.py
+                views.py
+            /__init__.py
+        static
+        utils
+        config.py
+        manage.py
+
+
+    1 配置文件
+
+        config.py
+
+        # 基本配置信息
+        class Config:
+
+        # 开发模式配置
+        class DevelopmentConfig(Config):
+            DEBUG = True
+
+        # 生存环境配置
+        class ProductConfig(Config)
+
+        # 构建映射关系
+        config_map = {
+            "develop": DevelopmentConfig,
+            "product": ProductConfig
+        }
+
+        # manage.py中使用函数模式创建app
+        from xx import config_map
+        def create_app(config_name):
+
+            app = Flask(__name__)
+
+            config_class = config_map.get(config_name)
+            app.config.form_object(config_class)
+
+            return app
+
+        app = create_app("develop")
+
+    2 __init__.py
+
+        # 注册蓝图
+        from ihome import 蓝图目录1.0
+
+        db = SQLALchemy()
+
+        redis_store = None
+
+        create_app函数
+
+            db.init_app(app) # 避免延迟导入 创建SQLALchemy对象不能绑定到app对象的问题
+
+            # 初始化redis
+            global redis_store
+            redis_store = redis.StricRedis(xx)
+
+            Session(app)
+
+            CSRFProtect(app)
+
+            # 注册蓝图
+            app.register_bluprint(蓝图目录1.api, url_prifix="xxx")
+
+    3 manage.py
+
+        只进行启动
+        app = create_app("xx")
+        manager = Manager(app)
+
+        Migrate(app, db)
+        manager.add_command("db", MigrateCommand)
+
+        manage.run() # 启动
+
+    4 蓝图目录1.0下__init__.py文件
+
+        from flask import Blueprint
+        api = Blueprint("api_1_0")
+
+        # 注册views.py
+        from . import view
+
+    5 蓝图目录1.0下views.py
+
+        from . import api
+
+        @api.route("/index")
+        def xx():
+            ...
+
+    6 循环引入的问题
+        在create_app中导入
+# =====================================================================================
+
+
 
 
 # ======================================================================================
-# flask 微信公众号开发项目
-
-
-
-
+# # flask 微信公众号开发项目
+1
+#
+#     1 介绍
+#
+#         1 公众号消息会话开发流程（需要公网ip）
+#
+#                       发送消息           转发消息
+#                     -------->           --------->
+#             微信客户端           微信服务器           开发者服务器
+#                     <---------          <---------
+#                      回复消息          返回响应消息
+#
+#
+#         2 公众号内网页开发流程
+#
+#                         转发消息        寻求用户信息
+#                     -------->         --------->
+#             微信客户端         网页服务器         微信者服务器
+#                     <---------        <---------
+#                     返回网页            返回用户信息
+#
+#         3 开发文档
+#             https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1445241432
+#
+#
+1
 # ======================================================================================
 
 
@@ -18,7 +196,7 @@
 # 1 项目介绍
 
     # 1 电商
-    1
+
     #     B2B 企业对企业 阿里巴巴
     #     C2C 个人对个人 淘宝
     #     B2C 企业对个人 唯品会
@@ -26,10 +204,10 @@
     #     O2O 线上到线下 美团
     #     F2C 工厂到个人 戴尔
     #     B2B2C  企业企业个人 京东 天猫
-    1
+
     # 2 项目开发流程
 
-        1
+
         # 1 项目立项(做什么项目)
         #
         # 2 需求分析(功能分析)
@@ -55,10 +233,10 @@
         # 5 集成测试
         #
         # 6 网站发布
-        1
+
 
     # 3 数据库设计
-        1
+
         # 1 用户模块
         #
         #     用户表
@@ -164,10 +342,10 @@
         #         商品价格
         #         订单ID
         #         评论
-        1
+
 
     # 4 模型类设计
-        1
+
         # 0 定义抽象模型类
             # class BaseModel(models.Model):
             #     create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
@@ -361,13 +539,13 @@
 
             # choice字段代表限定取值范围
             #
-        1
 
 
 
-1
+
+
 # django choice字段的使用
-1
+
 #
 #     限定选择范围,在页面中是选择标签
 #
@@ -380,9 +558,9 @@
 #     b = models.SmallIntegerField(choice=a)
 #
 #
-1
+
 # django 富文本编辑器
-1
+
 #     能够像office一样编写出漂亮的文字页面
 #
 #     1 安装
@@ -415,10 +593,10 @@
 #     成套使用 admin后台管理系统中模型类会显示指定的中文
 #     verbose_name = "商品"
 #     verbose_name_plural = verbose_name
-1
+
 
 # 4 项目框架的搭建
-1
+
 #
 #     1 应用配置
 #
@@ -466,11 +644,11 @@
 #             AUTH_USER_MODEL = 'user.User'
 #
 #
-1
+
 
 
 # 1 注册逻辑
-1
+
 #     1 写视图函数 返回对应 html
 #         配置 html 文件引入
 #         配置 表单action
@@ -566,11 +744,11 @@
 #                 except SignatureExpired:
 #                     # 激活链接过期，实际提示又发送了一个激活邮件请点击
 #                     return HttpResponse('xxx')
-1
+
 
 
 # 2 登录逻辑
-1
+
     # 1 登录校验流程
 
         # from django.contrib.auth import authenticate, login
@@ -674,12 +852,12 @@
         #                 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
         #                 SESSION_CACHE_ALIAS = "default"
         #
-1
+
 
 # 3 抽离父模板
 
 # 4 登录装饰器和登录后页面跳转
-1
+
     # 1 配置未登录后的的自动跳转地址
     #
     #     LOGIN_URL = '/XX/XXXX'
@@ -703,9 +881,9 @@
     #
     #             class B(A, view):
     #                 .....
-1
+
 # 5 登录后欢迎信息
-1
+
     # is_authenticated() # 除了给模板文件传递的模板变量之外，django框架会吧request.user也传递给模板文件
     # 后端中判断
     # def get(self, request):
@@ -717,9 +895,9 @@
     #     {% else %}
     #         yyy
     #     {% end %}
-1
+
 # 6 退出登录
-1
+
 #     from django.contrib.auth.decorators import login_out
 #     class LogutView(View):
 #
@@ -731,9 +909,9 @@
 #             跳转到首页
 #             return redirect(xxx)
 #
-1
+
 # 7 用户中心信息页
-1
+
     # class UserInfo(xx):
     #     def get(self, request):
     #
@@ -759,15 +937,15 @@
     #         goods_li.append(goods)
     #
     #     return rendr(xxxxx)
-1
+
 
 # 8 用户中心订单页
-1
+
     # 获取用户订单信息
     #
-1
+
 # 9 用户中心地址页
-1
+
 #     class AddressView(View):
 #
 #         def get(self,request):
@@ -817,9 +995,9 @@
 #             返回应答 刷新地址页面
 #             return redirect(reverse('user:address'))
 #
-1
+
 # 10 模型类管理器类
-1
+
 #     自定义管理器
 #     models文件中（视图函数中存在了相同的查询方法，使用模型管理器类，进行封装）
 #
@@ -840,10 +1018,10 @@
 #                     address = None
 #
 #                 return address
-1
+
 
 # 11 获取用户的历史浏览记录
-1
+
 #     1 访问商品详情页面的时候添加浏览记录,在商品详情对应的视图中
 #     2 访问用户中心个人信息的时候获取历史浏览记录
 #     3 历史浏览记录存储在redis数据库
@@ -866,12 +1044,12 @@
 #         只保存用户最新浏览的5条信息
 #         conn.ltrim(history_key, 0, 4)
 
-1
+
 
 # 12 分布式图片服务器FastDFS
 
     # 1 介绍
-    1
+
     #
     #     用c语言编写的一款开源的分布式文件系统
     #     提供文件上传和下载的服务
@@ -884,17 +1062,17 @@
     #         海量存储, 存储容量扩展方便
     #         文件内容重复, 只保存一份
     #         结合nginx提高网站提供图片的效率
-    1
+
     # 1.1 流程
-    1
+
     #     通过admin页面上传图片-->django服务器-->把文件上传到fast dfs文件存储服务器
     #
     #                         保存在django对应表中<--返回文件id<--
     #     用户请求图片 -->django服务器渲染页面<img src="http:xx.xx.xxx.xx/文件id">
     #             返回给浏览器<--nginx去FDFS文件存储服务器中获取文件--浏览器根据地址请求nginx<--返回给浏览器<--
-    1
+
     # 2 安装和配置
-    1
+
     #
     #     linux安装
     #
@@ -944,9 +1122,9 @@
     #             3 上传文件测试
     #                 fdfs_upload_file /etc/fdfs/client.conf 要上传的图片文件
     #                 如果返回类似 group1/Mod/00/00/fsdgfddhshsdhsdhssd.jpg 说明成功
-    1
+
     # 3 Nginx配合FastDFS使用安装和配置
-    1
+
     #     解决FastDFS用户量比较大的问题借助Nginx
     #
     #     1 安装nginx和fastdfs-nginx-module
@@ -991,9 +1169,9 @@
     #         5 启动nginx
     #             sudo /usr/local/nginx/sbin/nginx
     #
-    1
+
     # 4 使用python客户端上传测试
-    1
+
     #     1 安装依赖包
     #         先下载源码包fdfs_client-py-master.zip
     #         进入包所在目录 pip install fdfs_client-py-master.zip
@@ -1008,9 +1186,9 @@
     #                   ........
     #                 }
     #
-    1
+
     # 5 修改django的上传行为(即将原本文件存储路径存到FastDFS中)
-    1
+
         # 1 自定义文件存储类
         # from django.core.files.storage import Storage
         # from fdfs_client.client import Fdfs_client
@@ -1077,9 +1255,9 @@
         #
         #     settings中
         #         DEFAULT_FILE_STORAGE='自定义类的路径'
-    1
+
 # 13 网站首页生成静态页面
-    1
+
     # 1作用
     #     对于不经常改变的网页而言,减轻服务器查询数据库压力
     #
@@ -1179,10 +1357,10 @@
     #         url(r'^/index$')
     #
     #     2 部署 未完。。。。
-    1
+
 
 # 14 页面数据缓存
-    1
+
     # 把页面使用的数据存放在缓存中, 当再次使用这些数据时,
     #     先从缓存中获取,如果获取不到,再去查询数据库, 减少数据库查询的次数
     #
@@ -1239,10 +1417,10 @@
     #
     #     admin.site.register(xx, A)
     #     admin.site.register(xxx, B)
-    1
+
 
 # 15 首页内容获取和展示
-    1
+
         # class Index(View):
         #     def get(self, request):
         #
@@ -1260,9 +1438,9 @@
         #
         #         context = {xxx}
         #         return render(xxx)
-    1
+
 # 16 redis存储购物车记录分析
-    1
+
     # 1 分析
         # 更新购物车记录
         #
@@ -1284,10 +1462,10 @@
         # cart_key = 'xx%d'%user.id
         # cart_count = conn.hlen(cart_key)
         #
-    1
+
 
 # 17 商品详细页信息的获取和显示
-    1
+
     # class Detail(View):
     #     def get(self, request, goods_id):
     #
@@ -1300,14 +1478,14 @@
     #         获取页面上相关信息去数据库查询
     #
     #         return render(xx)
-    1
+
 
 # 18 商品列表页的内容和显示
 
     # 按照17
 
 # 19 购物车记录添加到后台
-    1
+
     # 请求方式 采用ajax
         # 请求方式
         #     如果涉及到数据的修改(新增, 更新, 删除),采用post
@@ -1350,10 +1528,10 @@
     #
     #         返回应答
     #         return JsonResponse(xxxx)
-    1
+
 
 # 20 购物车页面显示
-    1
+
     # class A(View):
     #
     #     def get(self, request):
@@ -1367,9 +1545,9 @@
     #
     #         遍历获取商品信息
     #         return xx
-    1
+
 # 21 订单页面的显示
-    1
+
     # class A(View):
     #     获取参数
     #     校验参数
@@ -1382,9 +1560,9 @@
     #     获取用户收货地址
     #
     #     上下文
-    1
+
 # 22 订单创建
-    1
+
     # 用户每下一个订单, 就要向 订单表中添加一条记录
     # 用户的订单中有几个商品, 就要向订单商品表中加入几条记录
 
@@ -1540,10 +1718,10 @@
     #             冲突比较多的时候使用
     #         2 乐观锁
     #             冲突比较少的时候使用
-    1
+
 
 # 23 订单的支付
-    1
+
     # 1 支付宝
     #
     #     支付宝开放平台登录
@@ -1735,10 +1913,10 @@
     #                     else:
     #                         # 支付出错
     #                         return xx
-    1
+
 
 # 24 部署
-1
+
     # 0 部署的架构解析
     #
     #     1最简单的项目部署(无静态文件)
@@ -1935,10 +2113,10 @@
         #             proxy_pass xx # 就会从上面的服务器中进行转交
         #         }
         #     }
-1
+
 
 # 25 项目总结
-1
+
     # 1 生鲜类产品 B2C PC电脑端网页
     #
     # 2 功能模: 用户模块 商品模块(首页, 搜索 , 商品)
@@ -1982,3 +2160,4 @@
     #
     #
 1
+# ======================================================================================
