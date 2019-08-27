@@ -319,9 +319,9 @@
 
     # 1 增
         # 1 向表中插入数据
-            # insert into 表名(列名1, 列名2) values(值1, 值2)）
+            # insert into 表名(列名1, 列名2) values(值1, 值2)
         # 2 向表中插入多条数据
-            # insert into 表名(列名1, 列名2) values(值1, 值2),(值3，值4)....;）
+            # insert into 表名(列名1, 列名2) values(值1, 值2),(值3，值4).....
         # 3 将一个表中的部分数据插入到另一个表中
             # insert into 表名1(字段1, 字段2) select 字段a,字段b from 表名2;
 
